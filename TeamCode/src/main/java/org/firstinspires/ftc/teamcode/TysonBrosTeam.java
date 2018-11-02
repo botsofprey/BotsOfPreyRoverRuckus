@@ -36,7 +36,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.io.IOException;
+
 import ExampleBaseCode.Actions.HardwareWrappers.ServoHandler;
+import ExampleBaseCode.Actions.HardwareWrappers.SpoolMotor;
+import ExampleBaseCode.MotorControllers.MotorController;
 import ExampleBaseCode.UserControlled.JoystickHandler;
 
 @TeleOp(name="TysonBrosCode", group="Linear Opmode")
@@ -50,7 +54,7 @@ public class TysonBrosTeam extends LinearOpMode {
     DcMotor leftMotor;
     DcMotor rightMotor;
     DcMotor intakeMotor;
-    DcMotor liftMotor;
+    SpoolMotor liftMotor;
     ServoHandler depositor;
     Servo latch;
     int curDeg = 0;
@@ -68,7 +72,11 @@ public class TysonBrosTeam extends LinearOpMode {
         leftMotor = hardwareMap.dcMotor.get("leftMotor");
         rightMotor = hardwareMap.dcMotor.get("rightMotor");
         intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
-        liftMotor = hardwareMap.dcMotor.get("liftMotor");
+        try {
+            liftMotor = new SpoolMotor(new MotorController("liftMotor", "MotorConfig/NeverRest40.json", hardwareMap), 50, 50, 100, hardwareMap);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         depositor =  new ServoHandler("depositor", hardwareMap);
         latch = hardwareMap.servo.get("latch");
 
@@ -130,7 +138,11 @@ public class TysonBrosTeam extends LinearOpMode {
             } else {
                 rightMotor.setPower(0);
             }
-            liftMotor.setPower(gamepad1.left_stick_y);
+            if(gamepad1.left_stick_y >= 0.1 || gamepad1.left_stick_y <= -0.1) {
+                liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                liftMotor.setPower(gamepad1.left_stick_y);
+            }
+            else liftMotor.holdPosition();
 
             if (gamepad1.a) intakeMotor.setPower(.75);
             else if (gamepad1.b) intakeMotor.setPower(-.75);
