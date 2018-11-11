@@ -46,17 +46,17 @@ import ExampleBaseCode.UserControlled.JoystickHandler;
 @TeleOp(name="TysonBrosCode", group="Linear Opmode")
 //@Disabled
 public class TysonBrosTeam extends LinearOpMode {
-    private final int DEPOSIT_DEGREE = 10;
-    private final int HOLD_DEGREE = 90;
-    private final int COLLECT_DEGREE = 59;
+    //private final int DEPOSIT_DEGREE = 10;
+    //private final int HOLD_DEGREE = 90;
+   //private final int COLLECT_DEGREE = 59;
 
     private ElapsedTime runtime = new ElapsedTime();
     DcMotor leftMotor;
     DcMotor rightMotor;
     DcMotor intakeMotor;
     SpoolMotor liftMotor;
-    ServoHandler depositor;
-    Servo latch;
+    Servo spool;
+    //Servo latch;
     int curDeg = 0;
 
     //DcMotor backMotor;
@@ -77,24 +77,22 @@ public class TysonBrosTeam extends LinearOpMode {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        depositor =  new ServoHandler("depositor", hardwareMap);
-        latch = hardwareMap.servo.get("latch");
+        spool = hardwareMap.servo.get("spool");
+        //latch = hardwareMap.servo.get("latch");
 
 
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        depositor.setDirection(Servo.Direction.FORWARD);
-        latch.setDirection(Servo.Direction.FORWARD);
+        spool.setDirection(Servo.Direction.FORWARD);
+        //latch.setDirection(Servo.Direction.FORWARD);
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        depositor.setServoRanges(DEPOSIT_DEGREE, HOLD_DEGREE);
-        depositor.setDegree(COLLECT_DEGREE);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -109,32 +107,32 @@ public class TysonBrosTeam extends LinearOpMode {
             if(gamepad1.x){
                 curDeg++;
                 while(gamepad1.x);
-                latch.setPosition(63.0/180.0);
+                //latch.setPosition(63.0/180.0);
             }
             else if(gamepad1.y){
 
-                latch.setPosition(42.0/180.0);
+                //latch.setPosition(42.0/180.0);
             }
             if(gamepad1.dpad_up){
-                depositor.setDegree(HOLD_DEGREE);
-            }
-            else if (gamepad1.dpad_left){
-                depositor.setDegree(COLLECT_DEGREE);
+                spool.setPosition(1);
             }
             else if (gamepad1.dpad_down){
-                depositor.setDegree(DEPOSIT_DEGREE);
+                spool.setPosition(0);
+            }
+            else {
+                spool.setPosition(0.52);
             }
             if (gamepad1.left_bumper) {
-                leftMotor.setPower(1); // WHAT IS WRONG HERE?????
+                leftMotor.setPower(-1); // WHAT IS WRONG HERE?????
             } else if (gamepad1.left_trigger > 0.1) {
-                leftMotor.setPower(-1); // AND HERE????
+                leftMotor.setPower(gamepad1.left_trigger); // AND HERE????
             } else {
                 leftMotor.setPower(0);
             }
             if (gamepad1.right_bumper) {
-                rightMotor.setPower(1); // AND HERE????
-            } else if (gamepad1.right_trigger > 0.1) {
                 rightMotor.setPower(-1); // AND HERE????
+            } else if (gamepad1.right_trigger > 0.1) {
+                rightMotor.setPower(gamepad1.right_trigger); // AND HERE????
             } else {
                 rightMotor.setPower(0);
             }
