@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -32,7 +33,7 @@ public class spoonV1 extends LinearOpMode {
 //    SpoolMotor extendotron;
     SpoolMotor armLifter;
 //    ServoHandler depositer;
-    ServoHandler collector;
+    MotorController collector;
 //    ServoHandler deadbolt;
 
     @Override
@@ -49,9 +50,14 @@ public class spoonV1 extends LinearOpMode {
 //        depositer.setDirection(Servo.Direction.FORWARD);
 //        depositer.setServoRanges(DEPOSIT_POSITION, COLLECT_POSITION);
 //        depositer.setDegree(COLLECT_POSITION);
-        collector = new ServoHandler("collector", hardwareMap);
-        collector.setDirection(Servo.Direction.REVERSE);
-        collector.setPosition(OFF);
+        try {
+            collector = new MotorController("collector", "MotorConfig/NeverRest40.json", hardwareMap);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        collector.setMotorDirection(DcMotorSimple.Direction.FORWARD);
+        collector.setMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        collector.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        deadbolt = new ServoHandler("deadbolt", hardwareMap);
 //        deadbolt.setDirection(Servo.Direction.FORWARD);
 //        deadbolt.setServoRanges(40, 70);
@@ -72,9 +78,9 @@ public class spoonV1 extends LinearOpMode {
         while(opModeIsActive()){
             movementPower = movementScale * Math.abs(leftStick.magnitude());
             turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.abs(rightStick.x())/rightStick.x();
-            if(gamepad1.a) collector.setPosition(1);
-            else if(gamepad1.b) collector.setPosition(0);
-            else collector.setPosition(OFF);
+            if(gamepad1.a) collector.setMotorPower(1);
+            else if(gamepad1.b) collector.setMotorPower(-1);
+            else collector.setMotorPower(0);
             if(gamepad1.left_trigger > 0.1) armLifter.extendWithPower();
             else if(gamepad1.left_bumper) armLifter.retractWithPower();
             else armLifter.pause();
