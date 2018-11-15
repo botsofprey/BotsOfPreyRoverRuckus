@@ -20,20 +20,21 @@ public class RNBMineralSystem implements ActionHandler{
     private ServoHandler depositor;
     private HardwareMap hardwareMap;
 
-    //TODO: figure out extend and retract speeds, extension limits, motor direction, and config file locations
     public RNBMineralSystem(HardwareMap hw){
         hardwareMap = hw;
         try {
             intakeMotor = new MotorController("collector", "MotorConfig/NeverRest40.json", hardwareMap);
             extensionMotor = new SpoolMotor(new MotorController("extension", "MotorConfig/NeverRest40.json", hardwareMap), 50, 50, 100, hardwareMap);
             extendotron = new SpoolMotor(new MotorController("extendotron", "MotorConfig/NeverRest40.json", hardwareMap), 50, 50, 100, hardwareMap);
-            intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-            extensionMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-            extendotron.setDirection(DcMotorSimple.Direction.FORWARD);
-            intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            extensionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            extendotron.setDirection(DcMotorSimple.Direction.REVERSE);
+            intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             extensionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            extendotron.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            extendotron.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            extensionMotor.setExtendPower(1);
+            extendotron.setExtendPower(1);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,16 +44,16 @@ public class RNBMineralSystem implements ActionHandler{
         depositor.setDegree(COLLECT_DEGREE);
     }
 
-    public void extendIntake() {extensionMotor.extend();}
-    public void retractIntake() {extensionMotor.retract();}
+    public void extendIntake() {extensionMotor.extendWithPower();}
+    public void retractIntake() {extensionMotor.retractWithPower();}
     public void pauseExtension() {extensionMotor.pause();}
 
     public void collect() {intakeMotor.setMotorPower(1);}
     public void spit() {intakeMotor.setMotorPower(-1);}
     public void pauseCollection() {intakeMotor.setMotorPower(0);}
 
-    public void liftMinerals() {extendotron.extend();}
-    public void lowerMinerals() {extendotron.retract();}
+    public void liftMinerals() {extendotron.extendWithPower();}
+    public void lowerMinerals() {extendotron.retractWithPower();}
     public void pauseMineralLift() {extendotron.pause();}
 
     public void depositMinerals() {depositor.setDegree(DEPOSIT_DEGREE);}
