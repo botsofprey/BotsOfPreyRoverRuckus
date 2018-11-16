@@ -50,6 +50,8 @@ public class spoonV1 extends LinearOpMode {
             telemetry.addData("Gamepad1 right Joystick", rightStick.toString());
             telemetry.update();
         }
+        mineralSystem.kill();
+        driveSystem.kill();
     }
 
     private void handleMineralSystem() {
@@ -64,5 +66,9 @@ public class spoonV1 extends LinearOpMode {
         if(gamepad1.right_trigger > 0.1) mineralSystem.liftMinerals();
         else if(gamepad1.right_bumper) mineralSystem.lowerMinerals();
         else mineralSystem.pauseMineralLift();
+    }
+
+    private void handleLatchSystem(){
+
     }
 }

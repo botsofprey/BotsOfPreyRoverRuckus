@@ -64,6 +64,10 @@ public class CurrentBotMineralSystem implements ActionHandler{
 
     @Override
     public void kill() {
-
+        pauseBucket();
+        pauseCollection();
+        pauseMineralLift();
+        intake.killMotorController();
+        extendotron.kill();
     }
 }

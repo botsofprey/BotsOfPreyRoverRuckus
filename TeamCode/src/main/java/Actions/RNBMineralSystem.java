@@ -76,6 +76,12 @@ public class RNBMineralSystem implements ActionHandler{
 
     @Override
     public void kill() {
-
+        pauseMineralLift();
+        pauseExtension();
+        pauseCollection();
+        readyForCollection();
+        intakeMotor.killMotorController();
+        extendotron.kill();
+        extensionMotor.kill();
     }
 }

@@ -38,6 +38,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.io.IOException;
 
+import Actions.CurrentBotMineralSystem;
 import Actions.HardwareWrappers.SpoolMotor;
 import MotorControllers.MotorController;
 
@@ -52,12 +53,17 @@ public class TysonBrosTeam extends LinearOpMode {
     SpoolMotor liftMotor;
     Servo spool;
 
+    CurrentBotMineralSystem mineralSystem;
+
     @Override
     public void runOpMode() {
 
         leftMotor = hardwareMap.dcMotor.get("leftMotor");
         rightMotor = hardwareMap.dcMotor.get("rightMotor");
         intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+        //TODO: have Amber change everything to use the mineral system controller
+        mineralSystem = new CurrentBotMineralSystem(hardwareMap);
+
         try {
             liftMotor = new SpoolMotor(new MotorController("liftMotor", "MotorConfig/NeverRest40.json", hardwareMap), 50, 50, 100, hardwareMap);
         } catch (IOException e) {
