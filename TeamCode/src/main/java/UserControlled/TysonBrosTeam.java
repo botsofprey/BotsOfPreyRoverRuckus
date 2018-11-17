@@ -49,9 +49,6 @@ public class TysonBrosTeam extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     DcMotor leftMotor;
     DcMotor rightMotor;
-    DcMotor intakeMotor;
-    SpoolMotor liftMotor;
-    Servo spool;
 
     CurrentBotMineralSystem mineralSystem;
 
@@ -60,28 +57,19 @@ public class TysonBrosTeam extends LinearOpMode {
 
         leftMotor = hardwareMap.dcMotor.get("leftMotor");
         rightMotor = hardwareMap.dcMotor.get("rightMotor");
-        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
         //TODO: have Amber change everything to use the mineral system controller
         mineralSystem = new CurrentBotMineralSystem(hardwareMap);
 
-        try {
-            liftMotor = new SpoolMotor(new MotorController("liftMotor", "MotorConfig/NeverRest40.json", hardwareMap), 50, 50, 100, hardwareMap);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        spool = hardwareMap.servo.get("spool");
 
 
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        spool.setDirection(Servo.Direction.FORWARD);
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
 
         telemetry.addData("Status", "Initialized");
@@ -95,13 +83,13 @@ public class TysonBrosTeam extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             if(gamepad1.dpad_up){
-                spool.setPosition(1);
+                mineralSystem.tiltBucketDown();
             }
             else if (gamepad1.dpad_down){
-                spool.setPosition(0);
+                mineralSystem.tiltBucketUp();
             }
             else {
-                spool.setPosition(0.52);
+                mineralSystem.pauseBucket();
             }
             if (gamepad1.left_bumper) {
                 leftMotor.setPower(-1); // WHAT IS WRONG HERE?????
@@ -117,16 +105,17 @@ public class TysonBrosTeam extends LinearOpMode {
             } else {
                 rightMotor.setPower(0);
             }
-            if(gamepad1.left_stick_y >= 0.1 || gamepad1.left_stick_y <= -0.1) {
-                liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                liftMotor.setPower(gamepad1.left_stick_y);
+            if(gamepad1.left_stick_y >= 0.1) {
+                mineralSystem.liftMinerals();
             }
-            else liftMotor.holdPosition();
+            else if (gamepad1.left_stick_y <= -0.1){
+                mineralSystem.lowerMinerals();
+            }
+            else mineralSystem.pauseMineralLift();
 
-            if (gamepad1.a) intakeMotor.setPower(.75);
-            else if (gamepad1.b) intakeMotor.setPower(-.75);
-            else intakeMotor.setPower(0);
-
+            if (gamepad1.a) mineralSystem.collect();
+            else if (gamepad1.b) mineralSystem.spit();
+            else mineralSystem.pauseCollection();
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
