@@ -57,7 +57,6 @@ public class TysonBrosTeam extends LinearOpMode {
 
         leftMotor = hardwareMap.dcMotor.get("leftMotor");
         rightMotor = hardwareMap.dcMotor.get("rightMotor");
-        //TODO: have Amber change everything to use the mineral system controller
         mineralSystem = new CurrentBotMineralSystem(hardwareMap);
 
 
