@@ -29,17 +29,15 @@
 
 package Autonomous.OpModes;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
-import DriveEngine.HolonomicDriveSystemTesting;
-
-import static DriveEngine.HolonomicDriveSystemTesting.BACK_LEFT_HOLONOMIC_DRIVE_MOTOR;
-import static DriveEngine.HolonomicDriveSystemTesting.BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR;
-import static DriveEngine.HolonomicDriveSystemTesting.FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR;
-import static DriveEngine.HolonomicDriveSystemTesting.FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR;
+import Autonomous.Location;
+import DriveEngine.JennyNavigation;
 
 
 /**
@@ -55,43 +53,33 @@ import static DriveEngine.HolonomicDriveSystemTesting.FRONT_RIGHT_HOLONOMIC_DRIV
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Encoder Tester", group="Testers")
+@TeleOp(name="Auto Test", group="Linear Opmode")
 //@Disabled
-public class EncoderTest extends LinearOpMode {
+public class AutoTesting extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
+    JennyNavigation driveSystem;
 
     @Override
     public void runOpMode() {
-        HolonomicDriveSystemTesting driveBase = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/JennyV2.json");
+        try {
+            driveSystem = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/JennyV2.json");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
+        // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
         // run until the end of the match (driver presses STOP)
-        while (opModeIsActive()) {
-
-            if(gamepad1.dpad_up) driveBase.driveMotors[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR].setMotorPower(1);
-            else driveBase.driveMotors[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR].setMotorPower(0);
-            if(gamepad1.dpad_down) driveBase.driveMotors[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR].setMotorPower(1);
-            else driveBase.driveMotors[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR].setMotorPower(0);
-            if(gamepad1.dpad_left) driveBase.driveMotors[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR].setMotorPower(1);
-            else driveBase.driveMotors[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR].setMotorPower(0);
-            if(gamepad1.dpad_right) driveBase.driveMotors[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR].setMotorPower(1);
-            else driveBase.driveMotors[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR].setMotorPower(0);
-
-            for(int i = 0; i < driveBase.driveMotors.length; i++){
-                telemetry.addData("Motor" + i, driveBase.driveMotors[i].getCurrentTick());
-            }
-            telemetry.addData("0: FL, 1: FR ", " 2: BR, 3: BL");
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.update();
-        }
-        driveBase.kill();
+        driveSystem.driveDistance(50, 10, 15, this);
+        telemetry.update();
+        driveSystem.stopNavigation();
     }
 }

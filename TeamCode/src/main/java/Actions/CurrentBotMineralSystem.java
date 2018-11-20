@@ -25,7 +25,7 @@ public class CurrentBotMineralSystem implements ActionHandler{
             extendotron = new SpoolMotor(new MotorController("liftMotor", "MotorConfig/NeverRest40.json", hardwareMap), 50, 50, 100, hardwareMap);
             intake.setDirection(DcMotorSimple.Direction.FORWARD);
             extendotron.setDirection(DcMotorSimple.Direction.FORWARD);
-            intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             extendotron.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         } catch (IOException e){
@@ -39,8 +39,8 @@ public class CurrentBotMineralSystem implements ActionHandler{
     public void lowerMinerals() {extendotron.retract();}
     public void pauseMineralLift() {extendotron.pause();}
 
-    public void collect() {intake.setMotorPower(1);}
-    public void spit() {intake.setMotorPower(-1);}
+    public void collect() {intake.setMotorPower(.5);}
+    public void spit() {intake.setMotorPower(-.5);}
     public void pauseCollection() {intake.setMotorPower(0);}
 
     public void tiltBucketDown() {depositor.setPosition(1);}
