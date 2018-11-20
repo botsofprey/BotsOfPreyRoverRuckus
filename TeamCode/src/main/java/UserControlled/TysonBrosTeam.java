@@ -81,33 +81,33 @@ public class TysonBrosTeam extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            if(gamepad1.dpad_up){
+            if(gamepad1.dpad_up || gamepad2.dpad_up){
                 mineralSystem.tiltBucketDown();
             }
-            else if (gamepad1.dpad_down){
+            else if (gamepad1.dpad_down || gamepad2.dpad_down){
                 mineralSystem.tiltBucketUp();
             }
             else {
                 mineralSystem.pauseBucket();
             }
-            if (gamepad1.left_bumper) {
+            if (gamepad1.right_bumper) {
                 leftMotor.setPower(-1); // WHAT IS WRONG HERE?????
-            } else if (gamepad1.left_trigger > 0.1) {
-                leftMotor.setPower(gamepad1.left_trigger); // AND HERE????
+            } else if (gamepad1.right_trigger > 0.1) {
+                leftMotor.setPower(gamepad1.right_trigger); // AND HERE????
             } else {
                 leftMotor.setPower(0);
             }
-            if (gamepad1.right_bumper) {
+            if (gamepad1.left_bumper) {
                 rightMotor.setPower(-1); // AND HERE????
-            } else if (gamepad1.right_trigger > 0.1) {
-                rightMotor.setPower(gamepad1.right_trigger); // AND HERE????
+            } else if (gamepad1.left_trigger > 0.1) {
+                rightMotor.setPower(gamepad1.left_trigger); // AND HERE????
             } else {
                 rightMotor.setPower(0);
             }
-            if(gamepad1.left_stick_y >= 0.1) {
+            if(gamepad1.left_stick_y >= 0.1 || gamepad2.left_stick_y >= 0.1) {
                 mineralSystem.liftMinerals();
             }
-            else if (gamepad1.left_stick_y <= -0.1){
+            else if (gamepad1.left_stick_y <= -0.1 || gamepad2.left_stick_y <= -0.1){
                 mineralSystem.lowerMinerals();
             }
             else mineralSystem.pauseMineralLift();
