@@ -27,38 +27,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package UserControlled;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="Basic: Linear OpMode", group="Linear Opmode")
-@Disabled
-public class BasicOpMode_Linear extends LinearOpMode {
-    // create objects and locally global variables here
+import Autonomous.Location;
+import DriveEngine.HolonomicDriveSystemTesting;
+import DriveEngine.JennyNavigation;
+
+@TeleOp(name="Accelerometer Tester", group="Linear Opmode")
+//@Disabled
+public class IMUAccelerationTester extends LinearOpMode {
+    JennyNavigation navigation;
+    JoystickHandler leftStick, rightStick;
+    double[] accelerations = new double[3];
 
     @Override
     public void runOpMode() {
-        // initialize objects and variables here
-        // also create and initialize function local variables here
+        try {
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/JennyV2.json");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
+        rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
 
-        // add any other useful telemetry data or logging data here
+        double movementPower = 0;
+        double turningPower = 0;
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        // nothing goes between the above and below lines
-        waitForStart();
-        // should only be used for a time keeper or other small things, avoid using this space when possible
-        while (opModeIsActive()) {
-            // main code goes here
 
-            // telemetry and logging data goes here
+        waitForStart();
+
+        while (opModeIsActive()) {
+            accelerations = navigation.orientation.getAccelerations();
+            movementPower = 1 * leftStick.magnitude();
+            turningPower = 0.5 * (Math.abs(rightStick.magnitude())) * Math.abs(rightStick.x())/rightStick.x();
+            navigation.relativeDriveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
+
+            telemetry.addData("X Accel", accelerations[0]);
+            telemetry.addData("Y Accel", accelerations[1]);
+            telemetry.addData("Z Accel", accelerations[2]);
+            telemetry.addData("IMU Location", navigation.orientation.getLocation());
+            telemetry.addData("Robot Location", navigation.getRobotLocation());
             telemetry.update();
         }
-        // disable/kill/stop objects here
+        navigation.stopNavigation();
     }
-    // misc functions here
 }
