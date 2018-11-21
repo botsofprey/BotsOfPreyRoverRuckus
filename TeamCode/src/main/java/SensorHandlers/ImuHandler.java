@@ -8,9 +8,11 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
@@ -32,6 +34,7 @@ public class ImuHandler extends Thread{
     private long lastUpdateStart;
     private BNO055IMU imu;
     private Velocity velocities;
+    private Acceleration accelerations;
     private Orientation angles;
     private volatile boolean shouldRun;
     private double orientationOffset;
@@ -89,7 +92,7 @@ public class ImuHandler extends Thread{
         imu = hardwareMap.get(BNO055IMU.class, name);
         imu.initialize(parameters);
         safetySleep(10);
-        imu.startAccelerationIntegration(new Position(), new Velocity(), 200);
+        imu.startAccelerationIntegration(new Position(DistanceUnit.INCH, 0, 0, 0, 0), new Velocity(DistanceUnit.INCH, 0, 0, 0, 0), 200);
         //imu.startAccelerationIntegration();
         Log.d("IMU Status", imu.getSystemStatus().toString());
         Log.d("IMU Calibration", imu.getCalibrationStatus().toString());
@@ -100,6 +103,7 @@ public class ImuHandler extends Thread{
         try {
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             velocities = imu.getVelocity();
+            accelerations = imu.getAcceleration();
         } catch (Exception e){
             stopIMU();
             throw new RuntimeException(e);
@@ -121,7 +125,7 @@ public class ImuHandler extends Thread{
         returns the orientation of the robot, 0 to 359 degrees
      */
     public double getOrientation(){
-        double angle = 360 - angles.firstAngle;
+        double angle = 360 - angles.firstAngle; // Z angle is the robot's orientation angle
         if(angle < 0) angle += 360;
         else if(angle >= 360) angle -= 360;
         angle += orientationOffset;
@@ -152,5 +156,10 @@ public class ImuHandler extends Thread{
         if(heading > 360); heading -= 360;
         if(heading < 0) heading += 360;
         return heading; // I have absolutely no idea how well this will work... TODO Test this
+    }
+
+    public double[] getAccelerations() {
+        double[] accel = {accelerations.xAccel, accelerations.yAccel, accelerations.zAccel};
+        return accel;
     }
 }
