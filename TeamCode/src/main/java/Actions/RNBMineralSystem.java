@@ -54,7 +54,7 @@ public class RNBMineralSystem implements ActionHandler{
 
     public void liftMinerals() {extendotron.extendWithPower();}
     public void lowerMinerals() {extendotron.retractWithPower();}
-    public void pauseMineralLift() {extendotron.pause();}
+    public void pauseMineralLift() {extendotron.holdPosition();}
 
     public void depositMinerals() {depositor.setDegree(DEPOSIT_DEGREE);}
     public void readyForCollection() {depositor.setDegree(COLLECT_DEGREE);}
