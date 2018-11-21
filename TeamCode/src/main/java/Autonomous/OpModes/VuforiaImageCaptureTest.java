@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import Autonomous.VuforiaHelper;
     An opmode to test saving images using vuforia
  */
 @Autonomous(name="Save Image Test", group="Linear Opmode")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class VuforiaImageCaptureTest extends LinearOpMode {
 
     CryptoBoxColumnImageProcessor cryptoFinder;

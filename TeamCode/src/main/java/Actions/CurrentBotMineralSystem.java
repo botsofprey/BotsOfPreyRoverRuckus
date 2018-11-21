@@ -37,7 +37,7 @@ public class CurrentBotMineralSystem implements ActionHandler{
 
     public void liftMinerals() {extendotron.extend();}
     public void lowerMinerals() {extendotron.retract();}
-    public void pauseMineralLift() {extendotron.pause();}
+    public void pauseMineralLift() {extendotron.holdPosition();}
 
     public void collect() {intake.setMotorPower(.5);}
     public void spit() {intake.setMotorPower(-.5);}

@@ -29,6 +29,7 @@
 
 package Autonomous.OpModes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -53,8 +54,8 @@ import DriveEngine.JennyNavigation;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Auto Test", group="Linear Opmode")
-//@Disabled
+@Autonomous(name="Drive Distance Test", group="Linear Opmode")
+@Disabled
 public class AutoTesting extends LinearOpMode {
 
     // Declare OpMode members.
