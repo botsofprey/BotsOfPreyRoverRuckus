@@ -22,8 +22,8 @@ public class MecanumBotMineralSystem implements ActionHandler{
         try {
             rotator = new MotorController("rotator", "MotorConfig/NeverRest40.json", hardwareMap);
             extender = new SpoolMotor(new MotorController("extender", "MotorConfig/NeverRest40.json", hardwareMap), 50, 50, 100, hardwareMap);
-            rotator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            extender.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rotator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            extender.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rotator.setDirection(DcMotorSimple.Direction.FORWARD);
             extender.setDirection(DcMotorSimple.Direction.FORWARD);
             rotator.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -41,7 +41,7 @@ public class MecanumBotMineralSystem implements ActionHandler{
 
     public void liftArm() {rotator.setMotorPower(1);}
     public void lowerArm() {rotator.setMotorPower(-1);}
-    public void pauseRotator() {rotator.holdPosition();}
+    public void pauseRotator() {rotator.brake();}
 
     public void extendArm() {extender.extend();}
     public void retractArm() {extender.retract();}

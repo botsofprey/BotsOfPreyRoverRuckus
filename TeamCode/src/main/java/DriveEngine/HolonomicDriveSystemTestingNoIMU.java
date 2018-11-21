@@ -251,7 +251,7 @@ public class HolonomicDriveSystemTestingNoIMU {
             driveMotors[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] = new MotorController(reader.getString("BACK_LEFT_MOTOR_NAME"), "MotorConfig/DriveMotors/NewHolonomicDriveMotorConfig.json", hardwareMap);
             driveMotors[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] = new MotorController(reader.getString("BACK_RIGHT_MOTOR_NAME"), "MotorConfig/DriveMotors/NewHolonomicDriveMotorConfig.json", hardwareMap);
             for (int i = 0; i < driveMotors.length; i++) {
-                driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                driveMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
             if(reader.getString("DRIVE_MOTOR_BRAKING_MODE").equals("BRAKE")){
                 for (int i = 0; i < driveMotors.length; i++) {
