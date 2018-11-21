@@ -29,6 +29,7 @@ public class StandardDriveSystem {
 
     private double maxMotorVelocity = 0;
 
+    //TODO: test everything
     public StandardDriveSystem(HardwareMap hw, String configFileLoc){
         hardwareMap = hw;
         readConfigAndInitialize(configFileLoc);
@@ -62,6 +63,7 @@ public class StandardDriveSystem {
         applyMotorVelocities(new double[] {turnVelocity, -turnVelocity});
     }
 
+    //TODO: finish
     public void turnToHeading(double heading, double turnVelocity){
         double curOrientation = orientation.getOrientation();
         double distToHeading = 0;
@@ -69,11 +71,9 @@ public class StandardDriveSystem {
 
     }
 
-
     private void applyMotorVelocities(double [] velocities){
         driveMotors[LEFT_MOTOR].setInchesPerSecondVelocity(velocities[LEFT_MOTOR]);
         driveMotors[RIGHT_MOTOR].setInchesPerSecondVelocity(velocities[RIGHT_MOTOR]);
-
     }
 
     private void applyMotorPowers(double [] powers){
