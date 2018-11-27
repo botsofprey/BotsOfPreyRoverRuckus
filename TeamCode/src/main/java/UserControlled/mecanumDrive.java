@@ -28,9 +28,12 @@ public class mecanumDrive extends LinearOpMode {
         double turningPower = 0;
 
         while(opModeIsActive()){
-             movementPower = movementScale * Math.abs(leftStick.magnitude());
-             turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.abs(rightStick.x())/rightStick.x();
-            driveSystem.driveOnHeadingWithTurning(leftStick.angle()+45, movementPower, turningPower);
+            movementPower = movementScale * Math.abs(leftStick.magnitude());
+            turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
+            telemetry.addData("Left Stick Angle", leftStick.angle());
+            telemetry.addData("Movement Power", movementPower);
+            telemetry.addData("Turning Power", turningPower);
+            driveSystem.driveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
 
             handleMineralSystem();
             /*
@@ -58,9 +61,9 @@ public class mecanumDrive extends LinearOpMode {
         else if(gamepad2.b) mineralSystem.spit();
         else mineralSystem.pauseCollection();
 
-        if(gamepad1.right_trigger > 0.1) mineralSystem.liftArm();
+        if(gamepad1.right_trigger > 0.1) mineralSystem.liftOrLowerArm(gamepad1.right_trigger);
         else if(gamepad1.right_bumper) mineralSystem.lowerArm();
-        else if(gamepad2.right_trigger > 0.1) mineralSystem.liftArm();
+        else if(gamepad2.right_trigger > 0.1) mineralSystem.liftOrLowerArm(gamepad2.right_trigger);
         else if(gamepad2.right_bumper) mineralSystem.lowerArm();
         else mineralSystem.pauseRotator();
 

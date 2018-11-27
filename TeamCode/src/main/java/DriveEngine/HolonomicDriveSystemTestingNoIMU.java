@@ -46,11 +46,10 @@ public class HolonomicDriveSystemTestingNoIMU {
         hardwareMap = hw;
         readConfigAndInitialize(configFile);
         double avg = 0;
-        for(int i = 0; i < driveMotors.length; i ++){
-            avg += driveMotors[i].getMaxSpeed();
-        }
-        avg /= driveMotors.length;
-        maxMotorVelocity = avg;
+        avg += driveMotors[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR].getMaxSpeed();
+        avg += driveMotors[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR].getMaxSpeed();
+        avg /= 2;
+        maxMotorVelocity = avg; // only use the 40:1 motors' speed for the average because they are slower than the 20:1 motors
     }
 
     public HolonomicDriveSystemTestingNoIMU(HardwareMap hw, Location startLocation, String configFile){
@@ -248,10 +247,10 @@ public class HolonomicDriveSystemTestingNoIMU {
         try{
             driveMotors[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] = new MotorController(reader.getString("FRONT_LEFT_MOTOR_NAME"), "MotorConfig/DriveMotors/NewHolonomicDriveMotorConfig.json", hardwareMap);
             driveMotors[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] = new MotorController(reader.getString("FRONT_RIGHT_MOTOR_NAME"), "MotorConfig/DriveMotors/NewHolonomicDriveMotorConfig.json", hardwareMap);
-            driveMotors[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] = new MotorController(reader.getString("BACK_LEFT_MOTOR_NAME"), "MotorConfig/DriveMotors/NewHolonomicDriveMotorConfig.json", hardwareMap);
-            driveMotors[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] = new MotorController(reader.getString("BACK_RIGHT_MOTOR_NAME"), "MotorConfig/DriveMotors/NewHolonomicDriveMotorConfig.json", hardwareMap);
+            driveMotors[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] = new MotorController(reader.getString("BACK_LEFT_MOTOR_NAME"), "MotorConfig/DriveMotors/NewHolonomicDriveMotorConfig20.json", hardwareMap);
+            driveMotors[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] = new MotorController(reader.getString("BACK_RIGHT_MOTOR_NAME"), "MotorConfig/DriveMotors/NewHolonomicDriveMotorConfig20.json", hardwareMap);
             for (int i = 0; i < driveMotors.length; i++) {
-                driveMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
             if(reader.getString("DRIVE_MOTOR_BRAKING_MODE").equals("BRAKE")){
                 for (int i = 0; i < driveMotors.length; i++) {

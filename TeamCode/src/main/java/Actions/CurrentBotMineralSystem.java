@@ -17,7 +17,6 @@ public class CurrentBotMineralSystem implements ActionHandler{
     ServoHandler depositor;
     HardwareMap hardwareMap;
 
-    //TODO: check motor direction, extend and retract speeds, extension limits, and config file locations
     public CurrentBotMineralSystem(HardwareMap hw){
         hardwareMap = hw;
         try {
@@ -35,8 +34,14 @@ public class CurrentBotMineralSystem implements ActionHandler{
         depositor.setDirection(Servo.Direction.FORWARD);
     }
 
-    public void liftMinerals() {extendotron.extend();}
-    public void lowerMinerals() {extendotron.retract();}
+    public void liftMinerals() {
+        extendotron.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extendotron.extend();
+    }
+    public void lowerMinerals() {
+        extendotron.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extendotron.retract();
+    }
     public void pauseMineralLift() {extendotron.holdPosition();}
 
     public void collect() {intake.setMotorPower(.5);}
