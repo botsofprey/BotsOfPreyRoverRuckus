@@ -104,10 +104,10 @@ public class TysonBrosTeam extends LinearOpMode {
             } else {
                 rightMotor.setPower(0);
             }
-            if(gamepad1.left_stick_y >= 0.1 || gamepad2.left_stick_y >= 0.1) {
+            if(-gamepad1.left_stick_y >= 0.1 || -gamepad2.left_stick_y >= 0.1) {
                 mineralSystem.liftMinerals();
             }
-            else if (gamepad1.left_stick_y <= -0.1 || gamepad2.left_stick_y <= -0.1){
+            else if (-gamepad1.left_stick_y <= -0.1 || -gamepad2.left_stick_y <= -0.1){
                 mineralSystem.lowerMinerals();
             }
             else mineralSystem.pauseMineralLift();
@@ -116,6 +116,7 @@ public class TysonBrosTeam extends LinearOpMode {
             else if (gamepad1.b) mineralSystem.spit();
             else mineralSystem.pauseCollection();
 
+            telemetry.addData("Left Joystick", gamepad1.left_stick_y);
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
 
