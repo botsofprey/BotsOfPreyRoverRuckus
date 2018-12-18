@@ -100,7 +100,7 @@ public class HolonomicSampleAndPark extends LinearOpMode {
         // first.
         initVuforia();
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0,"RobotConfig/JennyV2.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 180,"RobotConfig/JennyV2.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -162,21 +162,30 @@ public class HolonomicSampleAndPark extends LinearOpMode {
                 }
 
                 if(positionVotes[LEFT] + positionVotes[CENTER] + positionVotes[RIGHT] > 15 && hasNotMoved) {
+                    navigation.driveDistance(15, 0, 25, this);
+                    // move forward - 15
                     if (positionVotes[LEFT] > positionVotes[RIGHT] && positionVotes[LEFT] > positionVotes[CENTER]) {
                         telemetry.addData("driving...", "left");
                         telemetry.update();
-                        navigation.driveDistance(50, -20, 15, this);
+                        navigation.driveDistance(21, 90, 25, this);
+                        // move left - 21
                     } else if (positionVotes[RIGHT] > positionVotes[LEFT] && positionVotes[RIGHT] > positionVotes[CENTER]) {
                         telemetry.addData("driving...", "right");
                         telemetry.update();
-                        navigation.driveDistance(50, 20, 15, this);
+                        navigation.driveDistance(21, 270, 25, this);
+                        // move right - 21
                     } else {
                         telemetry.addData("driving...", "center");
                         telemetry.update();
-                        navigation.driveDistance(50, 0, 15, this);
                     }
+                    navigation.driveDistance(26, 0,25, this);
+                    // move forward - ??
                     hasNotMoved = false;
-                } else if(System.currentTimeMillis() - startTime >= 25000 && hasNotMoved) navigation.driveDistance(50, 0, 15, this);
+                } else if(System.currentTimeMillis() - startTime >= 25000 && hasNotMoved) {
+                    while (System.currentTimeMillis() - startTime <= 26500) navigation.driveOnHeadingWithTurning(0, 15, 0.25);
+                    navigation.driveDistance(45, 0, 15, this);
+                    hasNotMoved = false;
+                }
 
                 telemetry.update();
             }
