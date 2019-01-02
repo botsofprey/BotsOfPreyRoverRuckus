@@ -2,6 +2,7 @@ package DriveEngine;
 
 import android.util.Log;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -64,10 +65,26 @@ public class StandardDriveSystem {
     }
 
     //TODO: finish
-    public void turnToHeading(double heading, double turnVelocity){
+    public void turnToHeading(double heading, LinearOpMode mode){
         double curOrientation = orientation.getOrientation();
+        double rps;
         double distToHeading = 0;
         headingController.setSp(0);
+        distToHeading = heading - curOrientation;
+        if(distToHeading > 180) distToHeading -=360;
+        else if(distToHeading < -180) distToHeading =+ 360;
+        if(distToHeading > -180 && distToHeading < 180){
+            while(Math.abs(distToHeading) > 1 && mode.opModeIsActive()){
+                rps = headingController.calculatePID(distToHeading);
+                turn(rps);//pos or neg
+                mode.sleep(5);
+                distToHeading = heading - curOrientation;
+                if(distToHeading > 180) distToHeading -=360;
+                else if(distToHeading < -180) distToHeading =+ 360;
+            }
+            brake();
+        }
+
 
     }
 
@@ -150,7 +167,9 @@ public class StandardDriveSystem {
             throw new RuntimeException("Drive Engine Config Read Failed!:" + e.toString());
         }
     }
-
+    public void brake(){
+        applyMotorVelocities(new double[] {0,0});
+    }
     public void kill(){
         for(int i = 0; i < driveMotors.length; i++){
             driveMotors[i].killMotorController();

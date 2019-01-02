@@ -1,5 +1,6 @@
 package UserControlled;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,7 @@ import DriveEngine.HolonomicDriveSystemTesting;
  * Created by robotics on 2/16/18.
  */
 @TeleOp(name="New Speedy Tester", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@Disabled
 public class speedyNewCodeExample extends LinearOpMode {
 
     final double movementScale = 1;
@@ -25,7 +27,7 @@ public class speedyNewCodeExample extends LinearOpMode {
 
         while(opModeIsActive()){
              movementPower = movementScale * Math.abs(leftStick.magnitude());
-             turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.abs(rightStick.x())/rightStick.x();
+             turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
             driveSystem.cartesianDriveOnHeadingWithTurning(leftStick.angle()+45, movementPower, turningPower);
             telemetry.addData("Gamepad1 left Joystick",leftStick.toString());
             telemetry.addData("Gamepad1 right Joystick", rightStick.toString());

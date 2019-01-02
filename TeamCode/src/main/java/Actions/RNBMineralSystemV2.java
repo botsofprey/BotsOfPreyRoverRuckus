@@ -41,15 +41,15 @@ public class RNBMineralSystemV2 implements ActionHandler{
 
 
     public void lift() {
-        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor.setInchesPerSecondVelocity(7);
+        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotor.setMotorPower(0.5);
     }
     public void lower() {
-        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor.setInchesPerSecondVelocity(-7);
+        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotor.setMotorPower(-0.5);
     }
     public void liftOrLower(double power) {
-        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         liftMotor.setMotorPower(power);
     }
     public void pauseLift() {liftMotor.holdPosition();}

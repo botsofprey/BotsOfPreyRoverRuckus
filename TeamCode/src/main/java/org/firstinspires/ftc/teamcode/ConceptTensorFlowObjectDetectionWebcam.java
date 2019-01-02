@@ -27,15 +27,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package Autonomous.OpModes;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
@@ -51,9 +51,9 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Sampling Field Detection Test - Positioning", group = "Concept")
-//@Disabled
-public class PositioningTest extends LinearOpMode {
+@TeleOp(name = "Concept: TensorFlow Object Detection Webcam", group = "Concept")
+@Disabled
+public class ConceptTensorFlowObjectDetectionWebcam extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
@@ -70,7 +70,7 @@ public class PositioningTest extends LinearOpMode {
      * Once you've obtained a license key, copy the string from the Vuforia web site
      * and paste it in to your code on the next line, between the double quotes.
      */
-    private static final String VUFORIA_KEY = "Afh+Mi//////AAAAGT/WCUCZNUhEt3/AvBZOSpKBjwlgufihL3d3H5uiMfbq/1tDOM6w+dgMIdKUvVFEjNNy9zSaruPDbwX0HwjI6BEvxuWbw+UcZFcfF7i4g7peD4zSCEyZBCi59q5H/a2aTsnJVaG0WO0pPawHDuuScrMsA/QPKQGV/pZOT6rK8cW2C3bEkZpZ1qqkSM5zNeKs2OQtr8Bvl2nQiVK6mQ3ZT4fxWGb7P/iTZ4k1nEhkxI56sr5HlxmSd0WOx9i8hYDTJCASU6wwtOeUHZYigZmdRYuARS+reLJRXUylirmoU8kVvMK1p2Kf8dajEWsTuPwBec/BSaygmpqD0WkAc2B1Vmaa/1zTRfYNR3spIfjHQCYu";
+    private static final String VUFORIA_KEY = " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
@@ -115,9 +115,6 @@ public class PositioningTest extends LinearOpMode {
                     if (updatedRecognitions != null) {
                       telemetry.addData("# Object Detected", updatedRecognitions.size());
                       if (updatedRecognitions.size() == 3) {
-                          telemetry.addData("Recognition 1 Bottom", updatedRecognitions.get(0).getBottom());
-                          telemetry.addData("Recognition 2 Bottom", updatedRecognitions.get(1).getBottom());
-                          telemetry.addData("Recognition 3 Bottom", updatedRecognitions.get(2).getBottom());
                         int goldMineralX = -1;
                         int silverMineral1X = -1;
                         int silverMineral2X = -1;
@@ -161,7 +158,7 @@ public class PositioningTest extends LinearOpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = CameraDirection.BACK;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);

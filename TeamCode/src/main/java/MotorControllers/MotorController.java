@@ -207,9 +207,14 @@ public class MotorController extends Thread {
     public void holdPosition(){
         if(getMotorRunMode() != DcMotor.RunMode.RUN_TO_POSITION){
             motor.setPower(0);
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            try {
+                sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             motor.setTargetPosition(motor.getCurrentPosition());
-            motor.setPower(1);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setPower(0.6);
         }
 
     }

@@ -1,5 +1,6 @@
 package UserControlled;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,6 +12,7 @@ import DriveEngine.HolonomicDriveSystemTestingNoIMU;
  * Created by robotics on 2/16/18.
  */
 @TeleOp(name="Mecanum Bot User Controlled", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@Disabled
 public class mecanumDrive extends LinearOpMode {
 
     final double movementScale = 1;
