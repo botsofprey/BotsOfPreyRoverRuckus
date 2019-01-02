@@ -288,6 +288,7 @@ public class HolonomicDriveSystemTesting {
      */
     public void kill(){
         shouldRun = false;
+        orientation.stopIMU();
         for (MotorController driveMotor : driveMotors) {
             driveMotor.killMotorController();
         }

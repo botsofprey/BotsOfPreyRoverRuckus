@@ -1,5 +1,6 @@
 package UserControlled;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,6 +12,7 @@ import DriveEngine.StandardDriveSystem;
  * Created by robotics on 2/16/18.
  */
 @TeleOp(name="Standard Drive Tester", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@Disabled
 public class StandardDriveTester extends LinearOpMode {
 
     final double movementScale = 1;
@@ -28,7 +30,7 @@ public class StandardDriveTester extends LinearOpMode {
 
         while(opModeIsActive()){
              movementPower = movementScale * Math.abs(leftStick.magnitude());
-             turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.abs(rightStick.x())/rightStick.x();
+             turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
 
              navigation.driveWithTurning(movementPower, turningPower);
 

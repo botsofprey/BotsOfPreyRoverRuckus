@@ -30,9 +30,11 @@
 package Autonomous.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -55,8 +57,8 @@ import DriveEngine.JennyNavigation;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@Autonomous(name = "Silver Side Autonomous Holonomic Drive", group = "Concept")
-//@Disabled
+@Autonomous(name = "Silver Side Autonomous Holonomic Drive messy", group = "Concept")
+@Disabled
 public class HolonomicSampleAndPark extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
@@ -80,7 +82,7 @@ public class HolonomicSampleAndPark extends LinearOpMode {
      * Once you've obtained a license key, copy the string from the Vuforia web site
      * and paste it in to your code on the next line, between the double quotes.
      */
-    private static final String VUFORIA_KEY = "Afh+Mi//////AAAAGT/WCUCZNUhEt3/AvBZOSpKBjwlgufihL3d3H5uiMfbq/1tDOM6w+dgMIdKUvVFEjNNy9zSaruPDbwX0HwjI6BEvxuWbw+UcZFcfF7i4g7peD4zSCEyZBCi59q5H/a2aTsnJVaG0WO0pPawHDuuScrMsA/QPKQGV/pZOT6rK8cW2C3bEkZpZ1qqkSM5zNeKs2OQtr8Bvl2nQiVK6mQ3ZT4fxWGb7P/iTZ4k1nEhkxI56sr5HlxmSd0WOx9i8hYDTJCASU6wwtOeUHZYigZmdRYuARS+reLJRXUylirmoU8kVvMK1p2Kf8dajEWsTuPwBec/BSaygmpqD0WkAc2B1Vmaa/1zTRfYNR3spIfjHQCYu";
+    private static final String VUFORIA_KEY = VuforiaHelper.LICENSE_KEY_EXTERNAL_CAMERA;
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
@@ -182,7 +184,7 @@ public class HolonomicSampleAndPark extends LinearOpMode {
                     // move forward - ??
                     hasNotMoved = false;
                 } else if(System.currentTimeMillis() - startTime >= 25000 && hasNotMoved) {
-                    while (System.currentTimeMillis() - startTime <= 26500) navigation.driveOnHeadingWithTurning(0, 15, 0.25);
+                    while (System.currentTimeMillis() - startTime <= 26500) navigation.relativeDriveOnHeadingWithTurning(0, 15, 0.25);
                     navigation.driveDistance(45, 0, 15, this);
                     hasNotMoved = false;
                 }
@@ -207,7 +209,7 @@ public class HolonomicSampleAndPark extends LinearOpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = CameraDirection.BACK;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
