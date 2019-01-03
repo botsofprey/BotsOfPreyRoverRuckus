@@ -22,6 +22,7 @@ import MotorControllers.MotorController;
 public class RoseannaV2 extends LinearOpMode {
     final double movementScale = 1;
     final double turningScale = .75;
+    boolean reversedDrive = false;
 
     RNBMineralSystemV2 mineralSystem;
     HolonomicDriveSystemTesting driveSystem;
@@ -46,7 +47,9 @@ public class RoseannaV2 extends LinearOpMode {
             turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
 
             handleMineralSystem();
-            driveSystem.cartesianDriveOnHeadingWithTurning(leftStick.angle() + 45, movementPower, turningPower);
+
+            if(gamepad1.x) reversedDrive = !reversedDrive;
+            driveSystem.driveOnHeadingWithTurning((reversedDrive)? leftStick.angle() + 180:leftStick.angle(), movementPower, turningPower);
 
 
             telemetry.addData("Gamepad1 left Joystick",leftStick.toString());

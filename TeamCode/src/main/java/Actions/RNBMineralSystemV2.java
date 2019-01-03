@@ -21,7 +21,7 @@ public class RNBMineralSystemV2 implements ActionHandler{
         hardwareMap = hw;
         try{
             extensionMotor = new SpoolMotor(new MotorController("extension", "MotorConfig/NeverRest40.json", hardwareMap), 50, 50, 100, hardwareMap);
-            liftMotor = new MotorController("lift", "MotorConfig/NeverRest40.json", hardwareMap);
+            liftMotor = new MotorController("lift", "ActionConfig/LiftMotor.json", hardwareMap);
             extensionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             liftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -31,7 +31,7 @@ public class RNBMineralSystemV2 implements ActionHandler{
             e.printStackTrace();
         }
         intake = new ServoHandler("intake", hardwareMap);
-        intake.setDirection(Servo.Direction.REVERSE);
+        intake.setDirection(Servo.Direction.FORWARD);
     }
 
     public void extendIntake() {extensionMotor.extendWithPower();}
