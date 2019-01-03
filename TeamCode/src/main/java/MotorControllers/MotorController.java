@@ -28,9 +28,12 @@ public class MotorController extends Thread {
     DcMotor motor;
     private String logTag = "";
     private boolean shouldLog = false;
+    private boolean takenStartValue = false;
     private volatile boolean shouldRun = false;
     MotorTachometer tachometer;
+    PIDController holdController;
     private long LOOP_MILLIS = 200;
+    private int startPos = 0;
 
     HardwareMap hardwareMap;
 
@@ -149,6 +152,7 @@ public class MotorController extends Thread {
             double maxRPS = motor.getMotorType().getMaxRPM();
             //maxTicksPerSecond = (long)(maxRPS * ticksPerRevolution + .5);
             maxTicksPerSecond = (long) motor.getMotorType().getAchieveableMaxTicksPerSecondRounded();
+            holdController = new PIDController(reader.getDouble("HOLD_KP"), reader.getDouble("HOLD_KI"), reader.getDouble("HOLD_KD"));
         } catch(Exception e){
             logError(logTag + " MotorController Error", "Config File Read Fail: " + e.toString());
             return 0;
@@ -181,6 +185,7 @@ public class MotorController extends Thread {
     }
 
     public void setTicksPerSecondVelocity(long ticksPerSec){
+        takenStartValue = false;
         //check for flip in sign, if so, reset our pid controller
         //power is a function of ticksPerSec/maxAcheivable ticks per second
         //Log.d("MotorVel", "" + ticksPerSec + " T/s");
@@ -205,18 +210,33 @@ public class MotorController extends Thread {
     }
 
     public void holdPosition(){
-        if(getMotorRunMode() != DcMotor.RunMode.RUN_TO_POSITION){
-            motor.setPower(0);
-            try {
-                sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            motor.setTargetPosition(motor.getCurrentPosition());
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setPower(0.6);
-        }
+//        if(getMotorRunMode() != DcMotor.RunMode.RUN_TO_POSITION){
+//            motor.setPower(0);
+//            try {
+//                sleep(20);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            motor.setTargetPosition(motor.getCurrentPosition());
+//            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            motor.setPower(0.6);
+//        }
 
+//        Log.d("Hold Position", "Start");
+
+        setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        if(!takenStartValue) {
+            startPos = motor.getCurrentPosition();
+            takenStartValue = true;
+//            Log.d("Hold Position", "Start value taken");
+        }
+        holdController.setSp(0);
+        int distToPos = motor.getCurrentPosition() - startPos;
+//        Log.d("Hold Position", "KP" + holdController.getP());
+//        Log.d("Hold Position", "Distance to position" + distToPos);
+        double motorPower = holdController.calculatePID(distToPos);
+//        Log.d("Hold Position", "Motor Power" + motorPower);
+        motor.setPower(motorPower);
     }
 
     public double getWheelDiameterInInches(){
@@ -226,10 +246,12 @@ public class MotorController extends Thread {
     public int getTicksPerRevolution(){return (int)ticksPerRevolution;}
 
     public void setMotorPower(double power){
+        takenStartValue = false;
         motor.setPower(power);
     }
 
     public void brake(){
+        takenStartValue = false;
         if(getMotorRunMode() == DcMotor.RunMode.RUN_TO_POSITION)
             setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motor.setPower(0);

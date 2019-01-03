@@ -93,7 +93,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
  */
 
 @TeleOp(name="Autonomous Navigation Original", group ="Concept")
-@Disabled
+//@Disabled
 public class AutoNavigationTesting extends LinearOpMode {
 
     /*
