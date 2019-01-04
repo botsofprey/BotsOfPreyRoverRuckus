@@ -51,7 +51,7 @@ public class DelatchAutoTest extends LinearOpMode {
         latchSystem = new LatchSystem(hardwareMap);
 
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 180,"RobotConfig/JennyV2.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/JennyV2.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
