@@ -379,7 +379,7 @@ public class JennyNavigation extends Thread{
 
     public void driveOnHeadingWithTurning(double heading, double driveVelocity, double magnitudeOfTurn){
         double [] turnVelocities =  calculateTurnVelocitiesRelativeToMax(magnitudeOfTurn);
-        double [] headingVelocities = determineMotorVelocitiesToDriveOnHeading(heading,driveVelocity);
+        double [] headingVelocities = determineMotorVelocitiesToDriveOnHeading(heading, driveVelocity);
         double [] finalVelocities = new double[4];
         for(int i = 0; i < finalVelocities.length; i ++){
             finalVelocities[i] = turnVelocities[i] + headingVelocities[i];

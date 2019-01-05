@@ -9,24 +9,28 @@ import java.io.IOException;
 
 import Actions.HardwareWrappers.SpoolMotor;
 import Actions.RNBMineralSystem;
+import Actions.RNBMineralSystemV2;
+import DriveEngine.HolonomicDriveSystem;
 import DriveEngine.HolonomicDriveSystemTesting;
 import MotorControllers.MotorController;
 
 /**
  * Created by robotics on 2/16/18.
  */
-@TeleOp(name="Spoon V1", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@TeleOp(name="Roseanna v2", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class spoonV1 extends LinearOpMode {
+public class RoseannaV2 extends LinearOpMode {
     final double movementScale = 1;
     final double turningScale = .75;
+    boolean reversedDrive = false;
 
-    RNBMineralSystem mineralSystem;
+    RNBMineralSystemV2 mineralSystem;
+    HolonomicDriveSystemTesting driveSystem;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        HolonomicDriveSystemTesting driveSystem = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/JennyV2.json");
-        mineralSystem = new RNBMineralSystem(hardwareMap);
+        driveSystem = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/JennyV2.json");
+        mineralSystem = new RNBMineralSystemV2(hardwareMap);
         JoystickHandler leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
         JoystickHandler rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
 
@@ -40,10 +44,12 @@ public class spoonV1 extends LinearOpMode {
 
         while(opModeIsActive()){
             movementPower = movementScale * Math.abs(leftStick.magnitude());
-            turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.abs(rightStick.x())/rightStick.x();
+            turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
 
             handleMineralSystem();
-            driveSystem.cartesianDriveOnHeadingWithTurning(leftStick.angle()+45, movementPower, turningPower);
+
+            if(gamepad1.x) reversedDrive = !reversedDrive;
+            driveSystem.driveOnHeadingWithTurning((reversedDrive)? leftStick.angle() + 180:leftStick.angle(), movementPower, turningPower);
 
 
             telemetry.addData("Gamepad1 left Joystick",leftStick.toString());
@@ -55,20 +61,14 @@ public class spoonV1 extends LinearOpMode {
     }
 
     private void handleMineralSystem() {
-        if(gamepad1.a) mineralSystem.collect();
-        else if(gamepad1.b) mineralSystem.spit();
+        if(gamepad1.a) mineralSystem.intake();
+        else if(gamepad1.b) mineralSystem.expel();
         else mineralSystem.pauseCollection();
-        if(gamepad1.left_trigger > 0.1) mineralSystem.extendIntake();
-        else if(gamepad1.left_bumper) mineralSystem.retractIntake();
+        if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(gamepad1.left_trigger);
+        else if(gamepad1.left_bumper) mineralSystem.lower();
+        else mineralSystem.pauseLift();
+        if(gamepad1.right_trigger > 0.1) mineralSystem.extendOrRetract(gamepad1.right_trigger);
+        else if(gamepad1.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
-        if(gamepad1.dpad_up) mineralSystem.depositMinerals();
-        else if(gamepad1.dpad_down) mineralSystem.readyForCollection();
-        if(gamepad1.right_trigger > 0.1) mineralSystem.liftMinerals();
-        else if(gamepad1.right_bumper) mineralSystem.lowerMinerals();
-        else mineralSystem.pauseMineralLift();
-    }
-
-    private void handleLatchSystem(){
-
     }
 }

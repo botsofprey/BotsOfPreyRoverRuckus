@@ -9,6 +9,7 @@ import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
@@ -29,17 +30,22 @@ import java.io.IOException;
     The
  */
 public class VuforiaHelper {
-
-    VuforiaLocalizer vuLoc;
+    public static String LICENSE_KEY_NO_EXTERNAL_CAMERA = "Afh+Mi//////AAAAGT/WCUCZNUhEt3/AvBZOSpKBjwlgufihL3d3H5uiMfbq/1tDOM6w+dgMIdKUvVFEjNNy9zSaruPDbwX0HwjI6BEvxuWbw+UcZFcfF7i4g7peD4zSCEyZBCi59q5H/a2aTsnJVaG0WO0pPawHDuuScrMsA/QPKQGV/pZOT6rK8cW2C3bEkZpZ1qqkSM5zNeKs2OQtr8Bvl2nQiVK6mQ3ZT4fxWGb7P/iTZ4k1nEhkxI56sr5HlxmSd0WOx9i8hYDTJCASU6wwtOeUHZYigZmdRYuARS+reLJRXUylirmoU8kVvMK1p2Kf8dajEWsTuPwBec/BSaygmpqD0WkAc2B1Vmaa/1zTRfYNR3spIfjHQCYu";
+    public static String LICENSE_KEY_EXTERNAL_CAMERA = "ASTjkxr/////AAABmXsyKKnvFEZUjIMLJz2b8nmOO3tp/i6ZKChx0lsi1SX8+TvocOrfl1mDnQmCpwY0VLXKXtZ7ukuwWVj8nf+8A2ybtp9/t7j/L5rrTGqr1mM+j9W78MvFKs4VaSnpP7lETjV2VnrubiIAnhrlGB5YKUftkbOmY0xkMg0U3/KuZ1vvxrWOS26igF654pX8gXujMukiwOFSuz+Ki1iOApuiLACMRfxV5iYUtGmArO+YiGNK8p6HPmv2bnm1GQKeGr7e6Du8IyvPboOVk594ftlkokkedkXcJawqMRHWgQYUvLn9Cq4+RgjntZTcPb7Auv0jCXZyMpblZQMa0DGbns3lJNr593HQFcqVeDBjfnGY/1+Q";
+    static VuforiaLocalizer vuLoc;
     VuforiaTrackables relicTrackables;
     VuforiaTrackable relicTemplate;
     private final float UPRIGHT_POST_ROTATE_IN_DEG = 270;
     private final float HORIZONTAL_WITH_CAMERA_TO_LEFT_POST_ROTATE_IN_DEG = 180;
 
     public VuforiaHelper(){
+        initVuforia();
+    }
+
+    public static VuforiaLocalizer initVuforia(){
         try {
             VuforiaLocalizer.Parameters params = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
-            params.vuforiaLicenseKey = "Afh+Mi//////AAAAGT/WCUCZNUhEt3/AvBZOSpKBjwlgufihL3d3H5uiMfbq/1tDOM6w+dgMIdKUvVFEjNNy9zSaruPDbwX0HwjI6BEvxuWbw+UcZFcfF7i4g7peD4zSCEyZBCi59q5H/a2aTsnJVaG0WO0pPawHDuuScrMsA/QPKQGV/pZOT6rK8cW2C3bEkZpZ1qqkSM5zNeKs2OQtr8Bvl2nQiVK6mQ3ZT4fxWGb7P/iTZ4k1nEhkxI56sr5HlxmSd0WOx9i8hYDTJCASU6wwtOeUHZYigZmdRYuARS+reLJRXUylirmoU8kVvMK1p2Kf8dajEWsTuPwBec/BSaygmpqD0WkAc2B1Vmaa/1zTRfYNR3spIfjHQCYu";
+            params.vuforiaLicenseKey = LICENSE_KEY_EXTERNAL_CAMERA;
             params.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
             vuLoc = ClassFactory.createVuforiaLocalizer(params);
             Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true); //enables RGB565 format for the image
@@ -48,9 +54,10 @@ public class VuforiaHelper {
         } catch (Exception e){
             throw new RuntimeException(e);
         }
+        return vuLoc;
     }
 
-    public  void kill(){
+    public void kill(){
         //Vuforia.deinit();
         //vuLoc.
     }
