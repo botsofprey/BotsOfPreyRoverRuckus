@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 
+import Autonomous.Location;
+
 /**
  * Created by Jeremy on 8/7/2017.
  */
@@ -65,5 +67,13 @@ public class JsonConfigReader {
 
     public boolean getBoolean(String n) throws Exception{
         return jsonObject.getBoolean(n);
+    }
+
+    public Location getLocation(String n) throws  Exception{
+        String locToParse = jsonObject.getString(n);
+        int x = Integer.getInteger(locToParse.substring(locToParse.indexOf("("), locToParse.indexOf(",")));
+        int y = Integer.getInteger(locToParse.substring(locToParse.indexOf(","), locToParse.indexOf(")")));
+        Location toReturn = new Location(x, y);
+        return toReturn;
     }
 }

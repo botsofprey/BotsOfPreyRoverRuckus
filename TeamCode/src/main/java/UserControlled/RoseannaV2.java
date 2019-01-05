@@ -2,17 +2,9 @@ package UserControlled;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import java.io.IOException;
-
-import Actions.HardwareWrappers.SpoolMotor;
-import Actions.RNBMineralSystem;
-import Actions.RNBMineralSystemV2;
-import DriveEngine.HolonomicDriveSystem;
+import Actions.MineralSystemV2;
 import DriveEngine.HolonomicDriveSystemTesting;
-import MotorControllers.MotorController;
 
 /**
  * Created by robotics on 2/16/18.
@@ -24,15 +16,16 @@ public class RoseannaV2 extends LinearOpMode {
     final double turningScale = .75;
     boolean reversedDrive = false;
 
-    RNBMineralSystemV2 mineralSystem;
-    HolonomicDriveSystemTesting driveSystem;
+    JoystickHandler leftStick, rightStick;
+    MineralSystemV2 mineralSystem;
+    HolonomicDriveSystemTesting navigation;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        driveSystem = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/JennyV2.json");
-        mineralSystem = new RNBMineralSystemV2(hardwareMap);
-        JoystickHandler leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
-        JoystickHandler rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
+        navigation = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/JennyV2.json");
+        mineralSystem = new MineralSystemV2(hardwareMap);
+        leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
+        rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
 
         double movementPower;
         double turningPower;
@@ -49,7 +42,7 @@ public class RoseannaV2 extends LinearOpMode {
             handleMineralSystem();
 
             if(gamepad1.x) reversedDrive = !reversedDrive;
-            driveSystem.driveOnHeadingWithTurning((reversedDrive)? leftStick.angle() + 180:leftStick.angle(), movementPower, turningPower);
+            navigation.driveOnHeadingWithTurning((reversedDrive)? leftStick.angle() + 180:leftStick.angle(), movementPower, turningPower);
 
 
             telemetry.addData("Gamepad1 left Joystick",leftStick.toString());
@@ -57,7 +50,7 @@ public class RoseannaV2 extends LinearOpMode {
             telemetry.update();
         }
         mineralSystem.kill();
-        driveSystem.kill();
+        navigation.kill();
     }
 
     private void handleMineralSystem() {
@@ -67,8 +60,7 @@ public class RoseannaV2 extends LinearOpMode {
         if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(gamepad1.left_trigger);
         else if(gamepad1.left_bumper) mineralSystem.lower();
         else mineralSystem.pauseLift();
-        if(gamepad1.right_trigger > 0.1) mineralSystem.extendOrRetract(gamepad1.right_trigger);
-        else if(gamepad1.right_bumper) mineralSystem.retractIntake();
+        if(rightStick.y() > 0.1 || rightStick.y() < -0.1) mineralSystem.extendOrRetract(rightStick.y());
         else mineralSystem.pauseExtension();
     }
 }

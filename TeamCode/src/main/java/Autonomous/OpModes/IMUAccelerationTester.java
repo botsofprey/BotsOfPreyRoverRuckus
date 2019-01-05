@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package UserControlled;
+package Autonomous.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import Autonomous.Location;
 import DriveEngine.HolonomicDriveSystemTesting;
 import DriveEngine.JennyNavigation;
+import UserControlled.JoystickHandler;
 
 @TeleOp(name="Accelerometer Tester", group="Linear Opmode")
 //@Disabled
@@ -64,7 +65,7 @@ public class IMUAccelerationTester extends LinearOpMode {
         while (opModeIsActive()) {
             accelerations = navigation.orientation.getAccelerations();
             movementPower = 1 * leftStick.magnitude();
-            turningPower = 0.5 * (Math.abs(rightStick.magnitude())) * Math.abs(rightStick.x())/rightStick.x();
+            turningPower = 0.5 * (Math.abs(rightStick.magnitude())) * Math.signum(rightStick.x());
             navigation.relativeDriveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
 
             telemetry.addData("X Accel", accelerations[0]);

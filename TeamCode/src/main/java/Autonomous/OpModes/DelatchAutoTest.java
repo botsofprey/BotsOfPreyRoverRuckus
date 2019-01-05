@@ -29,13 +29,18 @@
 
 package Autonomous.OpModes;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import java.io.InputStream;
 
 import Actions.LatchSystem;
 import Autonomous.Location;
 import Autonomous.TensorFlowHelper;
 import DriveEngine.JennyNavigation;
+import MotorControllers.JsonConfigReader;
 
 @Autonomous(name = "Delatch Test", group = "Concept")
 //@Disabled
@@ -49,9 +54,18 @@ public class DelatchAutoTest extends LinearOpMode {
     public void runOpMode() {
         tflow = new TensorFlowHelper(hardwareMap);
         latchSystem = new LatchSystem(hardwareMap);
+        InputStream stream = null;
+        try {
+            stream = hardwareMap.appContext.getAssets().open("FieldConfig/BlueLocations.json");
+        }
+        catch(Exception e){
+            Log.d("Drive Engine Error: ",e.toString());
+            throw new RuntimeException("Drive Engine Open Config File Fail: " + e.toString());
+        }
+        JsonConfigReader reader = new JsonConfigReader(stream);
 
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/JennyV2.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 135, "RobotConfig/JennyV2.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -66,13 +80,21 @@ public class DelatchAutoTest extends LinearOpMode {
 
         //TODO: consider spinning off a thread for the latch system to do it's thing
         sleep(50);
-        while(!latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed()) latchSystem.extend();
+        while(!latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed() && opModeIsActive()) latchSystem.extend();
         sleep(50);
-        navigation.driveDistance(3, 180, 10, this);
-        navigation.driveDistance(4, 90, 10, this);
-        navigation.driveDistance(3, 0, 10, this);
+        navigation.driveDistanceNonCorrected(3, 180, 10, this);
+        idle();
+        navigation.driveDistanceNonCorrected(4, 90, 10, this);
+        idle();
+        navigation.driveDistanceNonCorrected(3, 0, 10, this);
+        idle();
 
-
+        try {
+            navigation.setLocation(reader.getLocation("GOLD_LANDING_ZONE"));
+            navigation.driveToLocation(reader.getLocation("BLUE_DEPOT"), 15, this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 //        tflow.startDetection();
 //        int goldPosition = tflow.getGoldMineralPosition();
