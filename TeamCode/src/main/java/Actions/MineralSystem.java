@@ -11,7 +11,7 @@ import Actions.HardwareWrappers.ServoHandler;
 import Actions.HardwareWrappers.SpoolMotor;
 import MotorControllers.MotorController;
 
-public class RNBMineralSystem implements ActionHandler{
+public class MineralSystem implements ActionHandler{
     public final int COLLECT_DEGREE = 0;
     public final int DEPOSIT_DEGREE = 150;
     private MotorController intakeMotor;
@@ -20,7 +20,7 @@ public class RNBMineralSystem implements ActionHandler{
     private ServoHandler depositor;
     private HardwareMap hardwareMap;
 
-    public RNBMineralSystem(HardwareMap hw){
+    public MineralSystem(HardwareMap hw){
         hardwareMap = hw;
         try {
             intakeMotor = new MotorController("collector", "MotorConfig/NeverRest40.json", hardwareMap);

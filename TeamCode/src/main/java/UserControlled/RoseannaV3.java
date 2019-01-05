@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import Actions.LatchSystem;
-import Actions.RNBMineralSystemV2;
+import Actions.MineralSystemV2;
 import DriveEngine.HolonomicDriveSystemTesting;
 
 /**
@@ -17,17 +17,18 @@ public class RoseannaV3 extends LinearOpMode {
     final double turningScale = .75;
     boolean reversedDrive = false;
 
-    RNBMineralSystemV2 mineralSystem;
+    JoystickHandler leftStick, rightStick;
+    MineralSystemV2 mineralSystem;
     LatchSystem latchSystem;
     HolonomicDriveSystemTesting navigation;
 
     @Override
     public void runOpMode() throws InterruptedException {
         navigation = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/JennyV2.json");
-        mineralSystem = new RNBMineralSystemV2(hardwareMap);
+        mineralSystem = new MineralSystemV2(hardwareMap);
         latchSystem = new LatchSystem(hardwareMap);
-        JoystickHandler leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
-        JoystickHandler rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
+        leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
+        rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
 
         double movementPower;
         double turningPower;

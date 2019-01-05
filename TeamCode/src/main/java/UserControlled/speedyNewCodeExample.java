@@ -26,8 +26,8 @@ public class speedyNewCodeExample extends LinearOpMode {
         double turningPower = 0;
 
         while(opModeIsActive()){
-             movementPower = movementScale * Math.abs(leftStick.magnitude());
-             turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
+            movementPower = movementScale * Math.abs(leftStick.magnitude());
+            turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
             driveSystem.cartesianDriveOnHeadingWithTurning(leftStick.angle()+45, movementPower, turningPower);
             telemetry.addData("Gamepad1 left Joystick",leftStick.toString());
             telemetry.addData("Gamepad1 right Joystick", rightStick.toString());

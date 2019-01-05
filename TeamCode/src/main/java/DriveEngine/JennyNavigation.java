@@ -120,6 +120,10 @@ public class JennyNavigation extends Thread{
 
     }
 
+    public void setLocation(Location loc) {
+        myLocation = new Location(loc.getX(), loc.getY());
+    }
+
     private void updateData(){
 
         updateHeading();

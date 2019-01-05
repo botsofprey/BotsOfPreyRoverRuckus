@@ -11,13 +11,13 @@ import Actions.HardwareWrappers.ServoHandler;
 import Actions.HardwareWrappers.SpoolMotor;
 import MotorControllers.MotorController;
 
-public class RNBMineralSystemV2 implements ActionHandler{
+public class MineralSystemV2 implements ActionHandler{
     private SpoolMotor extensionMotor;
     private MotorController liftMotor;
     private ServoHandler intake;
     private HardwareMap hardwareMap;
 
-    public RNBMineralSystemV2(HardwareMap hw){
+    public MineralSystemV2(HardwareMap hw){
         hardwareMap = hw;
         try{
             extensionMotor = new SpoolMotor(new MotorController("extension", "MotorConfig/NeverRest40.json", hardwareMap), 50, 50, 100, hardwareMap);
