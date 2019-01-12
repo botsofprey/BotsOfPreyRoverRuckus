@@ -86,6 +86,7 @@ public class MineralSystemV2 implements ActionHandler{
     public void expel() {intake.setPosition(0);}
     public void pauseCollection() {intake.setPosition(0.5);}
 
+    // TODO: fix...
     public boolean goToPosition(int target) {
         switch (target) {
             case FAR_DEPOSIT_POSITION:
