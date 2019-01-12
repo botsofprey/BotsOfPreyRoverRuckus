@@ -41,10 +41,27 @@ public class MineralSystemV2 implements ActionHandler{
         intake.setDirection(Servo.Direction.FORWARD);
     }
 
-    public void extendIntake() {extensionMotor.extendWithPower(); movingToPosition = false;}
-    public void retractIntake() {extensionMotor.retractWithPower(); movingToPosition = false;}
-    public void extendOrRetract(double power) {extensionMotor.setPower(power); movingToPosition = false;}
-    public void pauseExtension() {if(!movingToPosition) extensionMotor.pause();}
+    public void extendIntake() {
+        extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        extensionMotor.extendWithPower();
+        movingToPosition = false;
+    }
+    public void retractIntake() {
+        extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        extensionMotor.retractWithPower();
+        movingToPosition = false;
+    }
+    public void extendOrRetract(double power) {
+        extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        extensionMotor.setPower(power);
+        movingToPosition = false;
+    }
+    public void pauseExtension() {
+        if(!movingToPosition) {
+            extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            extensionMotor.pause();
+        }
+    }
 
 
     public void lift() {
@@ -75,9 +92,10 @@ public class MineralSystemV2 implements ActionHandler{
                 if(Math.abs(FAR_POSITION_DEGREE - liftMotor.getDegree()) >= 2 || Math.abs(FAR_POSITION_R - extensionMotor.getPositionInches()) >= 0.2) {
                     movingToPosition = true;
                     double slope = (FAR_POSITION_R * Math.sin(Math.toRadians(FAR_POSITION_DEGREE)) - extensionMotor.getPositionInches() * Math.sin(Math.toRadians(liftMotor.getDegree()))) / (FAR_POSITION_R * Math.cos(Math.toRadians(FAR_POSITION_DEGREE)) - extensionMotor.getPositionInches() * Math.cos(Math.toRadians(liftMotor.getDegree())));
-                    double newR = -1 / (Math.sin(Math.toRadians(liftMotor.getDegree())) - slope * Math.cos(Math.toRadians(liftMotor.getDegree())));
+                    double newR = 1 / (Math.sin(Math.toRadians(liftMotor.getDegree())) - slope * Math.cos(Math.toRadians(liftMotor.getDegree())));
                     if (extensionMotor.getMotorControllerMode() != DcMotor.RunMode.RUN_TO_POSITION)
                         extensionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    Log.d("Slope", ""+slope);
                     Log.d("Extension Motor Target", ""+newR);
 //                    extensionMotor.setPostitionInches(newR);
 //                    extensionMotor.setPower(1);

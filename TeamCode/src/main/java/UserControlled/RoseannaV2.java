@@ -68,13 +68,19 @@ public class RoseannaV2 extends LinearOpMode {
         if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(gamepad1.left_trigger);
         else if(gamepad1.left_bumper) mineralSystem.lower();
         else mineralSystem.pauseLift();
-        if(gamepad1.right_trigger > 0.1) mineralSystem.extendOrRetract(gamepad1.right_trigger);
-        else if(gamepad1.right_bumper) mineralSystem.retractIntake();
+        if(gamepad1.right_trigger > 0.1) {
+            mineralSystem.extendOrRetract(gamepad1.right_trigger);
+            movingToPos = false;
+        }
+        else if(gamepad1.right_bumper) {
+            mineralSystem.retractIntake();
+            movingToPos = false;
+        }
         else mineralSystem.pauseExtension();
 
-        if(gamepad1.x) {
+        if(gamepad1.y) {
             movingToPos = !movingToPos;
-            while (gamepad1.x);
+            while (opModeIsActive() && gamepad1.y);
         }
         if(movingToPos && !mineralSystem.goToPosition(MineralSystemV2.FAR_DEPOSIT_POSITION)) mineralSystem.goToPosition(MineralSystemV2.FAR_DEPOSIT_POSITION);
         else movingToPos = false;
