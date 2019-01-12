@@ -3,6 +3,7 @@ package UserControlled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import Actions.MineralSystem;
 import Actions.MineralSystemV2;
 import DriveEngine.HolonomicDriveSystemTesting;
 
@@ -15,6 +16,7 @@ public class RoseannaV2 extends LinearOpMode {
     final double movementScale = 1;
     final double turningScale = .75;
     boolean reversedDrive = false;
+    boolean movingToPos = false;
 
     JoystickHandler leftStick, rightStick;
     MineralSystemV2 mineralSystem;
@@ -41,12 +43,18 @@ public class RoseannaV2 extends LinearOpMode {
 
             handleMineralSystem();
 
-            if(gamepad1.x) reversedDrive = !reversedDrive;
+            if(gamepad1.x) {
+                reversedDrive = !reversedDrive;
+                while (opModeIsActive() && gamepad1.x);
+            }
             navigation.driveOnHeadingWithTurning((reversedDrive)? leftStick.angle() + 180:leftStick.angle(), movementPower, turningPower);
 
 
             telemetry.addData("Gamepad1 left Joystick",leftStick.toString());
             telemetry.addData("Gamepad1 right Joystick", rightStick.toString());
+            telemetry.addData("Arm Rotation (ticks)", mineralSystem.liftMotor.getCurrentTick());
+            telemetry.addData("Arm Rotation (deg)", mineralSystem.liftMotor.getDegree());
+            telemetry.addData("Arm Extension (ticks)", mineralSystem.extensionMotor.getPosition());
             telemetry.update();
         }
         mineralSystem.kill();
@@ -60,7 +68,15 @@ public class RoseannaV2 extends LinearOpMode {
         if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(gamepad1.left_trigger);
         else if(gamepad1.left_bumper) mineralSystem.lower();
         else mineralSystem.pauseLift();
-        if(rightStick.y() > 0.1 || rightStick.y() < -0.1) mineralSystem.extendOrRetract(rightStick.y());
+        if(gamepad1.right_trigger > 0.1) mineralSystem.extendOrRetract(gamepad1.right_trigger);
+        else if(gamepad1.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
+
+        if(gamepad1.x) {
+            movingToPos = !movingToPos;
+            while (gamepad1.x);
+        }
+        if(movingToPos && !mineralSystem.goToPosition(MineralSystemV2.FAR_DEPOSIT_POSITION)) mineralSystem.goToPosition(MineralSystemV2.FAR_DEPOSIT_POSITION);
+        else movingToPos = false;
     }
 }

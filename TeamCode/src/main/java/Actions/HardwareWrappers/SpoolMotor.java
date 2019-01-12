@@ -14,7 +14,7 @@ import MotorControllers.MotorController;
     A class to set up a motor that has a spool of string attached to it
     ex: our extendotron lift motor
  */
-public class SpoolMotor implements ActionHandler {
+public class SpoolMotor implements ActionHandler{
     MotorController motor;
     HardwareMap hardwareMap;
     private double extendSpeedInPerSecond = 0;
@@ -95,6 +95,10 @@ public class SpoolMotor implements ActionHandler {
 
     public long getPosition(){
         return motor.getCurrentTick();
+    }
+
+    public double getPositionInches() {
+        return motor.getInchesFromStart();
     }
 
     public void setMode(DcMotor.RunMode mode){
