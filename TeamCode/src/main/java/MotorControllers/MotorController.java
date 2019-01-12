@@ -22,6 +22,7 @@ public class MotorController extends Thread {
     private long maxTicksPerSecond = 0;
     private long ticksPerRevolution = 0;
     private double wheelDiameterInInches = 0;
+    private double ticksPerDegree = 0;
     //user set and program updated variables
     private long currentTicksPerSec = 0;
     private long curTickLocation = 0;
@@ -32,6 +33,7 @@ public class MotorController extends Thread {
     private volatile boolean shouldRun = false;
     MotorTachometer tachometer;
     PIDController holdController;
+    private double initialDegree = 0;
     private long LOOP_MILLIS = 200;
     private int startPos = 0;
 
@@ -148,6 +150,8 @@ public class MotorController extends Thread {
             //ticksPerRevolution = reader.getLong("TICKS_PER_REV");
             ticksPerRevolution = (long)motor.getMotorType().getTicksPerRev();
             wheelDiameterInInches = reader.getDouble("WHEEL_DIAMETER");
+            ticksPerDegree = reader.getDouble("TICKS_PER_DEGREE");
+            initialDegree = reader.getDouble("INITIAL_DEGREE");
             //double maxRPS = reader.getDouble("MAX_RPS");
             double maxRPS = motor.getMotorType().getMaxRPM();
             //maxTicksPerSecond = (long)(maxRPS * ticksPerRevolution + .5);
@@ -182,6 +186,11 @@ public class MotorController extends Thread {
 
     public double getInchesFromStart(){
         return (double) getCurrentTick() / (double)(ticksPerRevolution) * wheelDiameterInInches * Math.PI;
+    }
+
+    public double getDegree() {
+        double angleInDeg = getCurrentTick()/ticksPerDegree + initialDegree;
+        return angleInDeg;
     }
 
     public void setTicksPerSecondVelocity(long ticksPerSec){
@@ -268,6 +277,13 @@ public class MotorController extends Thread {
 
     public void setPositionTicks(int tick){
         motor.setTargetPosition(tick);
+    }
+
+    public void setPositionDegrees(double deg) {
+        motor.setPower(0);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        int targetTick = (int)(deg*ticksPerDegree);
+        motor.setTargetPosition(targetTick);
     }
 
     private void logDebug(String main, String sub){
