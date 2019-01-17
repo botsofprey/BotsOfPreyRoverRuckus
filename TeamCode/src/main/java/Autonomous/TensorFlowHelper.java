@@ -5,6 +5,10 @@ import android.util.Log;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
@@ -25,16 +29,29 @@ import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.TFOD
 public class TensorFlowHelper extends Thread {
     public final static int LEFT = 0, CENTER = 1, RIGHT = 2, NOT_DETECTED = -1;
     private final int POSITION_VOTE_MINIMUM_COUNT = 15;
+    VuforiaLocalizer vuforia;
+    VuforiaTrackables targetsRoverRuckus;
+    VuforiaTrackable blueRover;
+    VuforiaTrackable redFootprint;
+    VuforiaTrackable frontCraters;
+    VuforiaTrackable backSpace;
     private volatile TFObjectDetector tfod;
     private volatile double[] positionVotes = {0, 0, 0};
     private volatile boolean running = true;
+    private volatile boolean targetVisible = false;
+    private volatile OpenGLMatrix lastLocation = null;
+
+    private static final float mmPerInch        = 25.4f;
+    private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
+    private static final float mmTargetHeight   = (5.75f) * mmPerInch;          // the height of the center of the target image above the floor
 
     public TensorFlowHelper(HardwareMap hardwareMap) {
         try {
+            vuforia = VuforiaHelper.initVuforia(hardwareMap);
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, VuforiaHelper.initVuforia());
+            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
             tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
             tfod.activate();
         } catch (Exception e) {
@@ -122,6 +139,19 @@ public class TensorFlowHelper extends Thread {
             }
         });
         return mineralsArray;
+    }
+
+    public void loadNavigationAssets(){
+        targetsRoverRuckus = vuforia.loadTrackablesFromAsset("RoverRuckus");
+        blueRover = targetsRoverRuckus.get(0);
+        blueRover.setName("Blue-Rover");
+        redFootprint = targetsRoverRuckus.get(1);
+        redFootprint.setName("Red-Footprint");
+        frontCraters = targetsRoverRuckus.get(2);
+        frontCraters.setName("Front-Craters");
+        backSpace = targetsRoverRuckus.get(3);
+        backSpace.setName("Back-Space");
+        targetsRoverRuckus.activate();
     }
 
     public void kill() {

@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Environment;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.vuforia.Image;
 import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
@@ -19,6 +20,8 @@ import org.firstinspires.ftc.teamcode.R;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by robotics on 12/12/17.
@@ -33,20 +36,23 @@ public class VuforiaHelper {
     public static String LICENSE_KEY_NO_EXTERNAL_CAMERA = "Afh+Mi//////AAAAGT/WCUCZNUhEt3/AvBZOSpKBjwlgufihL3d3H5uiMfbq/1tDOM6w+dgMIdKUvVFEjNNy9zSaruPDbwX0HwjI6BEvxuWbw+UcZFcfF7i4g7peD4zSCEyZBCi59q5H/a2aTsnJVaG0WO0pPawHDuuScrMsA/QPKQGV/pZOT6rK8cW2C3bEkZpZ1qqkSM5zNeKs2OQtr8Bvl2nQiVK6mQ3ZT4fxWGb7P/iTZ4k1nEhkxI56sr5HlxmSd0WOx9i8hYDTJCASU6wwtOeUHZYigZmdRYuARS+reLJRXUylirmoU8kVvMK1p2Kf8dajEWsTuPwBec/BSaygmpqD0WkAc2B1Vmaa/1zTRfYNR3spIfjHQCYu";
     public static String LICENSE_KEY_EXTERNAL_CAMERA = "ASTjkxr/////AAABmXsyKKnvFEZUjIMLJz2b8nmOO3tp/i6ZKChx0lsi1SX8+TvocOrfl1mDnQmCpwY0VLXKXtZ7ukuwWVj8nf+8A2ybtp9/t7j/L5rrTGqr1mM+j9W78MvFKs4VaSnpP7lETjV2VnrubiIAnhrlGB5YKUftkbOmY0xkMg0U3/KuZ1vvxrWOS26igF654pX8gXujMukiwOFSuz+Ki1iOApuiLACMRfxV5iYUtGmArO+YiGNK8p6HPmv2bnm1GQKeGr7e6Du8IyvPboOVk594ftlkokkedkXcJawqMRHWgQYUvLn9Cq4+RgjntZTcPb7Auv0jCXZyMpblZQMa0DGbns3lJNr593HQFcqVeDBjfnGY/1+Q";
     static VuforiaLocalizer vuLoc;
-    VuforiaTrackables relicTrackables;
-    VuforiaTrackable relicTemplate;
+    public VuforiaTrackables targetsRoverRuckus;
+    VuforiaTrackable blueRover;
+    VuforiaTrackable redFootprint;
+    VuforiaTrackable frontCraters;
+    VuforiaTrackable backSpace;
     private final float UPRIGHT_POST_ROTATE_IN_DEG = 270;
     private final float HORIZONTAL_WITH_CAMERA_TO_LEFT_POST_ROTATE_IN_DEG = 180;
 
-    public VuforiaHelper(){
-        initVuforia();
+    public VuforiaHelper(HardwareMap hw){
+        initVuforia(hw);
     }
 
-    public static VuforiaLocalizer initVuforia(){
+    public static VuforiaLocalizer initVuforia(HardwareMap hardwareMap){
         try {
             VuforiaLocalizer.Parameters params = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
             params.vuforiaLicenseKey = LICENSE_KEY_EXTERNAL_CAMERA;
-            params.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
+            params.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
             vuLoc = ClassFactory.createVuforiaLocalizer(params);
             Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true); //enables RGB565 format for the image
             vuLoc.setFrameQueueCapacity(1); //tells VuforiaLocalizer to only store one frame at a time
@@ -67,20 +73,17 @@ public class VuforiaHelper {
         tells vuforia to begin tracking cryptokeys
      */
 
-    public void loadCipherAssets(){
-        relicTrackables = vuLoc.loadTrackablesFromAsset("RelicVuMark");
-        relicTemplate = relicTrackables.get(0);
-        relicTrackables.activate();
-    }
-
-
-    /*
-        getMark()
-        returns a RelicRecoveryVuMark based on what the camera sees
-     */
-    public RelicRecoveryVuMark getMark(){
-        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-        return vuMark;
+    public void loadNavigationAssets(){
+        targetsRoverRuckus = vuLoc.loadTrackablesFromAsset("RoverRuckus");
+        blueRover = targetsRoverRuckus.get(0);
+        blueRover.setName("Blue-Rover");
+        redFootprint = targetsRoverRuckus.get(1);
+        redFootprint.setName("Red-Footprint");
+        frontCraters = targetsRoverRuckus.get(2);
+        frontCraters.setName("Front-Craters");
+        backSpace = targetsRoverRuckus.get(3);
+        backSpace.setName("Back-Space");
+        targetsRoverRuckus.activate();
     }
 
 
