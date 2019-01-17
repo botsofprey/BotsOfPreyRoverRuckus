@@ -45,6 +45,16 @@ public class LatchSystem implements ActionHandler {
         else rackAndPinion.brake();
     }
 
+    public void extendUnsafe() {
+        rackAndPinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rackAndPinion.setMotorPower(1);
+    }
+
+    public void retractUnsafe() {
+        rackAndPinion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rackAndPinion.setMotorPower(-1);
+    }
+
     public void pause() {
         rackAndPinion.holdPosition();
     }

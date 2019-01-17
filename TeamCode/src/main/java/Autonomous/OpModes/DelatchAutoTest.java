@@ -82,11 +82,11 @@ public class DelatchAutoTest extends LinearOpMode {
         sleep(50);
         while(!latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed() && opModeIsActive()) latchSystem.extend();
         sleep(50);
-        navigation.driveDistanceNonCorrected(3, 180, 10, this);
+        navigation.driveDistanceNonCorrected(4, 180, 10, this);
         idle();
         navigation.driveDistanceNonCorrected(4, 90, 10, this);
         idle();
-        navigation.driveDistanceNonCorrected(3, 0, 10, this);
+        navigation.driveDistanceNonCorrected(4, 0, 10, this);
         idle();
 
         try {
@@ -122,6 +122,7 @@ public class DelatchAutoTest extends LinearOpMode {
         telemetry.update();
         while (opModeIsActive());
         navigation.stopNavigation();
+        latchSystem.kill();
         tflow.kill();
     }
 }

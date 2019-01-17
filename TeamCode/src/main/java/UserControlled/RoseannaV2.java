@@ -3,6 +3,7 @@ package UserControlled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import Actions.LatchSystem;
 import Actions.MineralSystem;
 import Actions.MineralSystemV2;
 import DriveEngine.HolonomicDriveSystemTesting;
@@ -20,12 +21,14 @@ public class RoseannaV2 extends LinearOpMode {
 
     JoystickHandler leftStick, rightStick;
     MineralSystemV2 mineralSystem;
+    LatchSystem latchSystem;
     HolonomicDriveSystemTesting navigation;
 
     @Override
     public void runOpMode() throws InterruptedException {
         navigation = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/JennyV2.json");
         mineralSystem = new MineralSystemV2(hardwareMap);
+        latchSystem = new LatchSystem(hardwareMap);
         leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
         rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
 
@@ -42,6 +45,7 @@ public class RoseannaV2 extends LinearOpMode {
             turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
 
             handleMineralSystem();
+            handleLatchSystem();
 
             if(gamepad1.x) {
                 reversedDrive = !reversedDrive;
@@ -84,5 +88,11 @@ public class RoseannaV2 extends LinearOpMode {
         }
         if(movingToPos && !mineralSystem.goToPosition(MineralSystemV2.FAR_DEPOSIT_POSITION)) mineralSystem.goToPosition(MineralSystemV2.FAR_DEPOSIT_POSITION);
         else movingToPos = false;
+    }
+
+    private void handleLatchSystem(){
+        if(gamepad1.dpad_up || gamepad2.dpad_up) latchSystem.retract();
+        else if(gamepad1.dpad_down || gamepad2.dpad_down) latchSystem.extend();
+        else latchSystem.pause();
     }
 }
