@@ -197,6 +197,10 @@ public class VisionHelper extends Thread {
             robotLocation.updateXY(translation.get(0) / mmPerInch, translation.get(1) / mmPerInch);
             robotOrientation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
         }
+        else {
+            robotLocation = null;
+            robotOrientation = null;
+        }
     }
 
     private Recognition[] filterMineralsOnScreen(List<Recognition> minerals) {

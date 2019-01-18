@@ -85,7 +85,7 @@ public class DelatchAutoTest extends LinearOpMode {
         sleep(50);
         navigation.driveDistanceNonCorrected(4, 180, 10, this);
         idle();
-        navigation.driveDistanceNonCorrected(4, 90, 10, this);
+        navigation.driveDistanceNonCorrected(2, 90, 10, this);
         idle();
         navigation.driveDistanceNonCorrected(4, 0, 10, this);
         idle();
