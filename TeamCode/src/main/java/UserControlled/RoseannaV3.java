@@ -15,9 +15,9 @@ import DriveEngine.HolonomicDriveSystemTesting;
 public class RoseannaV3 extends LinearOpMode {
     final double movementScale = 1;
     double turningScale = .75;
-    boolean reversedDrive = false;
     boolean intaking = false;
     boolean p1Driving = true;
+    boolean aReleased = true, startReleased = true;
 
     JoystickHandler leftStick, rightStick, gamepad2LeftStick, gamepad2RightStick;
     MineralSystemV3 mineralSystem;
@@ -42,7 +42,7 @@ public class RoseannaV3 extends LinearOpMode {
         while(opModeIsActive()){
             turningScale = (mineralSystem.MAX_EXTEND_INCHES - mineralSystem.extensionMotor.getPositionInches()) / mineralSystem.MAX_EXTEND_INCHES;
 
-
+            //TODO: make toggle buttons detected by pressing not releasing
 
             handleDriving();
             handleMineralSystem();
@@ -65,27 +65,21 @@ public class RoseannaV3 extends LinearOpMode {
     }
 
     private void handleDriving() {
-        if(gamepad1.start || gamepad2.start) {
+        if(startReleased && (gamepad1.start || gamepad2.start)) {
+            startReleased = false;
             p1Driving = !p1Driving;
-            while (opModeIsActive() && (gamepad1.start || gamepad2.start));
+        } else if(!startReleased && !gamepad1.start && !gamepad2.start) {
+            startReleased = true;
         }
 
         if(p1Driving) {
             double movementPower = movementScale * Math.abs(leftStick.magnitude());
             double turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
-            if (gamepad1.x) {
-                reversedDrive = !reversedDrive;
-                while (opModeIsActive() && gamepad1.x);
-            }
-            navigation.driveOnHeadingWithTurning((reversedDrive) ? leftStick.angle() + 180 : leftStick.angle(), movementPower, turningPower);
+            navigation.driveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
         } else {
             double movementPower = movementScale * Math.abs(gamepad2LeftStick.magnitude());
             double turningPower = turningScale * Math.abs(gamepad2RightStick.magnitude()) * Math.signum(gamepad2RightStick.x());
-            if (gamepad2.x) {
-                reversedDrive = !reversedDrive;
-                while (opModeIsActive() && gamepad2.x);
-            }
-            navigation.driveOnHeadingWithTurning((reversedDrive) ? gamepad2LeftStick.angle() + 180 : gamepad2LeftStick.angle(), movementPower, turningPower);
+            navigation.driveOnHeadingWithTurning(gamepad2LeftStick.angle() + 270, movementPower, turningPower);
         }
     }
 
@@ -95,10 +89,13 @@ public class RoseannaV3 extends LinearOpMode {
         else if(gamepad1.left_bumper || gamepad2.left_bumper) mineralSystem.lower();
         else mineralSystem.pauseLift();
 
-        if(gamepad1.a || gamepad2.a) {
+        if(aReleased && (gamepad1.a || gamepad2.a)) {
+            aReleased = false;
             intaking = !intaking;
-            while (opModeIsActive() && (gamepad1.a || gamepad2.a));
+        } else if(!aReleased && !gamepad1.a && !gamepad2.a) {
+            aReleased = true;
         }
+
 
         if(intaking && !gamepad1.b && !gamepad2.b) mineralSystem.intake();
         else if(gamepad1.b || gamepad2.b) {
@@ -108,6 +105,8 @@ public class RoseannaV3 extends LinearOpMode {
 
         if(Math.abs(rightStick.y()) > 0.1) mineralSystem.extendOrRetract(rightStick.y());
         else if(Math.abs(gamepad2LeftStick.y()) > 0.1) mineralSystem.extendOrRetract(gamepad2LeftStick.y());
+        else if(gamepad1.right_trigger > 0.1 || gamepad2.right_trigger > 0.1) mineralSystem.extendIntake();
+        else if(gamepad1.right_bumper || gamepad2.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
     }
 

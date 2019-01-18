@@ -52,4 +52,9 @@ public class Location {
         distance = Math.sqrt(Math.pow((location.getX() - getX()), 2) + Math.pow((location.getY() - getY()), 2));
         return distance;
     }
+
+    public String toString() {
+        String toReturn = "X: " + x + ", Y: " + y;
+        return toReturn;
+    }
 }

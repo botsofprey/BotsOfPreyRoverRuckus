@@ -29,6 +29,7 @@
 
 package Autonomous.OpModes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -38,8 +39,8 @@ import DriveEngine.HolonomicDriveSystemTesting;
 import DriveEngine.JennyNavigation;
 import UserControlled.JoystickHandler;
 
-@TeleOp(name="Accelerometer Tester", group="Linear Opmode")
-//@Disabled
+@Autonomous(name="Accelerometer Tester", group="Linear Opmode")
+@Disabled
 public class IMUAccelerationTester extends LinearOpMode {
     JennyNavigation navigation;
     JoystickHandler leftStick, rightStick;

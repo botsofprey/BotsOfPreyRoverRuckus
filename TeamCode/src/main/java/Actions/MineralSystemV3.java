@@ -23,7 +23,7 @@ public class MineralSystemV3 implements ActionHandler{
     private final double FAR_POSITION_R = 103;
     private final double FAR_POSITION_DEGREE = 142;
     private boolean movingToPosition = false;
-    public final double MAX_EXTEND_INCHES = 120;
+    public final double MAX_EXTEND_INCHES = 125;
 
     public MineralSystemV3(HardwareMap hw){
         hardwareMap = hw;

@@ -31,63 +31,45 @@ package Autonomous.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
 
 import Autonomous.Location;
-import DriveEngine.JennyNavigation;
 import Autonomous.VisionHelper;
 
-@Autonomous(name = "Silver Side Autonomous Holonomic Drive", group = "Concept")
+import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
+import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
+
+@Autonomous(name="Navigation Test", group ="Concept")
 //@Disabled
-public class CleanerAutonomous extends LinearOpMode {
-    JennyNavigation navigation;
+public class NavigationTest extends LinearOpMode {
+    VisionHelper robotVision;
 
-    private VisionHelper robotVision;
-
-    @Override
-    public void runOpMode() {
+    @Override public void runOpMode() {
         robotVision = new VisionHelper(hardwareMap);
+        robotVision.startTrackingLocation();
+        robotVision.startDetection();
 
-        try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 180,"RobotConfig/JennyV2.json");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
         waitForStart();
-        telemetry.addData("Status", "Running...");
-        telemetry.update();
-        // START AUTONOMOUS
 
-        robotVision.startGoldDetection();
-        robotVision.startDetection();
-        int goldPosition = robotVision.getGoldMineralPosition();
+        while (opModeIsActive()) {
+            Location robotLocation = robotVision.getRobotLocation();
+            double rotation = robotVision.getRobotHeading();
 
-        long startTime = System.currentTimeMillis();
-        while (opModeIsActive() && goldPosition == VisionHelper.NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) goldPosition = robotVision.getGoldMineralPosition();
 
-        navigation.driveDistance(15, 0, 25, this);
+            telemetry.addData("Pos (in)", "{X, Y} = %.1f, %.1f",
+                    robotLocation.getX(), robotLocation.getY());
 
-        if (goldPosition == VisionHelper.LEFT) {
-            telemetry.addData("driving...", "left");
+            telemetry.addData("Rot (deg)", "Heading = %.0f", rotation);
             telemetry.update();
-            navigation.driveDistance(21, 90, 25, this);
-        } else if (goldPosition == VisionHelper.RIGHT) {
-            telemetry.addData("driving...", "right");
-            telemetry.update();
-            navigation.driveDistance(21, 270, 25, this);
         }
-
-        telemetry.addData("driving...", "forward");
-        telemetry.update();
-        navigation.driveDistance(26, 0,25, this);
-
-        telemetry.addData("Status", "Waiting to end...");
-        telemetry.update();
-        while (opModeIsActive());
-        navigation.stopNavigation();
         robotVision.kill();
     }
 }

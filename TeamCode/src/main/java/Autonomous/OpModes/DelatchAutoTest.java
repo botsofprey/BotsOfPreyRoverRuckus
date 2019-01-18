@@ -38,21 +38,21 @@ import java.io.InputStream;
 
 import Actions.LatchSystem;
 import Autonomous.Location;
-import Autonomous.TensorFlowHelper;
 import DriveEngine.JennyNavigation;
 import MotorControllers.JsonConfigReader;
+import Autonomous.VisionHelper;
 
-@Autonomous(name = "Delatch Test", group = "Concept")
+@Autonomous(name = "Blue Team Silver Auto", group = "Concept")
 //@Disabled
 public class DelatchAutoTest extends LinearOpMode {
     JennyNavigation navigation;
     LatchSystem latchSystem;
 
-    private TensorFlowHelper tflow;
+    private VisionHelper robotVision;
 
     @Override
     public void runOpMode() {
-        tflow = new TensorFlowHelper(hardwareMap);
+        robotVision = new VisionHelper(hardwareMap);
         latchSystem = new LatchSystem(hardwareMap);
         InputStream stream = null;
         try {
@@ -65,10 +65,11 @@ public class DelatchAutoTest extends LinearOpMode {
         JsonConfigReader reader = new JsonConfigReader(stream);
 
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 135, "RobotConfig/JennyV2.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 45, "RobotConfig/JennyV2.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
+        robotVision.startTrackingLocation();
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
@@ -89,26 +90,24 @@ public class DelatchAutoTest extends LinearOpMode {
         navigation.driveDistanceNonCorrected(4, 0, 10, this);
         idle();
 
-        try {
-            navigation.setLocation(reader.getLocation("GOLD_LANDING_ZONE"));
-            navigation.driveToLocation(reader.getLocation("BLUE_DEPOT"), 15, this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-//        tflow.startDetection();
-//        int goldPosition = tflow.getGoldMineralPosition();
+        navigation.turnToHeading(60, this);
+        robotVision.startDetection();
+        sleep(50);
+        navigation.setLocation(robotVision.getRobotLocation());
+        telemetry.addData("Location", navigation.getRobotLocation());
+//        robotVision.startDetection();
+//        int goldPosition = robotVision.getGoldMineralPosition();
 //
 //        long startTime = System.currentTimeMillis();
-//        while (opModeIsActive() && goldPosition == TensorFlowHelper.NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) goldPosition = tflow.getGoldMineralPosition();
+//        while (opModeIsActive() && goldPosition == VisionHelper.NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) goldPosition = robotVision.getGoldMineralPosition();
 //
 //        navigation.driveDistance(15, 0, 25, this);
 //
-//        if (goldPosition == TensorFlowHelper.LEFT) {
+//        if (goldPosition == VisionHelper.LEFT) {
 //            telemetry.addData("driving...", "left");
 //            telemetry.update();
 //            navigation.driveDistance(21, 90, 25, this);
-//        } else if (goldPosition == TensorFlowHelper.RIGHT) {
+//        } else if (goldPosition == VisionHelper.RIGHT) {
 //            telemetry.addData("driving...", "right");
 //            telemetry.update();
 //            navigation.driveDistance(21, 270, 25, this);
@@ -123,6 +122,6 @@ public class DelatchAutoTest extends LinearOpMode {
         while (opModeIsActive());
         navigation.stopNavigation();
         latchSystem.kill();
-        tflow.kill();
+        robotVision.kill();
     }
 }

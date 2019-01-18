@@ -29,7 +29,7 @@ public class VuforiaImageCaptureTest extends LinearOpMode {
         int imageTaken = 0;
         CryptoBoxColumnImageProcessor.CRYPTOBOX_COLOR color = CryptoBoxColumnImageProcessor.CRYPTOBOX_COLOR.BLUE;
         /*To access the image: you need to iterate through the images of the frame object:*/
-        VuforiaHelper vuforia = new VuforiaHelper();
+        VuforiaHelper vuforia = new VuforiaHelper(hardwareMap);
         //wait for the op mode to start, this is the time to change teams
         while (!opModeIsActive()) {
             if (gamepad1.start) {
