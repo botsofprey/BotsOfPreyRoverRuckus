@@ -29,20 +29,17 @@
 
 package Autonomous.OpModes;
 
-import android.util.Log;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
-import java.io.InputStream;
 
 import Actions.LatchSystem;
 import Actions.MineralSystemV3;
 import Autonomous.Location;
 import Autonomous.VisionHelper;
 import DriveEngine.JennyNavigation;
-import MotorControllers.JsonConfigReader;
 
+import static Actions.LatchSystem.EXTEND_SWITCH;
+import static Actions.LatchSystem.RETRACT_SWITCH;
 import static DriveEngine.JennyNavigation.BACK_LEFT_HOLONOMIC_DRIVE_MOTOR;
 import static DriveEngine.JennyNavigation.BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR;
 import static DriveEngine.JennyNavigation.FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR;
@@ -51,12 +48,13 @@ import static DriveEngine.JennyNavigation.FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR;
 @Autonomous(name = "Self Wiring Test", group = "Concept")
 //@Disabled
 public class SelfWiringTest extends LinearOpMode {
-    JennyNavigation navigation;
-    MineralSystemV3 mineralSystem;
-    LatchSystem latchSystem;
-    VisionHelper robotVision;
-    int driveMotorCount[] = {0, 0, 0, 0};
-    int liftMotorCount = 0, extensionMotorCount = 0;
+    private JennyNavigation navigation;
+    private MineralSystemV3 mineralSystem;
+    private LatchSystem latchSystem;
+    private VisionHelper robotVision;
+    private int driveMotorCount[] = {0, 0, 0, 0};
+    private int liftMotorCount = 0, extensionMotorCount = 0, winchMotorCount = 0;
+    private boolean extendSwitchGood = false, retractSwitchGood = false, tflowDetectionGood = false, vuforiaNavigationGood = false;
 
     @Override
     public void runOpMode() {
@@ -65,13 +63,13 @@ public class SelfWiringTest extends LinearOpMode {
         latchSystem = new LatchSystem(hardwareMap);
 
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 45, "RobotConfig/JennyV2.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/JennyV2.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         /** Wait for the game to begin */
-        telemetry.addData(">", "Press Play to start tracking");
+        telemetry.addData("Status", "Initialized!");
         telemetry.update();
         waitForStart();
         telemetry.addData("Status", "Running...");
@@ -79,10 +77,10 @@ public class SelfWiringTest extends LinearOpMode {
 
         checkDriveMotors();
         checkMineralSystem();
-        //TODO: add telemetry, latch system check, and camera check
+        checkLatchSystem();
+        checkCamera();
 
-
-        telemetry.update();
+        reportRobotStatus();
         while (opModeIsActive());
         navigation.stopNavigation();
         latchSystem.kill();
@@ -90,6 +88,8 @@ public class SelfWiringTest extends LinearOpMode {
     }
 
     private void checkDriveMotors() {
+        telemetry.addData("Drive Motor", "Checking... Front Left");
+        telemetry.update();
         navigation.driveMotors[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR].setInchesPerSecondVelocity(5);
         sleep(200);
         navigation.brake();
@@ -100,6 +100,8 @@ public class SelfWiringTest extends LinearOpMode {
         navigation.brake();
         if(Math.abs(navigation.driveMotors[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR].getCurrentTick() - tick) > 30) driveMotorCount[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR]++;
 
+        telemetry.addData("Drive Motor", "Checking... Front Right");
+        telemetry.update();
         navigation.driveMotors[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR].setInchesPerSecondVelocity(5);
         sleep(200);
         navigation.brake();
@@ -109,6 +111,8 @@ public class SelfWiringTest extends LinearOpMode {
         navigation.brake();
         if(Math.abs(navigation.driveMotors[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR].getCurrentTick() - tick) > 30) driveMotorCount[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR]++;
 
+        telemetry.addData("Drive Motor", "Checking... Back Left");
+        telemetry.update();
         navigation.driveMotors[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR].setInchesPerSecondVelocity(5);
         sleep(200);
         navigation.brake();
@@ -118,6 +122,8 @@ public class SelfWiringTest extends LinearOpMode {
         navigation.brake();
         if(Math.abs(navigation.driveMotors[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR].getCurrentTick() - tick) > 30) driveMotorCount[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR]++;
 
+        telemetry.addData("Drive Motor", "Checking... Back Right");
+        telemetry.update();
         navigation.driveMotors[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR].setInchesPerSecondVelocity(5);
         sleep(200);
         navigation.brake();
@@ -126,22 +132,11 @@ public class SelfWiringTest extends LinearOpMode {
         sleep(200);
         navigation.brake();
         if(Math.abs(navigation.driveMotors[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR].getCurrentTick() - tick) > 30) driveMotorCount[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR]++;
-
-        if(driveMotorCount[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] == 2) {
-
-        }
-        if(driveMotorCount[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] == 2) {
-
-        }
-        if(driveMotorCount[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] == 2) {
-
-        }
-        if(driveMotorCount[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] == 2) {
-
-        }
     }
 
     private void checkMineralSystem() {
+        telemetry.addData("Mineral System", "Checking... Arm");
+        telemetry.update();
         mineralSystem.lift();
         sleep(200);
         mineralSystem.pauseLift();
@@ -152,6 +147,8 @@ public class SelfWiringTest extends LinearOpMode {
         mineralSystem.pauseLift();
         if(Math.abs(mineralSystem.liftMotor.getCurrentTick() - tick) > 30) liftMotorCount++;
 
+        telemetry.addData("Mineral System", "Checking... Extension");
+        telemetry.update();
         mineralSystem.extendIntake();
         sleep(200);
         mineralSystem.pauseExtension();
@@ -162,10 +159,120 @@ public class SelfWiringTest extends LinearOpMode {
         mineralSystem.pauseExtension();
         if(Math.abs(mineralSystem.extensionMotor.getPosition() - tick) > 30) extensionMotorCount++;
 
+        telemetry.addData("Mineral System", "Checking... Intake");
+        telemetry.update();
         mineralSystem.intake();
         sleep(500);
         mineralSystem.expel();
         sleep(500);
         mineralSystem.pauseCollection();
+
+        // more???
+    }
+
+    private void checkLatchSystem() {
+        telemetry.addData("Latch System", "Checking... Extend Switch");
+        telemetry.addData("Extend Switch", "Press and hold the extend switch until told to stop");
+        telemetry.update();
+        sleep(1000);
+        if(latchSystem.limitSwitches[EXTEND_SWITCH].isPressed()) extendSwitchGood = true;
+        telemetry.addData("Extend Switch", "Release the extend switch");
+        telemetry.update();
+        sleep(1000);
+
+        telemetry.addData("Latch System", "Checking... Retract Switch");
+        telemetry.addData("Retract Switch", "Press and hold the retracts switch until told to stop");
+        telemetry.update();
+        sleep(1000);
+        if(latchSystem.limitSwitches[RETRACT_SWITCH].isPressed()) retractSwitchGood = true;
+        telemetry.addData("Retract Switch", "Release the retract switch");
+        telemetry.update();
+        sleep(1000);
+
+        telemetry.addData("Latch System", "Checking... Winch Motor");
+        telemetry.update();
+        latchSystem.retractUnsafe();
+        sleep(200);
+        latchSystem.winchMotor.brake();
+        long tick = latchSystem.winchMotor.getCurrentTick();
+        if(Math.abs(tick) > 30) winchMotorCount++;
+        latchSystem.extend();
+        sleep(200);
+        latchSystem.pause();
+        if(Math.abs(latchSystem.winchMotor.getCurrentTick() - tick) > 30) winchMotorCount++;
+    }
+
+    private void checkCamera() {
+        telemetry.addData("Robot Vision", "Checking... TensorFlow");
+        telemetry.addData("TensorFlow", "Put gold and silver minerals into the camera view");
+        telemetry.update();
+        sleep(1000);
+        if(robotVision.getClosestMineral() != null) tflowDetectionGood = true;
+
+        telemetry.addData("Robot Vision", "Checking... Vuforia");
+        telemetry.addData("Vuforia", "Put a navigation target into the camera view");
+        telemetry.update();
+        robotVision.startTrackingLocation();
+        robotVision.startDetection();
+        sleep(1000);
+        if(robotVision.getRobotLocation() != null) vuforiaNavigationGood = true;
+        robotVision.stopDetection();
+    }
+
+    private void reportRobotStatus() {
+        // Drive Motors
+        if(driveMotorCount[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] == 2) {
+            telemetry.addData("Drive Motor", "FL - Good! 2/2");
+        } else if(driveMotorCount[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] == 1) {
+            telemetry.addData("Drive Motor", "FL - Error! 1/2");
+        } else telemetry.addData("Drive Motor", "FL - Error! 0/2");
+        if(driveMotorCount[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] == 2) {
+            telemetry.addData("Drive Motor", "FR - Good! 2/2");
+        } else if(driveMotorCount[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] == 1) {
+            telemetry.addData("Drive Motor", "FR - Error! 1/2");
+        } else telemetry.addData("Drive Motor", "FR - Error! 0/2");
+        if(driveMotorCount[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] == 2) {
+            telemetry.addData("Drive Motor", "BL - Good! 2/2");
+        } else if(driveMotorCount[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] == 1) {
+            telemetry.addData("Drive Motor", "BL - Error! 1/2");
+        } else telemetry.addData("Drive Motor", "BL - Error! 0/2");
+        if(driveMotorCount[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] == 2) {
+            telemetry.addData("Drive Motor", "BR - Good! 2/2");
+        } else if(driveMotorCount[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] == 1) {
+            telemetry.addData("Drive Motor", "BR - Error! 1/2");
+        } else telemetry.addData("Drive Motor", "BR - Error! 0/2");
+        telemetry.update();
+        sleep(3000);
+
+        // Mineral System
+        if(liftMotorCount == 2) telemetry.addData("Mineral System", "Arm - Good! 2/2");
+        else if(liftMotorCount == 1) telemetry.addData("Mineral System", "Arm - Error! 1/2");
+        else telemetry.addData("Mineral System", "Arm - Error! 0/2");
+        if(extensionMotorCount == 2) telemetry.addData("Mineral System", "Extension - Good! 2/2");
+        else if(extensionMotorCount == 1) telemetry.addData("Mineral System", "Extension - Error! 1/2");
+        else telemetry.addData("Mineral System", "Extension - Error! 0/2");
+        telemetry.update();
+        sleep(3000);
+
+        // Latch System
+        if(extendSwitchGood) telemetry.addData("Latch System", "Extend Switch - Good!");
+        else telemetry.addData("Latch System", "Extend Switch - Bad!");
+        if(retractSwitchGood) telemetry.addData("Latch System", "Retract Switch - Good!");
+        else telemetry.addData("Latch System", "Retract Switch - Bad!");
+        if(winchMotorCount == 2) telemetry.addData("Latch System", "Winch Motor - Good!");
+        else if(winchMotorCount == 1) telemetry.addData("Latch System", "Winch Motor - Error! 1/2");
+        else telemetry.addData("Latch System", "Winch Motor - Error!");
+        telemetry.update();
+        sleep(3000);
+
+        // Camera
+        if(tflowDetectionGood) telemetry.addData("Robot Vision", "TensorFlow - Good!");
+        else telemetry.addData("Robot Vision", "TesnsorFlow - Bad!");
+        if(vuforiaNavigationGood) telemetry.addData("Robot Vision", "Vuforia - Good!");
+        else telemetry.addData("Robot Vision", "Vuforia - Bad!");
+        sleep(3000);
+
+        // Misc
+
     }
 }
