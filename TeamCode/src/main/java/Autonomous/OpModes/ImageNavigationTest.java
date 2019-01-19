@@ -94,7 +94,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
  */
 
 @Autonomous(name="Image Navigation Test", group ="Concept")
-//@Disabled
+@Disabled
 public class ImageNavigationTest extends LinearOpMode {
 
     /*

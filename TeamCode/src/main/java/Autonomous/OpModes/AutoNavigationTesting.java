@@ -29,6 +29,7 @@
 
 package Autonomous.OpModes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -92,8 +93,8 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
  * is explained below.
  */
 
-@TeleOp(name="Autonomous Navigation Original", group ="Concept")
-//@Disabled
+@Autonomous(name="Autonomous Navigation Original", group ="Concept")
+@Disabled
 public class AutoNavigationTesting extends LinearOpMode {
 
     /*
