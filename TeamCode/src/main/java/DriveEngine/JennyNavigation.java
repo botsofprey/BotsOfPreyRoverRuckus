@@ -614,6 +614,7 @@ public class JennyNavigation extends Thread{
         orientation.stopIMU();
     }
 
+    //TODO: test drive to location alone...
     private void driveToLocation(Location startLocation, Location targetLocation, double desiredSpeed, LinearOpMode mode){
         double distanceToTravel = startLocation.distanceToLocation(targetLocation);
         double deltaX;
@@ -632,8 +633,24 @@ public class JennyNavigation extends Thread{
         }
     }
 
+    private void betterDriveToLocation(Location startLocation, Location targetLocation, double desiredSpeed, LinearOpMode mode) {
+        double distanceToTravel = startLocation.distanceToLocation(targetLocation);
+        double deltaX = targetLocation.getX() - startLocation.getX();
+        double deltaY = targetLocation.getY() - startLocation.getY();
+        double heading = Math.toDegrees(Math.atan2(deltaY, deltaX)) - 90;
+        heading = 360 - heading;
+        heading = (heading - orientation.getOrientation()) % 360;
+        if (heading >= 360) heading -= 360;
+        if (heading < 0) heading += 360;
+        driveDistance(distanceToTravel, heading, desiredSpeed, mode);
+    }
+
     public void driveToLocation(Location targetLocation, double desiredSpeed, LinearOpMode mode){
         driveToLocation(myLocation, targetLocation, desiredSpeed, mode);
+    }
+
+    public void betterDriveToLocation(Location targetLocation, double desiredSpeed, LinearOpMode mode) {
+        betterDriveToLocation(myLocation, targetLocation, desiredSpeed, mode);
     }
 
     public HeadingVector[] getWheelVectors(){

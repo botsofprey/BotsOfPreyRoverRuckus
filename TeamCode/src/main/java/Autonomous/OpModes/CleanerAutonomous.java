@@ -36,6 +36,12 @@ import Autonomous.Location;
 import DriveEngine.JennyNavigation;
 import Autonomous.VisionHelper;
 
+import static Autonomous.VisionHelper.CENTER;
+import static Autonomous.VisionHelper.LEFT;
+import static Autonomous.VisionHelper.NOT_DETECTED;
+import static Autonomous.VisionHelper.RIGHT;
+import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
+
 @Autonomous(name = "Silver Side Autonomous Holonomic Drive", group = "Concept")
 //@Disabled
 public class CleanerAutonomous extends LinearOpMode {
@@ -48,7 +54,7 @@ public class CleanerAutonomous extends LinearOpMode {
         robotVision = new VisionHelper(hardwareMap);
 
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 180,"RobotConfig/JennyV2.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), -90,"RobotConfig/JennyV2.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -61,21 +67,34 @@ public class CleanerAutonomous extends LinearOpMode {
         telemetry.update();
         // START AUTONOMOUS
 
-        robotVision.startGoldDetection();
-        robotVision.startDetection();
+//        robotVision.startGoldDetection();
+//        robotVision.startDetection();
+        robotVision.resetPositionVotes();
         int goldPosition = robotVision.getGoldMineralPosition();
-
-        long startTime = System.currentTimeMillis();
-        while (opModeIsActive() && goldPosition == VisionHelper.NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) goldPosition = robotVision.getGoldMineralPosition();
-
         navigation.driveDistance(15, 0, 25, this);
+        long startTime = System.currentTimeMillis();
+        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) {
+            if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = CENTER;
+            else {
+                navigation.driveDistance(21, 90, 25, this);
+                if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = LEFT;
+                else goldPosition = RIGHT;
+            }
+        }
 
-        if (goldPosition == VisionHelper.LEFT) {
+//        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) goldPosition = robotVision.getGoldMineralPosition();
+
+
+        /*if (goldPosition == LEFT) {
             telemetry.addData("driving...", "left");
             telemetry.update();
             navigation.driveDistance(21, 90, 25, this);
-        } else if (goldPosition == VisionHelper.RIGHT) {
+        } else */if (goldPosition == RIGHT) {
             telemetry.addData("driving...", "right");
+            telemetry.update();
+            navigation.driveDistance(21*2, 270, 25, this);
+        } else if(goldPosition == CENTER) {
+            telemetry.addData("driving...", "center");
             telemetry.update();
             navigation.driveDistance(21, 270, 25, this);
         }

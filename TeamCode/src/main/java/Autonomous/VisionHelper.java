@@ -55,9 +55,9 @@ public class VisionHelper extends Thread {
     private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
     private static final float mmTargetHeight   = (5.75f) * mmPerInch;          // the height of the center of the target image above the floor
 
-    final int CAMERA_FORWARD_DISPLACEMENT_FROM_CENTER = (int)(9*mmPerInch);
+    final int CAMERA_FORWARD_DISPLACEMENT_FROM_CENTER = (int)(1.5*mmPerInch);
     final int CAMERA_VERTICAL_DISPLACEMENT_FROM_CENTER = (int)(14*mmPerInch);
-    final int CAMERA_LEFT_DISPLACEMENT_FROM_CENTER = 0;
+    final int CAMERA_LEFT_DISPLACEMENT_FROM_CENTER = (int)(-1*mmPerInch);
 
     public VisionHelper(HardwareMap hardwareMap) {
         try {
@@ -78,7 +78,7 @@ public class VisionHelper extends Thread {
     public void run() {
         if(tfod != null) {
             while (running) {
-                if(detectingGold) updatePositionVotes();
+//                if(detectingGold) updatePositionVotes();
                 if(trackingLocation) updateRobotLocation();
             }
             resetPositionVotes();
@@ -127,6 +127,19 @@ public class VisionHelper extends Thread {
             }
         }
         return position;
+    }
+
+    public void addPositionVote(int position) {
+        positionVotes[position]++;
+    }
+
+    public Recognition getClosestMineral() {
+        List<Recognition> recognitions = tfod.getRecognitions();
+        if(recognitions != null) {
+            Recognition[] minerals = filterMineralsOnScreen(recognitions);
+            return minerals[0];
+        }
+        return null;
     }
 
     public Orientation getRobotOrientation() {
@@ -194,6 +207,7 @@ public class VisionHelper extends Thread {
 
         if (targetVisible) {
             translation = lastLocation.getTranslation();
+            robotLocation = new Location(0, 0);
             robotLocation.updateXY(translation.get(0) / mmPerInch, translation.get(1) / mmPerInch);
             robotOrientation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
         }

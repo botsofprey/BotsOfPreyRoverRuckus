@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import Actions.LatchSystem;
+import Actions.MineralSystem;
 import Actions.MineralSystemV3;
 import DriveEngine.HolonomicDriveSystemTesting;
 
@@ -18,6 +19,7 @@ public class RoseannaV3 extends LinearOpMode {
     boolean intaking = false;
     boolean p1Driving = true;
     boolean aReleased = true, startReleased = true;
+    int degToggle = 0;
 
     JoystickHandler leftStick, rightStick, gamepad2LeftStick, gamepad2RightStick;
     MineralSystemV3 mineralSystem;
@@ -75,7 +77,7 @@ public class RoseannaV3 extends LinearOpMode {
         if(p1Driving) {
             double movementPower = movementScale * Math.abs(leftStick.magnitude());
             double turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
-            navigation.driveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
+            navigation.driveOnHeadingWithTurning(leftStick.angle() + 180, movementPower, turningPower);
         } else {
             double movementPower = movementScale * Math.abs(gamepad2LeftStick.magnitude());
             double turningPower = turningScale * Math.abs(gamepad2RightStick.magnitude()) * Math.signum(gamepad2RightStick.x());
@@ -103,16 +105,30 @@ public class RoseannaV3 extends LinearOpMode {
             intaking = false;
         } else mineralSystem.pauseCollection();
 
+        if(gamepad1.dpad_up) {
+            degToggle++;
+            while (opModeIsActive() && gamepad1.dpad_up);
+        }
+        else if(gamepad1.dpad_down) {
+            degToggle--;
+            while (opModeIsActive() && gamepad1.dpad_down);
+        }
+        if(degToggle > 2) degToggle = 0;
+        else if(degToggle < 0) degToggle = 2;
+        if(degToggle == 0) mineralSystem.closeDoor();
+        else if(degToggle == 1) mineralSystem.setDoorDegree(MineralSystemV3.MED_ANGLE);
+        else mineralSystem.openDoor();
+
         if(Math.abs(rightStick.y()) > 0.1) mineralSystem.extendOrRetract(rightStick.y());
-        else if(Math.abs(gamepad2LeftStick.y()) > 0.1) mineralSystem.extendOrRetract(gamepad2LeftStick.y());
+        else if(Math.abs(gamepad2RightStick.y()) > 0.1) mineralSystem.extendOrRetract(gamepad2RightStick.y());
         else if(gamepad1.right_trigger > 0.1 || gamepad2.right_trigger > 0.1) mineralSystem.extendIntake();
         else if(gamepad1.right_bumper || gamepad2.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
     }
 
     private void handleLatchSystem(){
-        if(gamepad1.dpad_up || gamepad2.dpad_up) latchSystem.retract();
-        else if(gamepad1.dpad_down || gamepad2.dpad_down) latchSystem.extend();
+        if(gamepad2.dpad_up) latchSystem.retract();
+        else if(gamepad2.dpad_down) latchSystem.extend();
         else latchSystem.pause();
     }
 }

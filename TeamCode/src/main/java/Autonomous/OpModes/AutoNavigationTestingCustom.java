@@ -249,9 +249,9 @@ public class AutoNavigationTestingCustom extends LinearOpMode {
          * In this example, it is centered (left to right), but 110 mm forward of the middle of the robot, and 200 mm above ground level.
          */
 
-        final int CAMERA_FORWARD_DISPLACEMENT  = 337;   // eg: Camera is 337 mm in front of robot center
-        final int CAMERA_VERTICAL_DISPLACEMENT = 365;   // eg: Camera is 365 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
+        final int CAMERA_FORWARD_DISPLACEMENT = (int)(1.5*mmPerInch);
+        final int CAMERA_VERTICAL_DISPLACEMENT = (int)(14*mmPerInch);
+        final int CAMERA_LEFT_DISPLACEMENT     = (int)(-1*mmPerInch);
 
         OpenGLMatrix cameraLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)

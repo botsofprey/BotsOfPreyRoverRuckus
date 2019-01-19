@@ -17,6 +17,7 @@ public class MineralSystemV3 implements ActionHandler{
     public SpoolMotor extensionMotor;
     public MotorController liftMotor;
     private ServoHandler intake;
+    private ServoHandler intakeDoor;
     private HardwareMap hardwareMap;
     public static final int FAR_DEPOSIT_POSITION = 0;
     public static final int CLOSE_DEPOSIT_POSITION = 1;
@@ -24,6 +25,9 @@ public class MineralSystemV3 implements ActionHandler{
     private final double FAR_POSITION_DEGREE = 142;
     private boolean movingToPosition = false;
     public final double MAX_EXTEND_INCHES = 125;
+    public static final double CLOSE_DOOR = 5;
+    public static final double OPEN_DOOR = 179;
+    public static final double MED_ANGLE = 100;
 
     public MineralSystemV3(HardwareMap hw){
         hardwareMap = hw;
@@ -40,6 +44,10 @@ public class MineralSystemV3 implements ActionHandler{
         }
         intake = new ServoHandler("intake", hardwareMap);
         intake.setDirection(Servo.Direction.FORWARD);
+        intakeDoor = new ServoHandler("intakeDoor", hardwareMap);
+        intakeDoor.setDirection(Servo.Direction.REVERSE);
+        intakeDoor.setServoRanges(CLOSE_DOOR, OPEN_DOOR);
+        intakeDoor.setDegree(CLOSE_DOOR);
     }
 
     public void extendIntake() {extensionMotor.extendWithPower(); movingToPosition = false;}
@@ -69,6 +77,16 @@ public class MineralSystemV3 implements ActionHandler{
     public void intake() {intake.setPosition(1);}
     public void expel() {intake.setPosition(0);}
     public void pauseCollection() {intake.setPosition(0.5);}
+
+    public void openDoor() {
+        intakeDoor.setDegree(OPEN_DOOR);
+    }
+    public void closeDoor() {
+        intakeDoor.setDegree(CLOSE_DOOR);
+    }
+    public void setDoorDegree(double deg) {
+        intakeDoor.setDegree(deg);
+    }
 
     public boolean goToPosition(int target) {
         switch (target) {

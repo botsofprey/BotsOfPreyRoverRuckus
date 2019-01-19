@@ -42,7 +42,7 @@ import DriveEngine.JennyNavigation;
 import MotorControllers.JsonConfigReader;
 import Autonomous.VisionHelper;
 
-@Autonomous(name = "Blue Team Silver Auto", group = "Concept")
+@Autonomous(name = "Testing...", group = "Concept")
 //@Disabled
 public class DelatchAutoTest extends LinearOpMode {
     JennyNavigation navigation;
@@ -79,9 +79,11 @@ public class DelatchAutoTest extends LinearOpMode {
         telemetry.update();
         // START AUTONOMOUS
 
-        //TODO: consider spinning off a thread for the latch system to do it's thing
         sleep(50);
-        while(!latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed() && opModeIsActive()) latchSystem.extend();
+        navigation.driveOnHeading(90, 5);
+        while(opModeIsActive() && !latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed()) latchSystem.extend();
+        latchSystem.pause();
+        navigation.brake();
         sleep(50);
         navigation.driveDistanceNonCorrected(4, 180, 10, this);
         idle();
@@ -90,11 +92,22 @@ public class DelatchAutoTest extends LinearOpMode {
         navigation.driveDistanceNonCorrected(4, 0, 10, this);
         idle();
 
-        navigation.turnToHeading(60, this);
+        navigation.turnToHeading(70 - 90, this);
         robotVision.startDetection();
         sleep(50);
+        Location robotLocation = null;
+        while (opModeIsActive() && robotLocation == null) {
+            robotLocation = robotVision.getRobotLocation();
+            telemetry.addData("Location", robotLocation);
+            telemetry.update();
+        }
         navigation.setLocation(robotVision.getRobotLocation());
-        telemetry.addData("Location", navigation.getRobotLocation());
+        telemetry.addData("Navigation Location", navigation.getRobotLocation());
+        telemetry.update();
+        idle();
+        navigation.turnToHeading(45, this);
+        idle();
+        navigation.betterDriveToLocation(new Location(85, 56), 15, this);
 //        robotVision.startDetection();
 //        int goldPosition = robotVision.getGoldMineralPosition();
 //
@@ -116,7 +129,7 @@ public class DelatchAutoTest extends LinearOpMode {
 //        telemetry.addData("driving...", "forward");
 //        telemetry.update();
 //        navigation.driveDistance(26, 0,25, this);
-
+        telemetry.addData("Final location", navigation.getRobotLocation());
         telemetry.addData("Status", "Waiting to end...");
         telemetry.update();
         while (opModeIsActive());
