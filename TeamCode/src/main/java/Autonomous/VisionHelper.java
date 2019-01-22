@@ -222,7 +222,7 @@ public class VisionHelper extends Thread {
         Arrays.sort(mineralsArray, new Comparator<Recognition>() {
             @Override
             public int compare(Recognition r1, Recognition r2) {
-                return (int) (r1.getBottom() - r2.getBottom());
+                return (int) (r2.getBottom() - r1.getBottom());
             }
         });
         return mineralsArray;

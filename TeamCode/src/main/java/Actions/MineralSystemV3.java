@@ -43,7 +43,7 @@ public class MineralSystemV3 implements ActionHandler{
             e.printStackTrace();
         }
         intake = new ServoHandler("intake", hardwareMap);
-        intake.setDirection(Servo.Direction.FORWARD);
+        intake.setDirection(Servo.Direction.REVERSE);
         intakeDoor = new ServoHandler("intakeDoor", hardwareMap);
         intakeDoor.setDirection(Servo.Direction.REVERSE);
         intakeDoor.setServoRanges(CLOSE_DOOR, OPEN_DOOR);
@@ -76,7 +76,7 @@ public class MineralSystemV3 implements ActionHandler{
 
     public void intake() {intake.setPosition(1);}
     public void expel() {intake.setPosition(0);}
-    public void pauseCollection() {intake.setPosition(0.5);}
+    public void pauseCollection() {intake.setPosition(0.55);}
 
     public void openDoor() {
         intakeDoor.setDegree(OPEN_DOOR);

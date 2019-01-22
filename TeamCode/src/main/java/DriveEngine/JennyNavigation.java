@@ -30,7 +30,7 @@ public class JennyNavigation extends Thread{
     public static final int FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR = 1;
     public static final int BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR = 2;
     public static final int BACK_LEFT_HOLONOMIC_DRIVE_MOTOR = 3;
-    public static final double LOCATION_DISTANCE_TOLERANCE = 0.5;
+    public static final double LOCATION_DISTANCE_TOLERANCE = 0.25;
     public static final long DEFAULT_DELAY_MILLIS = 10;
     private volatile long threadDelayMillis = 10;
     public volatile double robotHeading = 0;
@@ -280,7 +280,7 @@ public class JennyNavigation extends Thread{
         double averagePosition = 0;
         while(distanceTraveled < distanceInInches && mode.opModeIsActive()){
             //from our motor position, determine location
-            correctedDriveOnHeadingIMU((int)(heading + .5),desiredVelocity,0,mode);
+            correctedDriveOnHeadingIMU((int)(heading + 0.5),desiredVelocity,0,mode);
             motorPositionsInches = getMotorPositionsInches();
             deltaInches = new double[4];
             averagePosition = 0;
@@ -305,6 +305,7 @@ public class JennyNavigation extends Thread{
                 }
                 averagePosition /= (double) deltaInches.length;
                 distanceTraveled = averagePosition / Math.sin(Math.toRadians(45));
+                Log.d("Distance Travelled", "" + distanceTraveled);
             }
         }
         brake();
@@ -620,8 +621,8 @@ public class JennyNavigation extends Thread{
         double deltaX;
         double deltaY;
         double heading;
-        while(distanceToTravel > LOCATION_DISTANCE_TOLERANCE) {
-            distanceToTravel = startLocation.distanceToLocation(targetLocation);
+        while(mode.opModeIsActive() && distanceToTravel > LOCATION_DISTANCE_TOLERANCE) {
+            distanceToTravel = startLocation.distanceToLocation(targetLocation); // start location is updated from the robot's current location (myLocation)
             deltaX = targetLocation.getX() - startLocation.getX();
             deltaY = targetLocation.getY() - startLocation.getY();
             heading = Math.toDegrees(Math.atan2(deltaY, deltaX)) - 90;
@@ -629,28 +630,13 @@ public class JennyNavigation extends Thread{
             heading = (heading - orientation.getOrientation()) % 360;
             if (heading >= 360) heading -= 360;
             if (heading < 0) heading += 360;
-            correctedDriveOnHeadingIMU(heading, desiredSpeed, 0, mode);
+            correctedDriveOnHeadingIMU(heading, desiredSpeed, 10, mode);
         }
-    }
-
-    private void betterDriveToLocation(Location startLocation, Location targetLocation, double desiredSpeed, LinearOpMode mode) {
-        double distanceToTravel = startLocation.distanceToLocation(targetLocation);
-        double deltaX = targetLocation.getX() - startLocation.getX();
-        double deltaY = targetLocation.getY() - startLocation.getY();
-        double heading = Math.toDegrees(Math.atan2(deltaY, deltaX)) - 90;
-        heading = 360 - heading;
-        heading = (heading - orientation.getOrientation()) % 360;
-        if (heading >= 360) heading -= 360;
-        if (heading < 0) heading += 360;
-        driveDistance(distanceToTravel, heading, desiredSpeed, mode);
+        brake();
     }
 
     public void driveToLocation(Location targetLocation, double desiredSpeed, LinearOpMode mode){
         driveToLocation(myLocation, targetLocation, desiredSpeed, mode);
-    }
-
-    public void betterDriveToLocation(Location targetLocation, double desiredSpeed, LinearOpMode mode) {
-        betterDriveToLocation(myLocation, targetLocation, desiredSpeed, mode);
     }
 
     public HeadingVector[] getWheelVectors(){

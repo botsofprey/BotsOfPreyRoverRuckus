@@ -54,7 +54,7 @@ public class FindGoldTest extends LinearOpMode {
         robotVision = new VisionHelper(hardwareMap);
 
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), -90,"RobotConfig/JennyV2.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0,"RobotConfig/JennyV2.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -69,33 +69,9 @@ public class FindGoldTest extends LinearOpMode {
 
 //        robotVision.startGoldDetection();
 //        robotVision.startDetection();
-        robotVision.resetPositionVotes();
-        int goldPosition = robotVision.getGoldMineralPosition();
-        long startTime = System.currentTimeMillis();
-        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) {
-            if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = CENTER;
-            else {
-                navigation.turnToHeading(5,this);
-                sleep(100);
-                if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = RIGHT;
-                else goldPosition = LEFT;
-            }
-        }
-        navigation.turnToHeading(0, this);
-        navigation.driveDistance(15, 0, 25, this);
-        if (goldPosition == LEFT) {
-            telemetry.addData("driving...", "left");
-            telemetry.update();
-            navigation.driveDistance(21, 90, 25, this);
-        } else if (goldPosition == RIGHT) {
-            telemetry.addData("driving...", "right");
-            telemetry.update();
-            navigation.driveDistance(21, 270, 25, this);
-        }
+        int goldPosition = findGold();
+        knockGold(goldPosition);
 
-        telemetry.addData("driving...", "forward");
-        telemetry.update();
-        navigation.driveDistance(26, 0,25, this);
 
         //TODO: park with arm extended
 
@@ -104,5 +80,44 @@ public class FindGoldTest extends LinearOpMode {
         while (opModeIsActive());
         navigation.stopNavigation();
         robotVision.kill();
+    }
+
+    private int findGold() {
+        robotVision.resetPositionVotes();
+        int goldPosition = robotVision.getGoldMineralPosition();
+        long startTime = System.currentTimeMillis();
+        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) {
+            sleep(250);
+            if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = CENTER;
+            else {
+                navigation.turnToHeading(25,this);
+                sleep(500);
+                if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = RIGHT;
+                else goldPosition = LEFT;
+            }
+        }
+        navigation.turnToHeading(0, this);
+        idle();
+        return goldPosition;
+    }
+
+    private void knockGold(int goldPosition) {
+        navigation.driveDistance(12, 90, 25, this);
+        if (goldPosition == LEFT) {
+            telemetry.addData("driving...", "left");
+            telemetry.update();
+            sleep(500);
+            navigation.driveDistance(12, 0, 25, this);
+        } else if (goldPosition == RIGHT) {
+            telemetry.addData("driving...", "right");
+            telemetry.update();
+            sleep(500);
+            navigation.driveDistance(12, 180, 25, this);
+        }
+
+        telemetry.addData("driving...", "forward");
+        telemetry.update();
+        sleep(500);
+        navigation.driveDistance(8, 90,25, this);
     }
 }

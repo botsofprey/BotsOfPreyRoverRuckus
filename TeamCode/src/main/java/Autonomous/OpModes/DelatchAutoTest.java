@@ -42,6 +42,12 @@ import DriveEngine.JennyNavigation;
 import MotorControllers.JsonConfigReader;
 import Autonomous.VisionHelper;
 
+import static Autonomous.VisionHelper.CENTER;
+import static Autonomous.VisionHelper.LEFT;
+import static Autonomous.VisionHelper.NOT_DETECTED;
+import static Autonomous.VisionHelper.RIGHT;
+import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
+
 @Autonomous(name = "Testing...", group = "Concept")
 //@Disabled
 public class DelatchAutoTest extends LinearOpMode {
@@ -92,43 +98,27 @@ public class DelatchAutoTest extends LinearOpMode {
         navigation.driveDistanceNonCorrected(4, 0, 10, this);
         idle();
 
-        navigation.turnToHeading(70 - 90, this);
-        robotVision.startDetection();
-        sleep(50);
-        Location robotLocation = null;
-        while (opModeIsActive() && robotLocation == null) {
-            robotLocation = robotVision.getRobotLocation();
-            telemetry.addData("Location", robotLocation);
-            telemetry.update();
-        }
-        navigation.setLocation(robotVision.getRobotLocation());
-        telemetry.addData("Navigation Location", navigation.getRobotLocation());
-        telemetry.update();
-        idle();
+//        navigation.turnToHeading(70 - 90, this);
+//        robotVision.startDetection();
+//        sleep(50);
+//        Location robotLocation = null;
+//        while (opModeIsActive() && robotLocation == null) {
+//            robotLocation = robotVision.getRobotLocation();
+//            telemetry.addData("Location", robotLocation);
+//            telemetry.update();
+//        }
+//        navigation.setLocation(robotVision.getRobotLocation());
+//        telemetry.addData("Navigation Location", navigation.getRobotLocation());
+//        telemetry.update();
+//        idle();
         navigation.turnToHeading(45, this);
         idle();
-        navigation.betterDriveToLocation(new Location(85, 56), 15, this);
-//        robotVision.startDetection();
-//        int goldPosition = robotVision.getGoldMineralPosition();
-//
-//        long startTime = System.currentTimeMillis();
-//        while (opModeIsActive() && goldPosition == VisionHelper.NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) goldPosition = robotVision.getGoldMineralPosition();
-//
-//        navigation.driveDistance(15, 0, 25, this);
-//
-//        if (goldPosition == VisionHelper.LEFT) {
-//            telemetry.addData("driving...", "left");
-//            telemetry.update();
-//            navigation.driveDistance(21, 90, 25, this);
-//        } else if (goldPosition == VisionHelper.RIGHT) {
-//            telemetry.addData("driving...", "right");
-//            telemetry.update();
-//            navigation.driveDistance(21, 270, 25, this);
-//        }
-//
-//        telemetry.addData("driving...", "forward");
-//        telemetry.update();
-//        navigation.driveDistance(26, 0,25, this);
+        navigation.driveDistanceNonCorrected(2, 190,15, this);
+        sleep(100);
+        int goldPosition = findGold();
+        knockGold(goldPosition);
+
+
         telemetry.addData("Final location", navigation.getRobotLocation());
         telemetry.addData("Status", "Waiting to end...");
         telemetry.update();
@@ -136,5 +126,44 @@ public class DelatchAutoTest extends LinearOpMode {
         navigation.stopNavigation();
         latchSystem.kill();
         robotVision.kill();
+    }
+
+    private int findGold() {
+        robotVision.resetPositionVotes();
+        int goldPosition = robotVision.getGoldMineralPosition();
+        long startTime = System.currentTimeMillis();
+        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) {
+            sleep(250);
+            if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = CENTER;
+            else {
+                navigation.turnToHeading(45 + 25,this);
+                sleep(500);
+                if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = RIGHT;
+                else goldPosition = LEFT;
+            }
+        }
+        navigation.turnToHeading(45 + 0, this);
+        idle();
+        return goldPosition;
+    }
+
+    private void knockGold(int goldPosition) {
+        navigation.driveDistance(11, 45 + 90, 25, this);
+        if (goldPosition == LEFT) {
+            telemetry.addData("driving...", "left");
+            telemetry.update();
+            sleep(500);
+            navigation.driveDistance(12, 45 + 0, 25, this);
+        } else if (goldPosition == RIGHT) {
+            telemetry.addData("driving...", "right");
+            telemetry.update();
+            sleep(500);
+            navigation.driveDistance(12, 45 + 180, 25, this);
+        }
+
+        telemetry.addData("driving...", "forward");
+        telemetry.update();
+        sleep(500);
+        navigation.driveDistance(8, 45 + 90,25, this);
     }
 }

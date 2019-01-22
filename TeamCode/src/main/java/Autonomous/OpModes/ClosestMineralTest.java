@@ -36,33 +36,49 @@ import Autonomous.Location;
 import Autonomous.VisionHelper;
 import DriveEngine.JennyNavigation;
 
-@Autonomous(name="Drive to location", group ="Concept")
+import static Autonomous.VisionHelper.CENTER;
+import static Autonomous.VisionHelper.LEFT;
+import static Autonomous.VisionHelper.NOT_DETECTED;
+import static Autonomous.VisionHelper.RIGHT;
+import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
+import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_SILVER_MINERAL;
+
+@Autonomous(name = "Closest Mineral Test", group = "Concept")
 //@Disabled
-public class DriveToLocationTest extends LinearOpMode {
-    JennyNavigation navigation;
+public class ClosestMineralTest extends LinearOpMode {
+    private VisionHelper robotVision;
 
-    @Override public void runOpMode() {
-        try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/JennyV2.json");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        double radius = 12;
+    @Override
+    public void runOpMode() {
+        robotVision = new VisionHelper(hardwareMap);
 
+        /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
         waitForStart();
-
-        for(int j = 0; j < 4; j++) {
-            for (int i = 0; i <= 360; i += 30) {
-                if(opModeIsActive()) navigation.driveToLocation(new Location(radius * Math.cos(Math.toRadians(i)), radius * Math.sin(Math.toRadians(i))), 15, this);
-            }
-        }
-        navigation.driveToLocation(new Location(0, 0), 15, this);
-
-        telemetry.addData("Robot Location", navigation.getRobotLocation().toString());
+        telemetry.addData("Status", "Running...");
         telemetry.update();
-        while (opModeIsActive());
-        navigation.stopNavigation();
+        // START AUTONOMOUS
+
+//        robotVision.startGoldDetection();
+//        robotVision.startDetection();
+        robotVision.resetPositionVotes();
+        while (opModeIsActive()) {
+            sleep(250);
+            String closestMineral = robotVision.getClosestMineral().getLabel();
+            switch (closestMineral) {
+                case LABEL_GOLD_MINERAL:
+                    telemetry.addData("Closest Mineral", "gold");
+                    break;
+                case LABEL_SILVER_MINERAL:
+                    telemetry.addData("Closest Mineral", "silver");
+                    break;
+                default:
+                    telemetry.addData("Closest Mineral", "unknown");
+                    break;
+            }
+            telemetry.update();
+        }
+        robotVision.kill();
     }
 }
