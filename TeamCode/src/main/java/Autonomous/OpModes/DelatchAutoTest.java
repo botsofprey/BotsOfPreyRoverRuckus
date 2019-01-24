@@ -48,7 +48,7 @@ import static Autonomous.VisionHelper.NOT_DETECTED;
 import static Autonomous.VisionHelper.RIGHT;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 
-@Autonomous(name = "Testing...", group = "Concept")
+@Autonomous(name = "Blue/Red Team 1 Auto Test", group = "Concept")
 //@Disabled
 public class DelatchAutoTest extends LinearOpMode {
     JennyNavigation navigation;
@@ -84,9 +84,10 @@ public class DelatchAutoTest extends LinearOpMode {
         telemetry.addData("Status", "Running...");
         telemetry.update();
         // START AUTONOMOUS
+        //TODO: test driveDistance and adjust PID values
 
         sleep(50);
-        navigation.driveOnHeading(90, 5);
+        navigation.driveOnHeading(90, 1);
         while(opModeIsActive() && !latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed()) latchSystem.extend();
         latchSystem.pause();
         navigation.brake();
@@ -112,11 +113,17 @@ public class DelatchAutoTest extends LinearOpMode {
 //        telemetry.update();
 //        idle();
         navigation.turnToHeading(45, this);
-        idle();
-        navigation.driveDistanceNonCorrected(2, 190,15, this);
         sleep(100);
-        int goldPosition = findGold();
-        knockGold(goldPosition);
+        int goldPosition = -1;
+        if(opModeIsActive()) goldPosition = findGold();
+        idle();
+        if(opModeIsActive()) knockGold(goldPosition);
+
+        // DRIVE TO LEFT POSITION
+        navigation.driveDistanceNonCorrected(10, -90, 15, this);
+        idle();
+        if(goldPosition == RIGHT) navigation.driveDistanceNonCorrected(24, 0, 15, this);
+        else if(goldPosition == CENTER) navigation.driveDistanceNonCorrected(12, 0, 15, this);
 
 
         telemetry.addData("Final location", navigation.getRobotLocation());
@@ -148,22 +155,22 @@ public class DelatchAutoTest extends LinearOpMode {
     }
 
     private void knockGold(int goldPosition) {
-        navigation.driveDistance(11, 45 + 90, 25, this);
+        navigation.driveDistanceNonCorrected(11, 90, 25, this);
         if (goldPosition == LEFT) {
             telemetry.addData("driving...", "left");
             telemetry.update();
             sleep(500);
-            navigation.driveDistance(12, 45 + 0, 25, this);
+            navigation.driveDistanceNonCorrected(12, 0, 15, this);
         } else if (goldPosition == RIGHT) {
             telemetry.addData("driving...", "right");
             telemetry.update();
             sleep(500);
-            navigation.driveDistance(12, 45 + 180, 25, this);
+            navigation.driveDistanceNonCorrected(12, 180, 15, this);
         }
 
         telemetry.addData("driving...", "forward");
         telemetry.update();
         sleep(500);
-        navigation.driveDistance(8, 45 + 90,25, this);
+        navigation.driveDistanceNonCorrected(8, 90,15, this);
     }
 }

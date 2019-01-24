@@ -44,8 +44,6 @@ public class RoseannaV3 extends LinearOpMode {
         while(opModeIsActive()){
             turningScale = (mineralSystem.MAX_EXTEND_INCHES - mineralSystem.extensionMotor.getPositionInches()) / mineralSystem.MAX_EXTEND_INCHES;
 
-            //TODO: make toggle buttons detected by pressing not releasing
-
             handleDriving();
             handleMineralSystem();
             handleLatchSystem();
@@ -77,7 +75,7 @@ public class RoseannaV3 extends LinearOpMode {
         if(p1Driving) {
             double movementPower = movementScale * Math.abs(leftStick.magnitude());
             double turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
-            navigation.driveOnHeadingWithTurning(leftStick.angle() + 180, movementPower, turningPower);
+            navigation.driveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
         } else {
             double movementPower = movementScale * Math.abs(gamepad2LeftStick.magnitude());
             double turningPower = turningScale * Math.abs(gamepad2RightStick.magnitude()) * Math.signum(gamepad2RightStick.x());
@@ -105,19 +103,9 @@ public class RoseannaV3 extends LinearOpMode {
             intaking = false;
         } else mineralSystem.pauseCollection();
 
-        if(gamepad1.dpad_up) {
-            degToggle++;
-            while (opModeIsActive() && gamepad1.dpad_up);
-        }
-        else if(gamepad1.dpad_down) {
-            degToggle--;
-            while (opModeIsActive() && gamepad1.dpad_down);
-        }
-        if(degToggle > 2) degToggle = 0;
-        else if(degToggle < 0) degToggle = 2;
-        if(degToggle == 0) mineralSystem.closeDoor();
-        else if(degToggle == 1) mineralSystem.setDoorDegree(MineralSystemV3.MED_ANGLE);
-        else mineralSystem.openDoor();
+
+        if(gamepad1.dpad_down) mineralSystem.openDoor();
+        else mineralSystem.closeDoor();
 
         if(Math.abs(rightStick.y()) > 0.1) mineralSystem.extendOrRetract(rightStick.y());
         else if(Math.abs(gamepad2RightStick.y()) > 0.1) mineralSystem.extendOrRetract(gamepad2RightStick.y());
