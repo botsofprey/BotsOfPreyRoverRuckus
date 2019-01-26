@@ -71,7 +71,7 @@ public class JsonConfigReader {
 
     public Location getLocation(String n) throws  Exception{
         String locToParse = jsonObject.getString(n);
-        int x = Integer.getInteger(locToParse.substring(locToParse.indexOf("("), locToParse.indexOf(",")));
+        int x = Integer.getInteger(locToParse.substring(locToParse.indexOf("(") + 1, locToParse.indexOf(",")));
         int y = Integer.getInteger(locToParse.substring(locToParse.indexOf(","), locToParse.indexOf(")")));
         Location toReturn = new Location(x, y);
         return toReturn;

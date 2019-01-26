@@ -37,10 +37,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import java.io.InputStream;
 
 import Actions.LatchSystem;
+import Actions.MineralSystemV3;
 import Autonomous.Location;
+import Autonomous.VisionHelper;
 import DriveEngine.JennyNavigation;
 import MotorControllers.JsonConfigReader;
-import Autonomous.VisionHelper;
 
 import static Autonomous.VisionHelper.CENTER;
 import static Autonomous.VisionHelper.LEFT;
@@ -48,11 +49,12 @@ import static Autonomous.VisionHelper.NOT_DETECTED;
 import static Autonomous.VisionHelper.RIGHT;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 
-@Autonomous(name = "Blue/Red Team 1 Auto Test", group = "Concept")
+@Autonomous(name = "Blue Team 1 Auto Test", group = "Concept")
 //@Disabled
-public class DelatchAutoTest extends LinearOpMode {
+public class BlueTeam1Auto extends LinearOpMode {
     JennyNavigation navigation;
     LatchSystem latchSystem;
+    MineralSystemV3 mineralSystem;
 
     private VisionHelper robotVision;
 
@@ -60,15 +62,7 @@ public class DelatchAutoTest extends LinearOpMode {
     public void runOpMode() {
         robotVision = new VisionHelper(hardwareMap);
         latchSystem = new LatchSystem(hardwareMap);
-        InputStream stream = null;
-        try {
-            stream = hardwareMap.appContext.getAssets().open("FieldConfig/BlueLocations.json");
-        }
-        catch(Exception e){
-            Log.d("Drive Engine Error: ",e.toString());
-            throw new RuntimeException("Drive Engine Open Config File Fail: " + e.toString());
-        }
-        JsonConfigReader reader = new JsonConfigReader(stream);
+        mineralSystem = new MineralSystemV3(hardwareMap);
 
         try {
             navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 45, "RobotConfig/JennyV2.json");
@@ -93,11 +87,8 @@ public class DelatchAutoTest extends LinearOpMode {
         navigation.brake();
         sleep(50);
         navigation.driveDistanceNonCorrected(4, 180, 10, this);
-        idle();
         navigation.driveDistanceNonCorrected(2, 90, 10, this);
-        idle();
         navigation.driveDistanceNonCorrected(4, 0, 10, this);
-        idle();
 
 //        navigation.turnToHeading(70 - 90, this);
 //        robotVision.startDetection();
@@ -120,11 +111,41 @@ public class DelatchAutoTest extends LinearOpMode {
         if(opModeIsActive()) knockGold(goldPosition);
 
         // DRIVE TO LEFT POSITION
-        navigation.driveDistanceNonCorrected(10, -90, 15, this);
+        navigation.driveDistance(8, -45, 15, this);
         idle();
-        if(goldPosition == RIGHT) navigation.driveDistanceNonCorrected(24, 0, 15, this);
-        else if(goldPosition == CENTER) navigation.driveDistanceNonCorrected(12, 0, 15, this);
+        if(goldPosition == RIGHT) navigation.driveDistance(24, 45, 15, this);
+        else if(goldPosition == CENTER) navigation.driveDistance(12, 45, 15, this);
 
+        navigation.turnToHeading(-30, this);
+        robotVision.startDetection();
+        sleep(50);
+        Location robotLocation = null;
+        while (opModeIsActive() && robotLocation == null) {
+            robotLocation = robotVision.getRobotLocation();
+            telemetry.addData("Location", robotLocation);
+            telemetry.update();
+        }
+        navigation.setLocation(robotLocation);
+        idle();
+
+        navigation.turnToHeading(0, this);
+        idle();
+        navigation.driveToLocation(new Location(10.0, 72.0), 15, this);
+        navigation.turnToHeading(0, this);
+        idle();
+
+        navigation.driveToLocation(new Location(10.0, 22.0), 15, this);
+        idle();
+
+
+        mineralSystem.lift();
+        sleep(500);
+        navigation.driveDistance(6, 180, 15, this);
+
+        navigation.turnToHeading(180, this);
+        idle();
+        navigation.driveToLocation(new Location(10.0, 78.0), 15, this);
+        idle();
 
         telemetry.addData("Final location", navigation.getRobotLocation());
         telemetry.addData("Status", "Waiting to end...");
@@ -149,28 +170,32 @@ public class DelatchAutoTest extends LinearOpMode {
                 else goldPosition = LEFT;
             }
         }
-        navigation.turnToHeading(45 + 0, this);
+        navigation.turnToHeading(0, this);
         idle();
         return goldPosition;
     }
 
     private void knockGold(int goldPosition) {
-        navigation.driveDistanceNonCorrected(11, 90, 25, this);
+        navigation.driveDistance(4, 135, 15, this);
+        idle();
         if (goldPosition == LEFT) {
             telemetry.addData("driving...", "left");
             telemetry.update();
             sleep(500);
-            navigation.driveDistanceNonCorrected(12, 0, 15, this);
+            navigation.driveDistance(14, 45, 15, this);
+            idle();
         } else if (goldPosition == RIGHT) {
             telemetry.addData("driving...", "right");
             telemetry.update();
             sleep(500);
-            navigation.driveDistanceNonCorrected(12, 180, 15, this);
+            navigation.driveDistance(14, -135, 15, this);
+            idle();
         }
 
         telemetry.addData("driving...", "forward");
         telemetry.update();
         sleep(500);
-        navigation.driveDistanceNonCorrected(8, 90,15, this);
+        navigation.driveDistance(8, 135,15, this);
+        idle();
     }
 }

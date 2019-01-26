@@ -12,7 +12,7 @@ import DriveEngine.HolonomicDriveSystemTesting;
  */
 @TeleOp(name="Roseanna v3 Demo", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class RoseannaV3Demo extends LinearOpMode {
+public class RosannaV3Demo extends LinearOpMode {
     boolean intaking = false;
 
     JoystickHandler rightStick, leftStick, gamepad2RightStick, gamepad2LeftStick;

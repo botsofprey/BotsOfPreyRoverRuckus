@@ -11,15 +11,14 @@ import DriveEngine.HolonomicDriveSystemTesting;
 /**
  * Created by robotics on 2/16/18.
  */
-@TeleOp(name="Roseanna v3", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@TeleOp(name="Rosanna v3", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class RoseannaV3 extends LinearOpMode {
+public class RosannaV3 extends LinearOpMode {
     final double movementScale = 1;
     double turningScale = .75;
     boolean intaking = false;
     boolean p1Driving = true;
     boolean aReleased = true, startReleased = true;
-    int degToggle = 0;
 
     JoystickHandler leftStick, rightStick, gamepad2LeftStick, gamepad2RightStick;
     MineralSystemV3 mineralSystem;
@@ -55,7 +54,7 @@ public class RoseannaV3 extends LinearOpMode {
             telemetry.addData("Gamepad1 right Trigger", gamepad1.right_trigger);
             telemetry.addData("Extend Switch", latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed());
             telemetry.addData("Retract Switch", latchSystem.limitSwitches[LatchSystem.RETRACT_SWITCH].isPressed());
-            telemetry.addData("Arm Radius (in)", mineralSystem.extensionMotor.getPositionInches());
+            telemetry.addData("Arm Radius (ticks)", mineralSystem.extensionMotor.getPosition());
             telemetry.addData("Arm Rotation (ticks)", mineralSystem.liftMotor.getCurrentTick());
             telemetry.update();
         }
@@ -84,9 +83,9 @@ public class RoseannaV3 extends LinearOpMode {
     }
 
     private void handleMineralSystem() {
-        if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(gamepad1.left_trigger);
-        else if(gamepad2.left_trigger > 0.1) mineralSystem.liftOrLower(gamepad2.left_trigger);
-        else if(gamepad1.left_bumper || gamepad2.left_bumper) mineralSystem.lower();
+        if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(-gamepad1.left_trigger);
+        else if(gamepad2.left_trigger > 0.1) mineralSystem.liftOrLower(-gamepad2.left_trigger);
+        else if(gamepad1.left_bumper || gamepad2.left_bumper) mineralSystem.lift();
         else mineralSystem.pauseLift();
 
         if(aReleased && (gamepad1.a || gamepad2.a)) {
@@ -100,23 +99,24 @@ public class RoseannaV3 extends LinearOpMode {
         if(intaking && !gamepad1.b && !gamepad2.b) mineralSystem.intake();
         else if(gamepad1.b || gamepad2.b) {
             mineralSystem.expel();
-            intaking = false;
-        } else mineralSystem.pauseCollection();
+         } else mineralSystem.pauseCollection();
 
 
         if(gamepad1.dpad_down) mineralSystem.openDoor();
         else mineralSystem.closeDoor();
 
-        if(Math.abs(rightStick.y()) > 0.1) mineralSystem.extendOrRetract(rightStick.y());
-        else if(Math.abs(gamepad2RightStick.y()) > 0.1) mineralSystem.extendOrRetract(gamepad2RightStick.y());
-        else if(gamepad1.right_trigger > 0.1 || gamepad2.right_trigger > 0.1) mineralSystem.extendIntake();
+        if(gamepad1.right_trigger > 0.1 || gamepad2.right_trigger > 0.1) mineralSystem.extendIntake();
         else if(gamepad1.right_bumper || gamepad2.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
+
+        if(gamepad1.x) mineralSystem.goToPosition(MineralSystemV3.DEPOSIT_POSITION_NO_POLAR);
     }
 
     private void handleLatchSystem(){
         if(gamepad2.dpad_up) latchSystem.retract();
         else if(gamepad2.dpad_down) latchSystem.extend();
+        else if(gamepad2.x) latchSystem.extendUnsafe();
+        else if(gamepad2.y) latchSystem.retractUnsafe();
         else latchSystem.pause();
     }
 }

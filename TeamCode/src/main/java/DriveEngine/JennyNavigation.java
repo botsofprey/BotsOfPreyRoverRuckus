@@ -278,9 +278,11 @@ public class JennyNavigation extends Thread{
         double [] startPositionsInches = motorPositionsInches;
         double [] deltaInches;
         double averagePosition = 0;
+        if(heading >= 360) heading -= 360;
+        else if(heading < 0) heading += 360;
         while(distanceTraveled < distanceInInches && mode.opModeIsActive()){
             //from our motor position, determine location
-            correctedDriveOnHeadingIMU((int)(heading + 0.5),desiredVelocity,0,mode);
+            correctedDriveOnHeadingIMU(heading,desiredVelocity,0, mode);
             motorPositionsInches = getMotorPositionsInches();
             deltaInches = new double[4];
             averagePosition = 0;
@@ -630,7 +632,7 @@ public class JennyNavigation extends Thread{
             heading = (heading - orientation.getOrientation()) % 360;
             if (heading >= 360) heading -= 360;
             if (heading < 0) heading += 360;
-            correctedDriveOnHeadingIMU(heading, desiredSpeed, 10, mode);
+            correctedDriveOnHeadingIMU(heading - orientation.getOrientation(), desiredSpeed, 10, mode);
         }
         brake();
     }
