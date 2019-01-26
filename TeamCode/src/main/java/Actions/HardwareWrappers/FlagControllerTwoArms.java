@@ -13,8 +13,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  */
 public class FlagControllerTwoArms extends Thread{
     ServoHandler[] flagWavers = new ServoHandler[2];
-    public static final int[] FLAG_WAVER_MIN_MAX_DEG = {10,120};
-    public static final int[] FLAG_TWISTER_MIN_MAX_DEG = {0,180};
+    public static final int[] FLAG_WAVER_MIN_MAX_DEG = {25,120};
+    public static final int[] FLAG_TWISTER_MIN_MAX_DEG = {20,160};
     public final long PERIOD = 500;
     volatile boolean shouldRun = true;
     volatile boolean flagShouldMove = false;

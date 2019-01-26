@@ -22,8 +22,8 @@ public class MineralSystemV3 implements ActionHandler{
     public static final int FAR_DEPOSIT_POSITION = 0;
     public static final int CLOSE_DEPOSIT_POSITION = 1;
     public static final int DEPOSIT_POSITION_NO_POLAR = 2;
-    private final int DEPOSIT_POSITION_EXTENSION = 6600 - 2500;
-    private final int DEPOSIT_POSITION_ROTATION = 7120 - 3100;
+    private int DEPOSIT_POSITION_EXTENSION = 6600 - 2500;
+    private int DEPOSIT_POSITION_ROTATION = 7120 - 3100;
     private final double FAR_POSITION_R = 103;
     private final double FAR_POSITION_DEGREE = 142;
     private boolean movingToPosition = false;
@@ -155,6 +155,11 @@ public class MineralSystemV3 implements ActionHandler{
             default:
                 return true;
         }
+    }
+
+    public void setDepositTargetPosition() {
+        DEPOSIT_POSITION_EXTENSION = (int)extensionMotor.getPosition();
+        DEPOSIT_POSITION_ROTATION = (int)liftMotor.getCurrentTick();
     }
 
     @Override
