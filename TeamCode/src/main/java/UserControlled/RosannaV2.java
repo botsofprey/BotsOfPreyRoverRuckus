@@ -1,5 +1,6 @@
 package UserControlled;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,7 +13,7 @@ import DriveEngine.HolonomicDriveSystemTesting;
  * Created by robotics on 2/16/18.
  */
 @TeleOp(name="Rosanna v2", group="Linear Opmode")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class RosannaV2 extends LinearOpMode {
     final double movementScale = 1;
     final double turningScale = .75;

@@ -56,6 +56,7 @@ public class RosannaV3 extends LinearOpMode {
             telemetry.addData("Retract Switch", latchSystem.limitSwitches[LatchSystem.RETRACT_SWITCH].isPressed());
             telemetry.addData("Arm Radius (ticks)", mineralSystem.extensionMotor.getPosition());
             telemetry.addData("Arm Rotation (ticks)", mineralSystem.liftMotor.getCurrentTick());
+            telemetry.addData("Winch Extention (ticks)", latchSystem.winchMotor.getCurrentTick());
             telemetry.update();
         }
         mineralSystem.kill();

@@ -15,6 +15,7 @@ import MotorControllers.MotorController;
 
 public class LatchSystem implements ActionHandler {
     public static final int RETRACT_SWITCH = 0, EXTEND_SWITCH = 1;
+    public static final int UNHOOK_POSITION = 0;
     public MotorController winchMotor;
     public TouchSensor[] limitSwitches = new TouchSensor[2];
     HardwareMap hardwareMap;

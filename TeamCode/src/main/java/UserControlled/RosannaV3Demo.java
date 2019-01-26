@@ -14,6 +14,7 @@ import DriveEngine.HolonomicDriveSystemTesting;
 //@Disabled
 public class RosannaV3Demo extends LinearOpMode {
     boolean intaking = false;
+    boolean aReleased = true;
 
     JoystickHandler rightStick, leftStick, gamepad2RightStick, gamepad2LeftStick;
     MineralSystemV3 mineralSystem;
@@ -42,31 +43,40 @@ public class RosannaV3Demo extends LinearOpMode {
     }
 
     private void handleMineralSystem() {
-        if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(gamepad1.left_trigger);
-        else if(gamepad2.left_trigger > 0.1) mineralSystem.liftOrLower(gamepad2.left_trigger);
-        else if(gamepad1.left_bumper || gamepad2.left_bumper) mineralSystem.lower();
+        if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(-gamepad1.left_trigger);
+        else if(gamepad2.left_trigger > 0.1) mineralSystem.liftOrLower(-gamepad2.left_trigger);
+        else if(gamepad1.left_bumper || gamepad2.left_bumper) mineralSystem.lift();
         else mineralSystem.pauseLift();
 
-        if(gamepad1.a || gamepad2.a) {
+        if(aReleased && (gamepad1.a || gamepad2.a)) {
+            aReleased = false;
             intaking = !intaking;
-            while (opModeIsActive() && (gamepad1.a || gamepad2.a));
+        } else if(!aReleased && !gamepad1.a && !gamepad2.a) {
+            aReleased = true;
         }
+
 
         if(intaking && !gamepad1.b && !gamepad2.b) mineralSystem.intake();
         else if(gamepad1.b || gamepad2.b) {
             mineralSystem.expel();
-            intaking = false;
-        }
-        else mineralSystem.pauseCollection();
+        } else mineralSystem.pauseCollection();
 
-        if(Math.abs(rightStick.y()) > 0.1) mineralSystem.extendOrRetract(rightStick.y());
-        else if(Math.abs(gamepad2RightStick.y()) > 0.1) mineralSystem.extendOrRetract(gamepad2RightStick.y());
+
+        if(gamepad1.dpad_down) mineralSystem.openDoor();
+        else mineralSystem.closeDoor();
+
+        if(gamepad1.right_trigger > 0.1 || gamepad2.right_trigger > 0.1) mineralSystem.extendIntake();
+        else if(gamepad1.right_bumper || gamepad2.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
+
+        if(gamepad1.x) mineralSystem.goToPosition(MineralSystemV3.DEPOSIT_POSITION_NO_POLAR);
     }
 
     private void handleLatchSystem(){
-        if(gamepad1.dpad_up || gamepad2.dpad_up) latchSystem.retract();
-        else if(gamepad1.dpad_down || gamepad2.dpad_down) latchSystem.extend();
+        if(gamepad2.dpad_up) latchSystem.retract();
+        else if(gamepad2.dpad_down) latchSystem.extend();
+        else if(gamepad2.x) latchSystem.extendUnsafe();
+        else if(gamepad2.y) latchSystem.retractUnsafe();
         else latchSystem.pause();
     }
 }
