@@ -271,6 +271,64 @@ public class JennyNavigation extends Thread{
         mode.sleep(delayTimeMillis);
     }
 
+    public void driveOnHeadingPID(double heading, double desiredVelocity, LinearOpMode mode) {
+        driveOnHeadingPID(heading, desiredVelocity, DEFAULT_DELAY_MILLIS, mode);
+    }
+
+    //TODO: test
+    public void driveOnHeadingPID(double heading, double desiredVelocity, long delayTimeMillis, LinearOpMode mode) {
+        desiredVelocity = Math.abs(desiredVelocity);
+        double curOrientation = orientation.getOrientation();
+        if(curOrientation > 315 || curOrientation <= 45){
+            headingController.setSp(0);
+        }
+        else if(curOrientation > 45 && curOrientation <= 135){
+            headingController.setSp(90);
+        }
+        else if(curOrientation > 135 && curOrientation <= 225){
+            headingController.setSp(180);
+        }
+        else if(curOrientation > 225 && curOrientation <= 315){
+            headingController.setSp(270);
+        }
+        double distanceFromSetPoint = headingController.getSp() - curOrientation;
+        if(distanceFromSetPoint < -180) distanceFromSetPoint += 360;
+        else if(distanceFromSetPoint > 180) distanceFromSetPoint -= 360;
+        double deltaVelocity = headingController.calculatePID(distanceFromSetPoint + headingController.getSp()); //issue with this line...
+        double [] velocities = determineMotorVelocitiesToDriveOnHeading(heading, desiredVelocity);
+
+        if(heading > 315 || heading <= 45){
+            velocities[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] -= deltaVelocity;
+            velocities[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] += deltaVelocity;
+            velocities[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] -= deltaVelocity;
+            velocities[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] += deltaVelocity;
+        }
+
+        else if(heading > 45 && heading <= 135){
+            velocities[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] -= deltaVelocity;
+            velocities[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] += deltaVelocity;
+            velocities[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] -= deltaVelocity;
+            velocities[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] += deltaVelocity;
+        }
+
+        else if(heading > 135 && heading <= 225){
+            velocities[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] -= deltaVelocity;
+            velocities[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] += deltaVelocity;
+            velocities[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] -= deltaVelocity;
+            velocities[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] += deltaVelocity;
+        }
+
+        else if(heading > 225 && heading <= 315){
+            velocities[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] -= deltaVelocity;
+            velocities[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] += deltaVelocity;
+            velocities[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] -= deltaVelocity;
+            velocities[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] += deltaVelocity;
+        }
+
+        applyMotorVelocities(velocities);
+        mode.sleep(delayTimeMillis);
+    }
+
     public void driveDistance(double distanceInInches, double heading, double desiredVelocity, LinearOpMode mode){
         distanceInInches = Math.abs(distanceInInches);
         double distanceTraveled = 0;
@@ -282,7 +340,7 @@ public class JennyNavigation extends Thread{
         else if(heading < 0) heading += 360;
         while(distanceTraveled < distanceInInches && mode.opModeIsActive()){
             //from our motor position, determine location
-            correctedDriveOnHeadingIMU(heading,desiredVelocity,0, mode);
+            correctedDriveOnHeadingIMU(heading,desiredVelocity,0, mode); //TODO: use driveOnHeadingPID
             motorPositionsInches = getMotorPositionsInches();
             deltaInches = new double[4];
             averagePosition = 0;

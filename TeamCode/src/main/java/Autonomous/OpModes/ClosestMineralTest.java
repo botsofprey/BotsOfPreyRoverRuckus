@@ -30,6 +30,7 @@
 package Autonomous.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import Autonomous.Location;
@@ -44,7 +45,7 @@ import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABE
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_SILVER_MINERAL;
 
 @Autonomous(name = "Closest Mineral Test", group = "Concept")
-//@Disabled
+@Disabled
 public class ClosestMineralTest extends LinearOpMode {
     private VisionHelper robotVision;
 

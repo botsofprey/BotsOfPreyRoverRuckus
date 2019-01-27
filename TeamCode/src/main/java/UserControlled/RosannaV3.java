@@ -29,7 +29,7 @@ public class RosannaV3 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        navigation = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/JennyV2.json");
+        navigation = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/RosannaV3.json");
         mineralSystem = new MineralSystemV3(hardwareMap);
         latchSystem = new LatchSystem(hardwareMap);
         leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);

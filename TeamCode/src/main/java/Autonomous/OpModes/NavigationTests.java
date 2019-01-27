@@ -38,7 +38,7 @@ import DriveEngine.JennyNavigation;
 
 @Autonomous(name="Drive to location", group ="Concept")
 //@Disabled
-public class DriveToLocationTest extends LinearOpMode {
+public class NavigationTests extends LinearOpMode {
     JennyNavigation navigation;
 
     @Override public void runOpMode() {
@@ -52,14 +52,21 @@ public class DriveToLocationTest extends LinearOpMode {
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
         waitForStart();
-
+        // DRIVE TO LOCATION
 //        for(int j = 0; j < 4; j++) {
 //            for (int i = 0; i <= 360; i += 30) {
 //                if(opModeIsActive()) navigation.driveToLocation(new Location(radius * Math.cos(Math.toRadians(i)), radius * Math.sin(Math.toRadians(i))), 15, this);
 //            }
 //        }
 //        navigation.driveToLocation(new Location(0, 0), 15, this);
-        navigation.driveDistance(12, 45, 15, this);
+
+        // DRIVE DISTANCE
+//        navigation.driveDistance(12, 45, 15, this);
+
+        // DRIVE ON HEADING PID
+        navigation.driveOnHeadingPID(45, 15, 0, this);
+
+
 
         telemetry.addData("Robot Location", navigation.getRobotLocation().toString());
         telemetry.update();
