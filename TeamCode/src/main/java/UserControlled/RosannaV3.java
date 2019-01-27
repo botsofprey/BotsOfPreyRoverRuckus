@@ -122,7 +122,7 @@ public class RosannaV3 extends LinearOpMode {
         else if(gamepad1.right_bumper || gamepad2.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
 
-        if(gamepad1.x) mineralSystem.goToPosition(MineralSystemV3.DEPOSIT_POSITION_NO_POLAR);
+        if(gamepad1.x || gamepad2.b) mineralSystem.goToPosition(MineralSystemV3.DEPOSIT_POSITION_NO_POLAR);
 
         if(gamepad2.dpad_right || gamepad1.y) mineralSystem.setDepositTargetPosition();
     }

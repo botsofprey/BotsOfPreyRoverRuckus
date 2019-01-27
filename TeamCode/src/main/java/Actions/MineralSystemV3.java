@@ -28,8 +28,8 @@ public class MineralSystemV3 implements ActionHandler{
     private final double FAR_POSITION_DEGREE = 142;
     private boolean movingToPosition = false;
     public final double MAX_EXTEND_INCHES = 150;
-    public static final double OPEN_DOOR = 145;
-    public static final double CLOSE_DOOR = 113;
+    public static final double OPEN_DOOR = 150;
+    public static final double CLOSE_DOOR = 120;
 
     public MineralSystemV3(HardwareMap hw){
         hardwareMap = hw;
