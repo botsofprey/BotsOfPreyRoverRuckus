@@ -52,7 +52,7 @@ public class RosannaV3 extends LinearOpMode {
 
             if(aReleased && (gamepad2.dpad_left || gamepad2.dpad_left)) {
                 dpadLReleased = false;
-                flagWaving = !intaking;
+                flagWaving = !flagWaving;
             } else if(!dpadLReleased && !gamepad1.dpad_left && !gamepad2.dpad_left) {
                 dpadLReleased = true;
             }

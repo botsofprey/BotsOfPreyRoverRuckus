@@ -275,7 +275,6 @@ public class JennyNavigation extends Thread{
         driveOnHeadingPID(heading, desiredVelocity, DEFAULT_DELAY_MILLIS, mode);
     }
 
-    //TODO: test
     public void driveOnHeadingPID(double heading, double desiredVelocity, long delayTimeMillis, LinearOpMode mode) {
         desiredVelocity = Math.abs(desiredVelocity);
         double curOrientation = orientation.getOrientation();
@@ -295,6 +294,8 @@ public class JennyNavigation extends Thread{
         if(distanceFromSetPoint < -180) distanceFromSetPoint += 360;
         else if(distanceFromSetPoint > 180) distanceFromSetPoint -= 360;
         double deltaVelocity = headingController.calculatePID(distanceFromSetPoint + headingController.getSp()); //issue with this line...
+        if(Double.isNaN(deltaVelocity)) deltaVelocity = 0;
+        Log.d("Delta Velocity:", "" + deltaVelocity);
         double [] velocities = determineMotorVelocitiesToDriveOnHeading(heading, desiredVelocity);
 
         if(heading > 315 || heading <= 45){
@@ -340,7 +341,7 @@ public class JennyNavigation extends Thread{
         else if(heading < 0) heading += 360;
         while(distanceTraveled < distanceInInches && mode.opModeIsActive()){
             //from our motor position, determine location
-            correctedDriveOnHeadingIMU(heading,desiredVelocity,0, mode); //TODO: use driveOnHeadingPID
+            driveOnHeadingPID(heading,desiredVelocity,0, mode);
             motorPositionsInches = getMotorPositionsInches();
             deltaInches = new double[4];
             averagePosition = 0;
