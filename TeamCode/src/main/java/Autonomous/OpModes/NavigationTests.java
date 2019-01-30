@@ -62,12 +62,15 @@ public class NavigationTests extends LinearOpMode {
 //        navigation.driveToLocation(new Location(0, 0), 15, this);
 
         // DRIVE DISTANCE
-//        navigation.driveDistance(12, 45, 15, this);
+        for(int i = 0; i < 360; i += 45) {
+            navigation.driveDistance(12, i, 15, this);
+            sleep(5000);
+        }
 
         // DRIVE ON HEADING PID
-        while (opModeIsActive()) {
-            navigation.driveOnHeadingPID(0, 20, 0, this);
-        }
+//        while (opModeIsActive()) {
+//            navigation.driveOnHeadingPID(0, 20, 0, this);
+//        }
 
 
         telemetry.addData("Robot Location", navigation.getRobotLocation().toString());
