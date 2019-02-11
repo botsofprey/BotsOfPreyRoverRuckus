@@ -5,21 +5,20 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import Actions.HardwareWrappers.FlagControllerTwoArms;
 import Actions.LatchSystem;
-import Actions.MineralSystem;
 import Actions.MineralSystemV3;
 import DriveEngine.HolonomicDriveSystemTesting;
 
 /**
  * Created by robotics on 2/16/18.
  */
-@TeleOp(name="Rosanna v3", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@TeleOp(name="Rosanna v3 Safe Mode", group="Linear Opmode")  // @Autonomous(...) is the other common choice
 //@Disabled
-public class RosannaV3 extends LinearOpMode {
+public class RosannaV3SafeMode extends LinearOpMode {
     final double movementScale = 1;
     double turningScale = .75;
     boolean intaking = false;
-    boolean p1Driving = true, flagWaving = false;
-    boolean aReleased = true, startReleased = true, dpadLReleased = false;
+    boolean p1Driving = true;
+    boolean aReleased = true, startReleased = true;
 
     JoystickHandler leftStick, rightStick, gamepad2LeftStick, gamepad2RightStick;
     MineralSystemV3 mineralSystem;
@@ -44,21 +43,11 @@ public class RosannaV3 extends LinearOpMode {
 
 
         while(opModeIsActive()){
-            turningScale = (mineralSystem.MAX_EXTEND_INCHES - mineralSystem.extensionMotor.getPositionInches()) / mineralSystem.MAX_EXTEND_INCHES;
+            turningScale = (mineralSystem.extensionMotor.getPosition() > mineralSystem.MAX_EXTEND_INCHES/4.0)? ((mineralSystem.MAX_EXTEND_INCHES - mineralSystem.extensionMotor.getPositionInches()) / mineralSystem.MAX_EXTEND_INCHES):1;
 
             handleDriving();
             handleMineralSystem();
             handleLatchSystem();
-
-            if(aReleased && (gamepad2.dpad_left || gamepad2.dpad_left)) {
-                dpadLReleased = false;
-                flagWaving = !flagWaving;
-            } else if(!dpadLReleased && !gamepad1.dpad_left && !gamepad2.dpad_left) {
-                dpadLReleased = true;
-            }
-
-            if(flagWaving) flagController.startFlag();
-            else flagController.pauseFlag();
 
             telemetry.addData("Gamepad1 left Joystick",leftStick.y());
             telemetry.addData("Gamepad1 right Joystick", rightStick.y());
@@ -74,7 +63,6 @@ public class RosannaV3 extends LinearOpMode {
         mineralSystem.kill();
         navigation.kill();
         latchSystem.kill();
-        flagController.killFlag();
     }
 
     private void handleDriving() {
@@ -122,17 +110,11 @@ public class RosannaV3 extends LinearOpMode {
         if(gamepad1.right_trigger > 0.1 || gamepad2.right_trigger > 0.1) mineralSystem.extendIntake();
         else if(gamepad1.right_bumper || gamepad2.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
-
-        if(gamepad1.x || gamepad2.b) mineralSystem.goToPosition(MineralSystemV3.DEPOSIT_POSITION_NO_POLAR);
-
-        if(gamepad2.dpad_right || gamepad1.y) mineralSystem.setDepositTargetPosition();
     }
 
     private void handleLatchSystem(){
         if(gamepad2.dpad_up) latchSystem.retract();
         else if(gamepad2.dpad_down) latchSystem.extend();
-        else if(gamepad2.x) latchSystem.extendUnsafe();
-        else if(gamepad2.y) latchSystem.retractUnsafe();
         else latchSystem.pause();
     }
 }

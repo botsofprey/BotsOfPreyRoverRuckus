@@ -29,6 +29,8 @@
 
 package Autonomous.OpModes;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -43,8 +45,9 @@ public class NavigationTests extends LinearOpMode {
 
     @Override public void runOpMode() {
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/JennyV2.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/RosannaV3.json");
         } catch (Exception e) {
+            Log.e("Navigation error", e.toString());
             e.printStackTrace();
         }
         double radius = 12;
@@ -52,6 +55,9 @@ public class NavigationTests extends LinearOpMode {
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
         waitForStart();
+
+        // DRIVE ON HEADING
+//        navigation.driveOnHeading(0, 15);
 
         // DRIVE TO LOCATION
 //        for(int j = 0; j < 4; j++) {
@@ -62,18 +68,20 @@ public class NavigationTests extends LinearOpMode {
 //        navigation.driveToLocation(new Location(0, 0), 15, this);
 
         // DRIVE DISTANCE
-        for(int i = 0; i < 360; i += 45) {
+        for(int i = 0; i < 360; i += 30) {
             navigation.driveDistance(12, i, 15, this);
-            sleep(5000);
+            sleep(3000);
         }
+//        navigation.driveDistance(24, 45, 15, this);
 
         // DRIVE ON HEADING PID
-//        while (opModeIsActive()) {
-//            navigation.driveOnHeadingPID(0, 20, 0, this);
-//        }
+//        navigation.turnController.setSp(180);
+//        while (opModeIsActive()) navigation.driveOnHeadingPID(180, 15, 0, this);
 
 
         telemetry.addData("Robot Location", navigation.getRobotLocation().toString());
+        telemetry.addData("Robot orientation", navigation.getOrientation());
+        telemetry.addData("First angle", navigation.orientation.getFirstAngle());
         telemetry.update();
         while (opModeIsActive());
         navigation.stopNavigation();

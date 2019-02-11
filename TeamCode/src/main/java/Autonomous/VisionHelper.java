@@ -78,7 +78,7 @@ public class VisionHelper extends Thread {
     public void run() {
         if(tfod != null) {
             while (running) {
-//                if(detectingGold) updatePositionVotes();
+                if(detectingGold) updatePositionVotes();
                 if(trackingLocation) updateRobotLocation();
             }
             resetPositionVotes();

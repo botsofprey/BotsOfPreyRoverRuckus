@@ -16,7 +16,7 @@ import MotorControllers.MotorController;
 public class MineralSystemV3 implements ActionHandler{
     public SpoolMotor extensionMotor;
     public MotorController liftMotor;
-    private ServoHandler intake;
+    private MotorController intake;
     private ServoHandler intakeDoor;
     private HardwareMap hardwareMap;
     public static final int FAR_DEPOSIT_POSITION = 0;
@@ -37,16 +37,18 @@ public class MineralSystemV3 implements ActionHandler{
             extensionMotor = new SpoolMotor(new MotorController("extension", "MotorConfig/NeverRest40.json", hardwareMap)
                     , 50, 50, 100, hardwareMap);
             liftMotor = new MotorController("lift", "ActionConfig/LiftMotor.json", hardwareMap);
+            intake = new MotorController("intake", "ActionConfig/LiftMotor.json", hardwareMap);
             extensionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            intake.setDirection(DcMotorSimple.Direction.REVERSE);
+            intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             extensionMotor.setExtendPower(1);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        intake = new ServoHandler("intake", hardwareMap);
-        intake.setDirection(Servo.Direction.REVERSE);
         intakeDoor = new ServoHandler("intakeDoor", hardwareMap);
         intakeDoor.setDirection(Servo.Direction.REVERSE);
         intakeDoor.setServoRanges(CLOSE_DOOR-1, OPEN_DOOR+1);
@@ -98,9 +100,9 @@ public class MineralSystemV3 implements ActionHandler{
         }
     }
 
-    public void intake() {intake.setPosition(1);}
-    public void expel() {intake.setPosition(0);}
-    public void pauseCollection() {intake.setPosition(0.49);}
+    public void intake() {intake.setMotorPower(1);}
+    public void expel() {intake.setMotorPower(-1);}
+    public void pauseCollection() {intake.brake();}
 
     public void openDoor() {
         intakeDoor.setDegree(OPEN_DOOR);

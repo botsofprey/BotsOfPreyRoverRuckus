@@ -30,6 +30,7 @@
 package Autonomous.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -46,7 +47,7 @@ import static Autonomous.VisionHelper.RIGHT;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 
 @Autonomous(name = "Blue/Red Team Gold Side", group = "Concept")
-//@Disabled
+@Disabled
 public class BlueRedTeam2AutoNoPark extends LinearOpMode {
     JennyNavigation navigation;
     LatchSystem latchSystem;

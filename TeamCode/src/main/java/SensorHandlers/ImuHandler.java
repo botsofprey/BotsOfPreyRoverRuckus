@@ -38,6 +38,9 @@ public class ImuHandler extends Thread{
     private Orientation angles;
     private volatile boolean shouldRun;
     private double orientationOffset;
+    private double previousOrientation;
+    private int turnCount;
+    private final double ANGLE_THRESHOLD = 45;
     private HardwareMap map;
 
     public ImuHandler(String name, double robotOrientationOffset, HardwareMap h){
@@ -45,6 +48,8 @@ public class ImuHandler extends Thread{
         initIMU(name, h);
         shouldRun = true;
         orientationOffset = robotOrientationOffset;
+        previousOrientation = 0;
+        turnCount = 0;
         new Thread(new Runnable(){
             public void run(){
                 while(shouldRun) {
@@ -104,11 +109,18 @@ public class ImuHandler extends Thread{
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             velocities = imu.getVelocity();
             accelerations = imu.getAcceleration();
+            if(angles.firstAngle >= -180 && angles.firstAngle <= -180 + ANGLE_THRESHOLD/2.0 && previousOrientation >= 180 - ANGLE_THRESHOLD/2.0) turnCount++;
+            else if(angles.firstAngle >= 180 - ANGLE_THRESHOLD/2.0 && previousOrientation >= -180 && previousOrientation <= -180 + ANGLE_THRESHOLD/2.0) turnCount--;
+            previousOrientation = angles.firstAngle;
         } catch (Exception e){
             stopIMU();
             throw new RuntimeException(e);
 
         }
+    }
+
+    public double getFirstAngle() {
+        return angles.firstAngle;
     }
 
     public double getOrientationOffset(){
@@ -125,11 +137,11 @@ public class ImuHandler extends Thread{
         returns the orientation of the robot, 0 to 359 degrees
      */
     public double getOrientation(){
-        double angle = 360 - angles.firstAngle; // Z angle is the robot's orientation angle
-        if(angle < 0) angle += 360;
-        else if(angle >= 360) angle -= 360;
+        double angle = 360 - (angles.firstAngle + 360 * turnCount); // Z angle is the robot's orientation angle
+//        if(angle < 0) angle += 360;
+//        else if(angle >= 360) angle -= 360;
         angle += orientationOffset;
-        angle %= 360;
+//        angle %= 360;
         return angle;
     }
 

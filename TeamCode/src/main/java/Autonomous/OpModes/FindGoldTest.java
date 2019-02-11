@@ -44,7 +44,7 @@ import static Autonomous.VisionHelper.RIGHT;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 
 @Autonomous(name = "Find Gold Test", group = "Concept")
-@Disabled
+//@Disabled
 public class FindGoldTest extends LinearOpMode {
     JennyNavigation navigation;
 
@@ -68,10 +68,28 @@ public class FindGoldTest extends LinearOpMode {
         telemetry.update();
         // START AUTONOMOUS
 
-//        robotVision.startGoldDetection();
-//        robotVision.startDetection();
-        int goldPosition = findGold();
-        knockGold(goldPosition);
+        robotVision.startGoldDetection();
+        robotVision.startDetection();
+        while (opModeIsActive()) {
+            int pos = robotVision.getGoldMineralPosition();
+            switch (pos) {
+                case LEFT:
+                    telemetry.addData("Gold", "LEFT");
+                    break;
+                case RIGHT:
+                    telemetry.addData("Gold", "RIGHT");
+                    break;
+                case CENTER:
+                    telemetry.addData("Gold", "CENTER");
+                    break;
+                default:
+                    telemetry.addData("Gold", "NOT_DETECTED");
+                    break;
+            }
+            telemetry.update();
+        }
+//        int goldPosition = findGold();
+//        knockGold(goldPosition);
 
 
         //TODO: park with arm extended

@@ -64,6 +64,8 @@ public class PIDController {
         prevError = error;
         timeAtLastCalculation = System.currentTimeMillis();
         Log.d("D","" + D);
+        if(Double.isNaN(D)) D = 0;
+        if(Double.isNaN(I)) I = 0;
         return P + I + D;
     }
 
