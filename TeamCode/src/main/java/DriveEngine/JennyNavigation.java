@@ -294,9 +294,9 @@ public class JennyNavigation extends Thread{
 //        double distanceFromSetPoint = turnController.getSp() - curOrientation + orientation.getOrientationOffset();
 //        if(distanceFromSetPoint < -180) distanceFromSetPoint += 360;
 //        else if(distanceFromSetPoint > 180) distanceFromSetPoint -= 360;
-        double deltaVelocity = turnController.calculatePID(curOrientation/*distanceFromSetPoint + headingController.getSp()*/); //issue with this line...
-        if(Double.isNaN(deltaVelocity)) deltaVelocity = 0;
-        Log.d("Delta Velocity:", "" + deltaVelocity);
+        double turnCorrection = turnController.calculatePID(curOrientation/*distanceFromSetPoint + headingController.getSp()*/); //issue with this line...
+        if(Double.isNaN(turnCorrection)) turnCorrection = 0;
+        Log.d("Delta Velocity:", "" + turnCorrection);
         double [] velocities = determineMotorVelocitiesToDriveOnHeading(heading, desiredVelocity);
 
         Log.d("Initial Velocities:", "-----------");
@@ -304,7 +304,7 @@ public class JennyNavigation extends Thread{
             Log.d("Motor " + " Velocity", "" + velocities[i]);
         }
 
-        double [] rotationalCorrections = calculateTurnVelocities(deltaVelocity);
+        double [] rotationalCorrections = calculateTurnVelocities(turnCorrection);
         for(int i = 0; i < driveMotors.length; i++) {
             velocities[i] += rotationalCorrections[i];
         }
@@ -358,7 +358,8 @@ public class JennyNavigation extends Thread{
         double averagePosition = 0;
         if(heading >= 360) heading -= 360;
         else if(heading < 0) heading += 360;
-        turnController.setSp(orientation.getOrientation());
+        double curOrientation = orientation.getOrientation();
+        turnController.setSp(curOrientation);
         while(distanceTraveled < distanceInInches && mode.opModeIsActive()){
             //from our motor position, determine location
             driveOnHeadingPID(heading,desiredVelocity,0, mode);
@@ -390,6 +391,7 @@ public class JennyNavigation extends Thread{
             }
         }
         brake();
+        mode.idle();
     }
 
     public void driveDistanceNonCorrected(double distanceInInches, double heading, double desiredVelocity, LinearOpMode mode){

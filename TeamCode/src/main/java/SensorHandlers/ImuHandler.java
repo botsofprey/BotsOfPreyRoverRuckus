@@ -137,7 +137,7 @@ public class ImuHandler extends Thread{
         returns the orientation of the robot, 0 to 359 degrees
      */
     public double getOrientation(){
-        double angle = 360 - (angles.firstAngle + 360 * turnCount); // Z angle is the robot's orientation angle
+        double angle = -(angles.firstAngle + 360 * turnCount); // Z angle is the robot's orientation angle
 //        if(angle < 0) angle += 360;
 //        else if(angle >= 360) angle -= 360;
         angle += orientationOffset;

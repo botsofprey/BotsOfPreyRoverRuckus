@@ -37,11 +37,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import Autonomous.Location;
 import Autonomous.VisionHelper;
 import DriveEngine.JennyNavigation;
+import UserControlled.JoystickHandler;
 
 @Autonomous(name="Navigation tests", group ="Concept")
 //@Disabled
 public class NavigationTests extends LinearOpMode {
     JennyNavigation navigation;
+    JoystickHandler rightStick, leftStick;
 
     @Override public void runOpMode() {
         try {
@@ -50,6 +52,8 @@ public class NavigationTests extends LinearOpMode {
             Log.e("Navigation error", e.toString());
             e.printStackTrace();
         }
+        rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
+        leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
         double radius = 12;
 
         telemetry.addData(">", "Press Play to start tracking");
@@ -68,16 +72,15 @@ public class NavigationTests extends LinearOpMode {
 //        navigation.driveToLocation(new Location(0, 0), 15, this);
 
         // DRIVE DISTANCE
-        for(int i = 0; i < 360; i += 30) {
-            navigation.driveDistance(12, i, 15, this);
-            sleep(3000);
-        }
-//        navigation.driveDistance(24, 45, 15, this);
+//        for(int i = 0; i < 360; i += 30) {
+//            navigation.driveDistance(12, i, 15, this);
+//            sleep(3000);
+//        }
+//        navigation.driveDistance(24, 180, 15, this);
 
         // DRIVE ON HEADING PID
-//        navigation.turnController.setSp(180);
-//        while (opModeIsActive()) navigation.driveOnHeadingPID(180, 15, 0, this);
-
+        navigation.turnController.setSp(0);
+        while (opModeIsActive()) navigation.driveOnHeadingPID(0, 15, 0, this);
 
         telemetry.addData("Robot Location", navigation.getRobotLocation().toString());
         telemetry.addData("Robot orientation", navigation.getOrientation());

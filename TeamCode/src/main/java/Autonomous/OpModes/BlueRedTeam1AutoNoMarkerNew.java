@@ -29,6 +29,8 @@
 
 package Autonomous.OpModes;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -61,7 +63,7 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         mineralSystem = new MineralSystemV3(hardwareMap);
 
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 45, "RobotConfig/JennyV2.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 45, "RobotConfig/RosannaV3.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,14 +84,14 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         latchSystem.pause();
         navigation.brake();
         sleep(50);
-        // delatch
+        //delatch
         navigation.driveDistance(2, 180, 10, this);
         navigation.driveDistance(2, 90, 10, this);
         navigation.driveDistance(2, 0, 10, this);
 
 
-        // find gold & sample
-        navigation.turnToHeading(135, this);
+        //find gold & sample
+//        navigation.turnToHeading(135, this);
         sleep(100);
         int goldPosition = -1;
         if(opModeIsActive()) goldPosition = findGold();
@@ -204,23 +206,29 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         sleep(10);
         idle();
         if (goldPosition == LEFT) {
+            Log.d("Mineral", "LEFT");
             telemetry.addData("driving...", "left");
             telemetry.update();
 //            sleep(500);
 //            navigation.driveDistance(12, 0, 25, this);
-            navigation.driveDistance(24, 315, 25, this);
+            navigation.driveDistance(16, 315, 25, this);
 //            idle();
         } else if (goldPosition == RIGHT) {
+            Log.d("Mineral", "RIGHT");
             telemetry.addData("driving...", "right");
             telemetry.update();
 //            sleep(500);
 //            navigation.driveDistance(11, 180, 25, this);
-            navigation.driveDistance(24, 45, 25, this);
-//            idle();
+            navigation.driveDistance(18, 45, 25, this);
+            sleep(10);
+            navigation.driveDistance(18, 225, 15, this);
         } else {
+            Log.d("Mineral", "CENTER");
             telemetry.addData("driving...", "forward");
             telemetry.update();
-            navigation.driveDistance(18, 0, 25, this);
+            navigation.driveDistance(13, 0, 25, this);
+            sleep(250);
+            navigation.driveDistance(6, 180, 15, this);
         }
         idle();
 
