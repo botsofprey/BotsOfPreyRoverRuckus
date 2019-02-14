@@ -87,11 +87,11 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         //delatch
         navigation.driveDistance(2, 180, 10, this);
         navigation.driveDistance(2, 90, 10, this);
-        navigation.driveDistance(2, 0, 10, this);
+//        navigation.driveDistance(1, 0, 10, this);
 
 
         //find gold & sample
-//        navigation.turnToHeading(135, this);
+        navigation.turnToHeading(135, this);
         sleep(100);
         int goldPosition = -1;
         if(opModeIsActive()) goldPosition = findGold();
@@ -185,6 +185,7 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         int goldPosition = NOT_DETECTED;
         long startTime = System.currentTimeMillis();
         while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime < 5000) goldPosition = robotVision.getGoldMineralPosition();
+        goldPosition = LEFT;
 //        long startTime = System.currentTimeMillis();
 //        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) {
 //            sleep(250);
@@ -204,21 +205,15 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
     private void knockGold(int goldPosition) {
         navigation.driveDistance(3.5, 0, 25, this);
         sleep(10);
-        idle();
         if (goldPosition == LEFT) {
             Log.d("Mineral", "LEFT");
             telemetry.addData("driving...", "left");
             telemetry.update();
-//            sleep(500);
-//            navigation.driveDistance(12, 0, 25, this);
-            navigation.driveDistance(16, 315, 25, this);
-//            idle();
+            navigation.driveDistance(20, 315, 25, this);
         } else if (goldPosition == RIGHT) {
             Log.d("Mineral", "RIGHT");
             telemetry.addData("driving...", "right");
             telemetry.update();
-//            sleep(500);
-//            navigation.driveDistance(11, 180, 25, this);
             navigation.driveDistance(18, 45, 25, this);
             sleep(10);
             navigation.driveDistance(18, 225, 15, this);
@@ -226,9 +221,9 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
             Log.d("Mineral", "CENTER");
             telemetry.addData("driving...", "forward");
             telemetry.update();
-            navigation.driveDistance(13, 0, 25, this);
-            sleep(250);
-            navigation.driveDistance(6, 180, 15, this);
+            navigation.driveDistance(15, 0, 25, this);
+            sleep(10);
+            navigation.driveDistance(10, 180, 15, this);
         }
         idle();
 

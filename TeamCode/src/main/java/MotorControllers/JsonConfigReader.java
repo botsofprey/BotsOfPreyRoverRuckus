@@ -1,5 +1,7 @@
 package MotorControllers;
 
+import android.util.Log;
+
 import com.google.gson.JsonParser;
 
 import org.json.JSONException;
@@ -7,6 +9,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import Autonomous.Location;
 
@@ -71,8 +74,31 @@ public class JsonConfigReader {
 
     public Location getLocation(String n) throws  Exception{
         String locToParse = jsonObject.getString(n);
-        int x = Integer.getInteger(locToParse.substring(locToParse.indexOf("(") + 1, locToParse.indexOf(",")));
-        int y = Integer.getInteger(locToParse.substring(locToParse.indexOf(","), locToParse.indexOf(")")));
+        Location toReturn = parseLocation(locToParse);
+        return toReturn;
+    }
+
+    public Location[] getPath(String n) throws Exception{
+        ArrayList<Location> locationList = new ArrayList<Location>();
+        String pathToParse = jsonObject.getString(n);
+        int curIndex = 0;
+        while (pathToParse.indexOf("(", curIndex) >= curIndex) {
+            Log.d("Substring", pathToParse.substring(pathToParse.indexOf("(", curIndex), pathToParse.indexOf(")", curIndex)+1));
+            String locToParse = pathToParse.substring(pathToParse.indexOf("(", curIndex), pathToParse.indexOf(")", curIndex)+1);
+            locationList.add(parseLocation(locToParse));
+            curIndex = pathToParse.indexOf(")", curIndex) + 1;
+        }
+        Location[] path = new Location[locationList.size()];
+        path = locationList.toArray(path);
+        return path;
+    }
+
+    private Location parseLocation(String n) {
+        String subX = n.substring(n.indexOf("(") + 1, n.indexOf(","));
+        String subY = n.substring(n.indexOf(",") + 1, n.indexOf(")"));
+        double x = Double.parseDouble(subX);
+        double y = Double.parseDouble(subY);
+        Log.d("X: " + x," Y: " + y);
         Location toReturn = new Location(x, y);
         return toReturn;
     }

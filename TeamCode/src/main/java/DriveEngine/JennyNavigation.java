@@ -370,13 +370,13 @@ public class JennyNavigation extends Thread{
                 deltaInches[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] = Math.abs(motorPositionsInches[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] - startPositionsInches[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR]);
                 deltaInches[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] = Math.abs(motorPositionsInches[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] - startPositionsInches[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR]);
                 averagePosition += deltaInches[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] + deltaInches[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR];
-                averagePosition /= 2;
+                averagePosition /= 2.0;
                 distanceTraveled = averagePosition;
             } else if(heading == 135 || heading == 315){
                 deltaInches[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] = Math.abs(motorPositionsInches[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] - startPositionsInches[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR]);
                 deltaInches[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] = Math.abs(motorPositionsInches[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] - startPositionsInches[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR]);
                 averagePosition += deltaInches[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] + deltaInches[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR];
-                averagePosition /= 2;
+                averagePosition /= 2.0;
                 distanceTraveled = averagePosition;
             } else {
                 for (int i = 0; i < motorPositionsInches.length; i++) {
@@ -387,11 +387,10 @@ public class JennyNavigation extends Thread{
                 }
                 averagePosition /= (double) deltaInches.length;
                 distanceTraveled = averagePosition / Math.sin(Math.toRadians(45));
-                Log.d("Distance Travelled", "" + distanceTraveled);
             }
+            Log.d("Distance Travelled", "" + distanceTraveled);
         }
         brake();
-        mode.idle();
     }
 
     public void driveDistanceNonCorrected(double distanceInInches, double heading, double desiredVelocity, LinearOpMode mode){
@@ -720,6 +719,12 @@ public class JennyNavigation extends Thread{
 
     public void driveToLocation(Location targetLocation, double desiredSpeed, LinearOpMode mode){
         driveToLocation(myLocation, targetLocation, desiredSpeed, mode);
+    }
+
+    public void navigatePath(Location[] path, double desiredSpeed, LinearOpMode mode) {
+        for(int i = 0; i < path.length; i++) {
+            driveToLocation(path[i], desiredSpeed, mode);
+        }
     }
 
     public HeadingVector[] getWheelVectors(){

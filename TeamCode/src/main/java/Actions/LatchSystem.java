@@ -28,7 +28,7 @@ public class LatchSystem implements ActionHandler {
             winchMotor = new MotorController("winchMotor", "ActionConfig/RackAndPinion.json", hardwareMap);
             winchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             winchMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-            winchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            winchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         } catch (IOException e) {
             e.printStackTrace();
         }

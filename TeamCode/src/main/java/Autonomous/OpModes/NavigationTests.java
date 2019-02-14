@@ -76,11 +76,26 @@ public class NavigationTests extends LinearOpMode {
 //            navigation.driveDistance(12, i, 15, this);
 //            sleep(3000);
 //        }
+//        navigation.driveDistance(24, 0, 15, this);
+//        sleep(10);
 //        navigation.driveDistance(24, 180, 15, this);
 
+        while (opModeIsActive()) {
+            double heading = leftStick.angle();
+            if(leftStick.x() == 0 && leftStick.y() == 0) heading = navigation.getOrientation();
+            double speed = 15 * gamepad1.right_trigger;
+            while (opModeIsActive() && heading < navigation.getOrientation() - 180) heading+=360;
+            while (opModeIsActive() && heading > navigation.getOrientation() + 180) heading-=360;
+            navigation.turnController.setSp(heading);
+            navigation.driveOnHeadingPID(180, speed, 0,this);
+            telemetry.addData("Angle", heading);
+            telemetry.addData("Speed", speed);
+            telemetry.update();
+        }
+
         // DRIVE ON HEADING PID
-        navigation.turnController.setSp(0);
-        while (opModeIsActive()) navigation.driveOnHeadingPID(0, 15, 0, this);
+//        navigation.turnController.setSp(navigation.getOrientation());
+//        while (opModeIsActive()) navigation.driveOnHeadingPID(0, 15, 0, this);
 
         telemetry.addData("Robot Location", navigation.getRobotLocation().toString());
         telemetry.addData("Robot orientation", navigation.getOrientation());
