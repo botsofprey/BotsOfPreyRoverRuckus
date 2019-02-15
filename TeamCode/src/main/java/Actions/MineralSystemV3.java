@@ -39,8 +39,7 @@ public class MineralSystemV3 implements ActionHandler{
             liftMotor = new MotorController("lift", "ActionConfig/LiftMotor.json", hardwareMap);
             intake = new MotorController("intake", "ActionConfig/LiftMotor.json", hardwareMap);
             extensionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-            extensionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            extensionMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -104,7 +103,7 @@ public class MineralSystemV3 implements ActionHandler{
 
     public void intake() {intake.setMotorPower(1);}
     public void expel() {intake.setMotorPower(-1);}
-    public void pauseCollection() {intake.brake();}
+    public void pauseCollection() {intake.setMotorPower(0);}
 
     public void openDoor() {
         intakeDoor.setDegree(OPEN_DOOR);
