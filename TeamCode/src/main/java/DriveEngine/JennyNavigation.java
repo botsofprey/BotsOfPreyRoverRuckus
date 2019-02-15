@@ -271,6 +271,33 @@ public class JennyNavigation extends Thread{
         mode.sleep(delayTimeMillis);
     }
 
+    public void correctedDriveOnHeadingIMURotation(double heading, double desiredVelocity, long delayTimeMillis, LinearOpMode mode) {
+        desiredVelocity = Math.abs(desiredVelocity);
+        double curOrientation = orientation.getOrientation();
+        double turnCorrection = turnController.calculatePID(curOrientation);
+        if(Double.isNaN(turnCorrection)) turnCorrection = 0;
+        Log.d("Delta Velocity:", "" + turnCorrection);
+        double [] velocities = determineMotorVelocitiesToDriveOnHeading(heading - curOrientation, desiredVelocity);
+
+        Log.d("Initial Velocities:", "-----------");
+        for(int i = 0; i < velocities.length; i++) {
+            Log.d("Motor " + " Velocity", "" + velocities[i]);
+        }
+
+        double [] rotationalCorrections = calculateTurnVelocities(turnCorrection);
+        for(int i = 0; i < driveMotors.length; i++) {
+            velocities[i] += rotationalCorrections[i];
+        }
+
+        Log.d("Final Velocities:", "-----------");
+        for(int i = 0; i < velocities.length; i++) {
+            Log.d("Motor " + " Velocity", "" + velocities[i]);
+        }
+
+        applyMotorVelocities(velocities);
+        mode.sleep(delayTimeMillis);
+    }
+
     public void driveOnHeadingPID(double heading, double desiredVelocity, LinearOpMode mode) {
         driveOnHeadingPID(heading, desiredVelocity, DEFAULT_DELAY_MILLIS, mode);
     }
@@ -703,6 +730,8 @@ public class JennyNavigation extends Thread{
         double deltaX;
         double deltaY;
         double heading;
+        double startHeading = restrictAngle(orientation.getOrientation(), mode);
+        double totalDistanceToTravel = distanceToTravel;
         while(mode.opModeIsActive() && distanceToTravel > LOCATION_DISTANCE_TOLERANCE) {
             distanceToTravel = startLocation.distanceToLocation(targetLocation); // start location is updated from the robot's current location (myLocation)
             deltaX = targetLocation.getX() - startLocation.getX();
@@ -712,7 +741,10 @@ public class JennyNavigation extends Thread{
             heading = (heading - orientation.getOrientation()) % 360;
             if (heading >= 360) heading -= 360;
             if (heading < 0) heading += 360;
-            correctedDriveOnHeadingIMU(heading - orientation.getOrientation(), desiredSpeed, 10, mode);
+            double curOrientation = restrictAngle(orientation.getOrientation(), mode);
+            double fracOfDistance = distanceToTravel / totalDistanceToTravel;
+            turnController.setSp((1-fracOfDistance)*(targetLocation.getHeading()) + (fracOfDistance)*(startHeading));
+            correctedDriveOnHeadingIMURotation(heading - curOrientation, desiredSpeed, 10, mode);
         }
         brake();
     }
@@ -746,5 +778,9 @@ public class JennyNavigation extends Thread{
         return vectors;
     }
 
-
+    private double restrictAngle(double angle, LinearOpMode mode) {
+        while(mode.opModeIsActive() && angle < 0) angle += 360;
+        while (mode.opModeIsActive() && angle >= 360) angle -= 360;
+        return angle;
+    }
 }

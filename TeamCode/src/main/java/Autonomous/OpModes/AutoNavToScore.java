@@ -34,16 +34,18 @@ import android.util.Log;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import Autonomous.Location;
-import Autonomous.VisionHelper;
+import Autonomous.*;
 import DriveEngine.JennyNavigation;
 import UserControlled.JoystickHandler;
 
-@Autonomous(name="Navigation tests", group ="Concept")
+@Autonomous(name="Auto Nav To Score", group ="Concept")
 //@Disabled
-public class NavigationTests extends LinearOpMode {
+public class AutoNavToScore extends LinearOpMode {
+    final double movementScale = 1;
+    double turningScale = .75;
     JennyNavigation navigation;
     JoystickHandler rightStick, leftStick;
+    VisionHelper locationTracker;
 
     @Override public void runOpMode() {
         try {
@@ -52,15 +54,16 @@ public class NavigationTests extends LinearOpMode {
             Log.e("Navigation error", e.toString());
             e.printStackTrace();
         }
+        locationTracker = new VisionHelper(hardwareMap);
         rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
         leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
         double radius = 12;
+        locationTracker.startTrackingLocation();
+        locationTracker.startDetection();
 
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
         waitForStart();
-
-        Location[] path = {new Location(12, 12, 90), new Location(0, 24, 270), new Location(36, 48, 0)};
 
         // DRIVE ON HEADING
 //        navigation.driveOnHeading(0, 15);
@@ -71,16 +74,7 @@ public class NavigationTests extends LinearOpMode {
 //                if(opModeIsActive()) navigation.driveToLocation(new Location(radius * Math.cos(Math.toRadians(i)), radius * Math.sin(Math.toRadians(i))), 15, this);
 //            }
 //        }
-
-        navigation.navigatePath(path, 15, this);
-//        navigation.turnController.setSp(90);
-//        while (opModeIsActive()) {
-//            navigation.correctedDriveOnHeadingIMURotation(0, 15, 0, this);
-//            telemetry.addData("Robot Location", navigation.getRobotLocation().toString());
-//            telemetry.addData("Robot orientation", navigation.getOrientation());
-//            telemetry.addData("First angle", navigation.orientation.getFirstAngle());
-//            telemetry.update();
-//        }
+//        navigation.driveToLocation(new Location(0, 0), 15, this);
 
         // DRIVE DISTANCE
 //        for(int i = 0; i < 360; i += 30) {
@@ -91,18 +85,16 @@ public class NavigationTests extends LinearOpMode {
 //        sleep(10);
 //        navigation.driveDistance(24, 180, 15, this);
 
-//        while (opModeIsActive()) {
-//            double heading = leftStick.angle();
-//            if(leftStick.x() == 0 && leftStick.y() == 0) heading = navigation.getOrientation();
-//            double speed = 15 * gamepad1.right_trigger;
-//            while (opModeIsActive() && heading < navigation.getOrientation() - 180) heading+=360;
-//            while (opModeIsActive() && heading > navigation.getOrientation() + 180) heading-=360;
-//            navigation.turnController.setSp(heading);
-//            navigation.driveOnHeadingPID(180, speed, 0,this);
-//            telemetry.addData("Angle", heading);
-//            telemetry.addData("Speed", speed);
-//            telemetry.update();
-//        }
+        while (opModeIsActive()) {
+            handleDriving();
+            if(gamepad1.x) {
+                Location robotLoc = locationTracker.getRobotLocation();
+                if(robotLoc != null) navigation.setLocation(robotLoc);
+            } else if(gamepad1.y) {
+                navigation.driveToLocation(new Location(52, 84), 20, this);
+            }
+            telemetry.update();
+        }
 
         // DRIVE ON HEADING PID
 //        navigation.turnController.setSp(navigation.getOrientation());
@@ -114,5 +106,11 @@ public class NavigationTests extends LinearOpMode {
         telemetry.update();
         while (opModeIsActive());
         navigation.stopNavigation();
+    }
+
+    private void handleDriving() {
+        double movementPower = movementScale * Math.abs(leftStick.magnitude());
+        double turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
+        navigation.driveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
     }
 }

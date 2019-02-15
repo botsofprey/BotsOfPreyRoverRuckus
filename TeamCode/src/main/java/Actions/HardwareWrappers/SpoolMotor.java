@@ -105,6 +105,8 @@ public class SpoolMotor implements ActionHandler{
         motor.setMode(mode);
     }
 
+    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior pwr) {motor.setZeroPowerBehavior(pwr);}
+
     public void holdPosition(){
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motor.setPositionTicks((int)motor.getCurrentTick());

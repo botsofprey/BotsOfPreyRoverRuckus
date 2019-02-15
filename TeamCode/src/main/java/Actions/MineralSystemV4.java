@@ -1,7 +1,5 @@
 package Actions;
 
-import android.util.Log;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -9,11 +7,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import java.io.IOException;
 
+import Actions.ActionHandler;
 import Actions.HardwareWrappers.ServoHandler;
 import Actions.HardwareWrappers.SpoolMotor;
 import MotorControllers.MotorController;
 
-public class MineralSystemV3 implements ActionHandler{
+public class MineralSystemV4 implements ActionHandler{
     public SpoolMotor extensionMotor;
     public MotorController liftMotor;
     private MotorController intake;
@@ -31,7 +30,7 @@ public class MineralSystemV3 implements ActionHandler{
     public static final double OPEN_DOOR = 150;
     public static final double CLOSE_DOOR = 120;
 
-    public MineralSystemV3(HardwareMap hw){
+    public MineralSystemV4(HardwareMap hw){
         hardwareMap = hw;
         try{
             extensionMotor = new SpoolMotor(new MotorController("extension", "MotorConfig/NeverRest40.json", hardwareMap)
@@ -39,15 +38,15 @@ public class MineralSystemV3 implements ActionHandler{
             liftMotor = new MotorController("lift", "ActionConfig/LiftMotor.json", hardwareMap);
             intake = new MotorController("intake", "ActionConfig/LiftMotor.json", hardwareMap);
             extensionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-            extensionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             extensionMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            extensionMotor.setExtendPower(1);
             liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             intake.setDirection(DcMotorSimple.Direction.REVERSE);
+            intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            extensionMotor.setExtendPower(1);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -102,7 +101,7 @@ public class MineralSystemV3 implements ActionHandler{
         }
     }
 
-    public void intake() {intake.setMotorPower(1);}
+    public void intake() {intake.setMotorPower(0.3);}
     public void expel() {intake.setMotorPower(-1);}
     public void pauseCollection() {intake.brake();}
 

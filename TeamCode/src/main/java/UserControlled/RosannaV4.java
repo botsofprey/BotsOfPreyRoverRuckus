@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import Actions.HardwareWrappers.FlagControllerTwoArms;
 import Actions.LatchSystem;
-import Actions.MineralSystemV3;
+import Actions.MineralSystemV4;
 import DriveEngine.HolonomicDriveSystemTesting;
 
 /**
@@ -21,7 +21,7 @@ public class RosannaV4 extends LinearOpMode {
     boolean aReleased = true, startReleased = true, dpadLReleased = false;
 
     JoystickHandler leftStick, rightStick, gamepad2LeftStick, gamepad2RightStick;
-    MineralSystemV3 mineralSystem;
+    MineralSystemV4 mineralSystem;
     LatchSystem latchSystem;
     HolonomicDriveSystemTesting navigation;
     FlagControllerTwoArms flagController;
@@ -29,7 +29,7 @@ public class RosannaV4 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         navigation = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/RosannaV4.json");
-        mineralSystem = new MineralSystemV3(hardwareMap);
+        mineralSystem = new MineralSystemV4(hardwareMap);
         latchSystem = new LatchSystem(hardwareMap);
         leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
         rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
@@ -122,7 +122,7 @@ public class RosannaV4 extends LinearOpMode {
         else if(gamepad1.right_bumper || gamepad2.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
 
-        if(gamepad1.x || gamepad2.b) mineralSystem.goToPosition(MineralSystemV3.DEPOSIT_POSITION_NO_POLAR);
+        if(gamepad1.x || gamepad2.b) mineralSystem.goToPosition(MineralSystemV4.DEPOSIT_POSITION_NO_POLAR);
 
         if(gamepad2.dpad_right || gamepad1.y) mineralSystem.setDepositTargetPosition();
     }
