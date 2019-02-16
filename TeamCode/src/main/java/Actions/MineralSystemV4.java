@@ -33,11 +33,11 @@ public class MineralSystemV4 implements ActionHandler{
     public MineralSystemV4(HardwareMap hw){
         hardwareMap = hw;
         try{
-            extensionMotor = new SpoolMotor(new MotorController("extension", "MotorConfig/NeverRest40.json", hardwareMap)
+            extensionMotor = new SpoolMotor(new MotorController("extension", "ActionConfig/ExtensionMotor.json", hardwareMap)
                     , 50, 50, 100, hardwareMap);
             liftMotor = new MotorController("lift", "ActionConfig/LiftMotor.json", hardwareMap);
             intake = new MotorController("intake", "ActionConfig/LiftMotor.json", hardwareMap);
-            extensionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            extensionMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             extensionMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             extensionMotor.setExtendPower(1);
@@ -74,7 +74,7 @@ public class MineralSystemV4 implements ActionHandler{
     public void pauseExtension() {
         if(!movingToPosition) {
             extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            extensionMotor.pause();
+            extensionMotor.holdPosition();
         }
     }
 

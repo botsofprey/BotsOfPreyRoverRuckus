@@ -72,7 +72,8 @@ public class NavigationTests extends LinearOpMode {
 //            }
 //        }
 
-        navigation.navigatePath(path, 15, this);
+        navigation.driveToLocation(path[0], 15, this);
+//        navigation.navigatePath(path, 15, this);
 //        navigation.turnController.setSp(90);
 //        while (opModeIsActive()) {
 //            navigation.correctedDriveOnHeadingIMURotation(0, 15, 0, this);

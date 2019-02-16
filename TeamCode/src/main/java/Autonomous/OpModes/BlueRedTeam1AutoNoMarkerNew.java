@@ -91,7 +91,7 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
 
 
         //find gold & sample
-        navigation.turnToHeading(135, this);
+//        navigation.turnToHeading(135, this);
         sleep(100);
         int goldPosition = -1;
         if(opModeIsActive()) goldPosition = findGold();
@@ -180,29 +180,61 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
     }
 
     private int findGold() {
-        robotVision.startDetection();
-        robotVision.startGoldDetection();
+//        robotVision.startDetection();
+//        robotVision.startGoldDetection();
         int goldPosition = NOT_DETECTED;
-        long startTime = System.currentTimeMillis();
-        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime < 5000) goldPosition = robotVision.getGoldMineralPosition();
-        goldPosition = LEFT;
 //        long startTime = System.currentTimeMillis();
-//        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) {
-//            sleep(250);
-//            if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = CENTER;
-//            else {
-//                navigation.turnToHeading(45 + 25,this);
-//                sleep(500);
-//                if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = RIGHT;
-//                else goldPosition = LEFT;
-//            }
-//        }
-//        navigation.turnToHeading(0, this);
-//        idle();
+//        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime < 5000) goldPosition = robotVision.getGoldMineralPosition();
+//        goldPosition = LEFT;
+        long startTime = System.currentTimeMillis();
+        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) {
+            sleep(250);
+            if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = CENTER;
+            else {
+                navigation.turnToHeading(45 + 20,this);
+                sleep(500);
+                if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = RIGHT;
+                else goldPosition = LEFT;
+            }
+        }
+        navigation.turnToHeading(45, this);
+        idle();
         return goldPosition;
     }
 
     private void knockGold(int goldPosition) {
+        navigation.driveDistance(3.5, 90, 25, this);
+        sleep(10);
+        if (goldPosition == LEFT) {
+            Log.d("Mineral", "LEFT");
+            telemetry.addData("driving...", "left");
+            telemetry.update();
+            navigation.driveDistance(20, 45, 25, this);
+        } else if (goldPosition == RIGHT) {
+            Log.d("Mineral", "RIGHT");
+            telemetry.addData("driving...", "right");
+            telemetry.update();
+            navigation.driveDistance(20, 135, 25, this);
+            sleep(10);
+            navigation.driveDistance(20, 315, 15, this);
+        } else {
+            Log.d("Mineral", "CENTER");
+            telemetry.addData("driving...", "forward");
+            telemetry.update();
+            navigation.driveDistance(15, 90, 25, this);
+            sleep(10);
+            navigation.driveDistance(10, 270, 15, this);
+        }
+        idle();
+
+//        telemetry.addData("driving...", "forward");
+//        telemetry.update();
+//        sleep(500);
+//        navigation.driveDistance(6, 90,10, this);
+//        idle();
+    }
+
+    private void knockGoldV4(int goldPosition) {
         navigation.driveDistance(3.5, 0, 25, this);
         sleep(10);
         if (goldPosition == LEFT) {

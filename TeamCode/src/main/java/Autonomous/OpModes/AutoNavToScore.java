@@ -89,10 +89,14 @@ public class AutoNavToScore extends LinearOpMode {
             handleDriving();
             if(gamepad1.x) {
                 Location robotLoc = locationTracker.getRobotLocation();
-                if(robotLoc != null) navigation.setLocation(robotLoc);
+                if(robotLoc != null) {
+                    navigation.setLocation(robotLoc);
+                    telemetry.addData("Robot location", robotLoc.toString());
+                }
             } else if(gamepad1.y) {
                 navigation.driveToLocation(new Location(52, 84), 20, this);
             }
+            telemetry.addData("Current Location", navigation.getRobotLocation().toString());
             telemetry.update();
         }
 
