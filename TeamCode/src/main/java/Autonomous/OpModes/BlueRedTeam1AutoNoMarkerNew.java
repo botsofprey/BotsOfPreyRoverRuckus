@@ -47,7 +47,7 @@ import static Autonomous.VisionHelper.NOT_DETECTED;
 import static Autonomous.VisionHelper.RIGHT;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 
-@Autonomous(name = "Blue/Red Team Crater Side", group = "Concept")
+@Autonomous(name = "Red Team Crater Side", group = "Concept")
 //@Disabled
 public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
     JennyNavigation navigation;
@@ -63,11 +63,12 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         mineralSystem = new MineralSystemV3(hardwareMap);
 
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 45, "RobotConfig/RosannaV3.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 45, "RobotConfig/RosannaV4.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        robotVision.startTrackingLocation();
+//        robotVision.startTrackingLocation();
+        robotVision.startGoldDetection();
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
@@ -78,15 +79,16 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         // START AUTONOMOUS
         //TODO: test driveDistance and adjust PID values
 
-        sleep(50);
-        navigation.driveOnHeading(90, 1);
-        while(opModeIsActive() && (!latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed() || latchSystem.winchMotor.getCurrentTick() < latchSystem.UNHOOK_POSITION)) latchSystem.extend();
-        latchSystem.pause();
-        navigation.brake();
+//        sleep(50);
+//        navigation.driveOnHeading(90, 1);
+//        while(opModeIsActive() && (!latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed() || latchSystem.winchMotor.getCurrentTick() < latchSystem.UNHOOK_POSITION)) latchSystem.extend();
+//        latchSystem.pause();
+//        navigation.brake();
+        robotVision.startDetection();
         sleep(50);
         //delatch
-        navigation.driveDistance(2, 180, 10, this);
-        navigation.driveDistance(2, 90, 10, this);
+        navigation.driveDistance(1.5, 180, 10, this);
+        navigation.driveDistance(1, 90, 10, this);
 //        navigation.driveDistance(1, 0, 10, this);
 
 
@@ -96,14 +98,31 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         int goldPosition = -1;
         if(opModeIsActive()) goldPosition = findGold();
         idle();
-        if(opModeIsActive()) knockGold(goldPosition);
-
-        // back up
-//        navigation.driveDistance(3, 270, 10, this);
+        if(opModeIsActive()) knockGoldV4(goldPosition);
 
         // turn to face crater
-//        navigation.turnToHeading(135, this);
+        navigation.turnToHeading(345, this);
+        robotVision.startTrackingLocation();
 
+        // 70 to 90 deg drive to wall
+        if(goldPosition == LEFT) {
+            navigation.driveDistance(18, 45, 25, this);
+        } else if(goldPosition == RIGHT){
+            navigation.driveDistance(40, 90, 25, this);
+        } else {
+            navigation.driveDistance(30, 90, 25, this);
+            navigation.driveDistance(4, 0, 15, this);
+        }
+        Location[] path = new Location[2];
+        Location robotLoc = robotVision.getRobotLocation();
+        while (opModeIsActive() && robotLoc == null) robotLoc = robotVision.getRobotLocation();
+        navigation.setLocation(robotLoc);
+        telemetry.addData("Location", robotLoc.toString());
+        telemetry.update();
+        path[0] = new Location(136, navigation.getRobotLocation().getY());
+        path[1] = new Location(136, 116);
+
+//        navigation.navigatePath(path, 15, this);
 //        mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        mineralSystem.liftMotor.setPositionTicks(3500);
 //        mineralSystem.liftMotor.setMotorPower(1);
@@ -170,10 +189,12 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
 //
 //        navigation.turnToHeading(170, this);
 
-        telemetry.addData("Final location", navigation.getRobotLocation());
-        telemetry.addData("Status", "Waiting to end...");
-        telemetry.update();
-        while (opModeIsActive());
+
+        while (opModeIsActive()) {
+            telemetry.addData("Final location", navigation.getRobotLocation().toString());
+            telemetry.addData("Status", "Waiting to end...");
+            telemetry.update();
+        }
         navigation.stopNavigation();
         latchSystem.kill();
         robotVision.kill();
@@ -183,22 +204,23 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
 //        robotVision.startDetection();
 //        robotVision.startGoldDetection();
         int goldPosition = NOT_DETECTED;
-//        long startTime = System.currentTimeMillis();
-//        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime < 5000) goldPosition = robotVision.getGoldMineralPosition();
-//        goldPosition = LEFT;
         long startTime = System.currentTimeMillis();
-        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) {
-            sleep(250);
-            if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = CENTER;
-            else {
-                navigation.turnToHeading(45 + 20,this);
-                sleep(500);
-                if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = RIGHT;
-                else goldPosition = LEFT;
-            }
-        }
-        navigation.turnToHeading(45, this);
-        idle();
+        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime < 5000) goldPosition = robotVision.getGoldMineralPosition();
+        robotVision.stopGoldDetection();
+//        goldPosition = LEFT;
+//        long startTime = System.currentTimeMillis();
+//        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) {
+//            sleep(250);
+//            if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = CENTER;
+//            else {
+//                navigation.turnToHeading(45 + 20,this);
+//                sleep(500);
+//                if(robotVision.getClosestMineral().getLabel().equals(LABEL_GOLD_MINERAL)) goldPosition = RIGHT;
+//                else goldPosition = LEFT;
+//            }
+//        }
+//        navigation.turnToHeading(45, this);
+//        idle();
         return goldPosition;
     }
 
@@ -235,27 +257,27 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
     }
 
     private void knockGoldV4(int goldPosition) {
-        navigation.driveDistance(3.5, 0, 25, this);
+        navigation.driveDistance(3.5, 90, 25, this);
         sleep(10);
-        if (goldPosition == LEFT) {
+        if (goldPosition == LEFT) { // TODO: LEFT LEFT LEFT LEFT LEFT
             Log.d("Mineral", "LEFT");
             telemetry.addData("driving...", "left");
             telemetry.update();
-            navigation.driveDistance(20, 315, 25, this);
-        } else if (goldPosition == RIGHT) {
+            navigation.driveDistance(20, 45, 25, this);
+        } else if (goldPosition == RIGHT) { // TODO: RIGHT RIGHT RIGHT RIGHT RIGHT
             Log.d("Mineral", "RIGHT");
             telemetry.addData("driving...", "right");
             telemetry.update();
-            navigation.driveDistance(18, 45, 25, this);
+            navigation.driveDistance(25, 135, 25, this);
             sleep(10);
-            navigation.driveDistance(18, 225, 15, this);
-        } else {
+            navigation.driveDistance(20, 315, 15, this);
+        } else { // TODO: CENTER CENTER CENTER CENTER CENTER
             Log.d("Mineral", "CENTER");
             telemetry.addData("driving...", "forward");
             telemetry.update();
-            navigation.driveDistance(15, 0, 25, this);
+            navigation.driveDistance(23, 90, 20, this);
             sleep(10);
-            navigation.driveDistance(10, 180, 15, this);
+            navigation.driveDistance(22, 270, 15, this);
         }
         idle();
 

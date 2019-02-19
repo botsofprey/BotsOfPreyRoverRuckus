@@ -88,6 +88,7 @@ public class RosannaV4 extends LinearOpMode {
             double movementPower = movementScale * Math.abs(leftStick.magnitude());
             double turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
             navigation.driveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
+            telemetry.addData("Joystick angle", leftStick.angle());
         } else {
             double movementPower = movementScale * Math.abs(gamepad2LeftStick.magnitude());
             double turningPower = turningScale * Math.abs(gamepad2RightStick.magnitude()) * Math.signum(gamepad2RightStick.x());

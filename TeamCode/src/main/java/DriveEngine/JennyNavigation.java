@@ -418,6 +418,14 @@ public class JennyNavigation extends Thread{
             Log.d("Distance Travelled", "" + distanceTraveled);
         }
         brake();
+        Log.d("Location", getRobotLocation().toString());
+        for(int i = 0; i < driveMotors.length; i++) {
+            Log.d("Motor" + i, driveMotors[i].getInchesFromStart()+"");
+        }
+    }
+
+    public void driveDistanceAccelerationBased(double distanceInInches, double heading, double desiredVelocity, LinearOpMode mode) {
+
     }
 
     public void driveDistanceNonCorrected(double distanceInInches, double heading, double desiredVelocity, LinearOpMode mode){
@@ -724,7 +732,6 @@ public class JennyNavigation extends Thread{
         orientation.stopIMU();
     }
 
-    //TODO: test drive to location alone...
     private void driveToLocation(Location startLocation, Location targetLocation, double desiredSpeed, LinearOpMode mode){
         double distanceToTravel = startLocation.distanceToLocation(targetLocation);
         double prevDistance = 0;
@@ -734,7 +741,7 @@ public class JennyNavigation extends Thread{
         double startHeading = restrictAngle(orientation.getOrientation(), targetLocation.getHeading(), mode);
         Log.d("Start heading", startHeading + "");
         double totalDistanceToTravel = distanceToTravel;
-        while(mode.opModeIsActive() && distanceToTravel > LOCATION_DISTANCE_TOLERANCE && prevDistance - distanceToTravel < LOCATION_DISTANCE_TOLERANCE*4) {
+        while(mode.opModeIsActive() && distanceToTravel > LOCATION_DISTANCE_TOLERANCE /*&& prevDistance - distanceToTravel < LOCATION_DISTANCE_TOLERANCE*4*/) {
             prevDistance = distanceToTravel;
             distanceToTravel = startLocation.distanceToLocation(targetLocation); // start location is updated from the robot's current location (myLocation)
             Log.d("Distance to travel", "" + distanceToTravel);
@@ -745,9 +752,11 @@ public class JennyNavigation extends Thread{
             heading = (heading - orientation.getOrientation()) % 360;
             if (heading >= 360) heading -= 360;
             if (heading < 0) heading += 360;
+            Log.d("Heading", ""+heading);
             double curOrientation = restrictAngle(orientation.getOrientation(), 180, mode);
-            double fracOfDistance = distanceToTravel / totalDistanceToTravel;
-            turnController.setSp((1-fracOfDistance)*(targetLocation.getHeading()) + (fracOfDistance)*(startHeading));
+            double fracOfDistance = distanceToTravel / (totalDistanceToTravel);
+            if(fracOfDistance > 1) fracOfDistance = 1;
+            turnController.setSp(/*(1-fracOfDistance)*(targetLocation.getHeading()) + (fracOfDistance)*(startHeading)*/targetLocation.getHeading());
             correctedDriveOnHeadingIMURotation(heading - curOrientation, desiredSpeed, 10, mode);
         }
         brake();

@@ -47,7 +47,7 @@ public class NavigationTests extends LinearOpMode {
 
     @Override public void runOpMode() {
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/RosannaV3.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/RosannaV4.json");
         } catch (Exception e) {
             Log.e("Navigation error", e.toString());
             e.printStackTrace();
@@ -72,7 +72,7 @@ public class NavigationTests extends LinearOpMode {
 //            }
 //        }
 
-        navigation.driveToLocation(path[0], 15, this);
+//        navigation.driveToLocation(path[0], 15, this);
 //        navigation.navigatePath(path, 15, this);
 //        navigation.turnController.setSp(90);
 //        while (opModeIsActive()) {
@@ -88,9 +88,9 @@ public class NavigationTests extends LinearOpMode {
 //            navigation.driveDistance(12, i, 15, this);
 //            sleep(3000);
 //        }
-//        navigation.driveDistance(24, 0, 15, this);
+//        navigation.driveDistance(24, 45, 15, this);
 //        sleep(10);
-//        navigation.driveDistance(24, 180, 15, this);
+        navigation.driveDistance(24, 180, 15, this);
 
 //        while (opModeIsActive()) {
 //            double heading = leftStick.angle();

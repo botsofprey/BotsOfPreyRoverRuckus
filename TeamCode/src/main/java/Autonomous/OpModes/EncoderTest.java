@@ -64,7 +64,7 @@ public class EncoderTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        HolonomicDriveSystemTesting driveBase = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/JennyV2.json");
+        HolonomicDriveSystemTesting driveBase = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/RosannaV4.json");
 
 
         telemetry.addData("Status", "Initialized");

@@ -13,7 +13,7 @@
   "MAX_TURNING_RPS":"1.0",
   "MAX_ROBOT_VELOCITY_INCHES_PER_SECOND":"50.0",
   "TURN_Kp":".003",
-  "TURN_Ki":"0.001",
+  "TURN_Ki":"0.00",
   "TURN_Ki_MAX":".05",
   "TURN_Kd":"0.0",
   "HEADING_Kp":".2",

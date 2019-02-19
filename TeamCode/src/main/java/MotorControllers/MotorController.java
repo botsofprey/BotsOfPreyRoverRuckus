@@ -157,6 +157,7 @@ public class MotorController extends Thread {
             //maxTicksPerSecond = (long)(maxRPS * ticksPerRevolution + .5);
             maxTicksPerSecond = (long) motor.getMotorType().getAchieveableMaxTicksPerSecondRounded();
             holdController = new PIDController(reader.getDouble("HOLD_KP"), reader.getDouble("HOLD_KI"), reader.getDouble("HOLD_KD"));
+            holdController.setIMax(reader.getDouble("HOLD_I_MAX"));
         } catch(Exception e){
             logError(logTag + " MotorController Error", "Config File Read Fail: " + e.toString());
             return 0;
