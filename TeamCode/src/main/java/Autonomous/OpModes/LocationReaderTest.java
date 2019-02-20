@@ -37,14 +37,21 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import java.io.InputStream;
 
+import DriveEngine.HolonomicDriveSystemTesting;
 import MotorControllers.JsonConfigReader;
 import Autonomous.*;
+import UserControlled.JoystickHandler;
+
+import static Autonomous.VuforiaHelper.PHONE_CAMERA;
 
 @Autonomous(name="Location Reader Test", group="Linear Opmode")
 //@Disabled
 public class LocationReaderTest extends LinearOpMode {
     // create objects and locally global variables here
     JsonConfigReader reader;
+    VisionHelper robotVision;
+    HolonomicDriveSystemTesting navigation;
+    JoystickHandler leftStick, rightStick;
 
     // TODO: test navigatePath with getPath
 
@@ -53,11 +60,15 @@ public class LocationReaderTest extends LinearOpMode {
         InputStream stream;
         try {
             stream = hardwareMap.appContext.getAssets().open("FieldConfig/BlueLocations.json");
+            navigation = new HolonomicDriveSystemTesting(hardwareMap, "RobotConfig/RosannaV4.json");
         }
         catch(Exception e){
             Log.d("Drive Engine Error: ",e.toString());
             throw new RuntimeException("Drive Engine Open Config File Fail: " + e.toString());
         }
+        robotVision = new VisionHelper(PHONE_CAMERA, hardwareMap);
+        leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
+        rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
         // initialize objects and variables here
         // also create and initialize function local variables here
         reader = new JsonConfigReader(stream);
@@ -72,14 +83,29 @@ public class LocationReaderTest extends LinearOpMode {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        robotVision.startTrackingLocation();
+        robotVision.startDetection();
         // add any other useful telemetry data or logging data here
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         // nothing goes between the above and below lines
         waitForStart();
         // should only be used for a time keeper or other small things, avoid using this space when possible
-
+        while (opModeIsActive()) {
+            handleDriving();
+            Location loc = robotVision.getRobotLocation();
+            telemetry.addData("Location", (loc == null)? "null":loc.toString());
+            telemetry.update();
+        }
+        navigation.kill();
         // disable/kill/stop objects here
+    }
+
+    private void handleDriving() {
+        double movementPower = 1 * Math.abs(leftStick.magnitude());
+        double turningPower = .75 * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
+        navigation.driveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
+        telemetry.addData("Joystick angle", leftStick.angle());
     }
     // misc functions here
 }

@@ -3,6 +3,7 @@ package Autonomous;
 import android.util.Log;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -62,6 +63,21 @@ public class VisionHelper extends Thread {
     public VisionHelper(HardwareMap hardwareMap) {
         try {
             vuforia = VuforiaHelper.initVuforia(hardwareMap);
+            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                    "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+            tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+            tfod.activate();
+        } catch (Exception e) {
+            Log.e("VisionHelper Error", e.toString());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public VisionHelper(int camera, HardwareMap hardwareMap) {
+        try {
+            vuforia = VuforiaHelper.initVuforia(camera, hardwareMap);
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
@@ -278,5 +294,6 @@ public class VisionHelper extends Thread {
     public void kill() {
         stopDetection();
         tfod.shutdown();
+        Vuforia.deinit();
     }
 }

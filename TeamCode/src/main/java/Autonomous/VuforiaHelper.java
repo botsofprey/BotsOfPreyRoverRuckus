@@ -15,7 +15,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.firstinspires.ftc.teamcode.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,6 +42,8 @@ public class VuforiaHelper {
     VuforiaTrackable backSpace;
     private final float UPRIGHT_POST_ROTATE_IN_DEG = 270;
     private final float HORIZONTAL_WITH_CAMERA_TO_LEFT_POST_ROTATE_IN_DEG = 180;
+    public final static int PHONE_CAMERA = 0;
+    public final static int WEBCAM = 1;
 
     public VuforiaHelper(HardwareMap hw){
         initVuforia(hw);
@@ -50,10 +51,10 @@ public class VuforiaHelper {
 
     public static VuforiaLocalizer initVuforia(HardwareMap hardwareMap){
         try {
-            VuforiaLocalizer.Parameters params = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
+            VuforiaLocalizer.Parameters params = new VuforiaLocalizer.Parameters();
             params.vuforiaLicenseKey = LICENSE_KEY_EXTERNAL_CAMERA;
             params.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
-            vuLoc = ClassFactory.createVuforiaLocalizer(params);
+            vuLoc = ClassFactory.getInstance().createVuforia(params);
             Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true); //enables RGB565 format for the image
             vuLoc.setFrameQueueCapacity(1); //tells VuforiaLocalizer to only store one frame at a time
 
@@ -63,8 +64,31 @@ public class VuforiaHelper {
         return vuLoc;
     }
 
+    public static VuforiaLocalizer initVuforia(int camera, HardwareMap hardwareMap) {
+        switch (camera) {
+            case WEBCAM:
+                return initVuforia(hardwareMap);
+            case PHONE_CAMERA:
+                try {
+                    VuforiaLocalizer.Parameters params = new VuforiaLocalizer.Parameters();
+                    params.vuforiaLicenseKey = LICENSE_KEY_EXTERNAL_CAMERA;
+                    params.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+//                    params.cameraName =
+                    vuLoc = ClassFactory.getInstance().createVuforia(params);
+                    Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true); //enables RGB565 format for the image
+                    vuLoc.setFrameQueueCapacity(1); //tells VuforiaLocalizer to only store one frame at a time
+
+                } catch (Exception e){
+                    throw new RuntimeException(e);
+                }
+                return vuLoc;
+            default:
+                return initVuforia(hardwareMap);
+        }
+    }
+
     public void kill(){
-        //Vuforia.deinit();
+        Vuforia.deinit();
         //vuLoc.
     }
 

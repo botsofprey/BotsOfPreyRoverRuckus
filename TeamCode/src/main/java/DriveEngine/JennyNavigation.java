@@ -698,6 +698,44 @@ public class JennyNavigation extends Thread{
 
     }
 
+    public void turnToHeading(double desiredHeading, double tolerance, LinearOpMode mode){
+        turnController.setSp(0);
+        double curHeading = orientation.getOrientation() % 360;
+        double rps;
+        double distanceFromHeading = 0;
+        distanceFromHeading = desiredHeading - curHeading;
+        if(distanceFromHeading > 180) distanceFromHeading = distanceFromHeading - 360;
+        else if(distanceFromHeading < -180) distanceFromHeading = 360 + distanceFromHeading;
+        if(distanceFromHeading >= 0 && distanceFromHeading <= 180){
+            while(Math.abs(distanceFromHeading) > tolerance && mode.opModeIsActive()){
+                //heading always positive
+                rps = turnController.calculatePID(distanceFromHeading);
+                turn(-rps);
+                mode.sleep(5);
+                curHeading = orientation.getOrientation();
+                distanceFromHeading = desiredHeading - curHeading;
+                if(distanceFromHeading > 180) distanceFromHeading = distanceFromHeading - 360;
+                else if(distanceFromHeading < -180) distanceFromHeading = 360 + distanceFromHeading;
+            }
+            brake();
+        }
+
+        else if((distanceFromHeading <= 360 && distanceFromHeading >= 180) || distanceFromHeading < 0){
+            while(Math.abs(distanceFromHeading) > HEADING_THRESHOLD && mode.opModeIsActive()){
+                //heading always positive
+                rps = turnController.calculatePID(distanceFromHeading);
+                turn(-rps);
+                mode.sleep(5);
+                curHeading = orientation.getOrientation();
+                distanceFromHeading = desiredHeading - curHeading;
+                if(distanceFromHeading > 180) distanceFromHeading = distanceFromHeading - 360;
+                else if(distanceFromHeading < -180) distanceFromHeading = 360 + distanceFromHeading;
+            }
+            brake();
+        }
+
+    }
+
     public void setDrivePower(double power){
         double[] powers = new double[4];
         for(int i = 0; i < 4; i++){

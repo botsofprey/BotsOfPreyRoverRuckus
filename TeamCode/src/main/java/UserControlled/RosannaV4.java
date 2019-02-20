@@ -6,7 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import Actions.HardwareWrappers.FlagControllerTwoArms;
 import Actions.LatchSystem;
 import Actions.MineralSystemV4;
+import Autonomous.Location;
 import DriveEngine.HolonomicDriveSystemTesting;
+import DriveEngine.JennyNavigation;
 
 /**
  * Created by robotics on 2/16/18.
@@ -23,12 +25,17 @@ public class RosannaV4 extends LinearOpMode {
     JoystickHandler leftStick, rightStick, gamepad2LeftStick, gamepad2RightStick;
     MineralSystemV4 mineralSystem;
     LatchSystem latchSystem;
-    HolonomicDriveSystemTesting navigation;
+    JennyNavigation navigation;
     FlagControllerTwoArms flagController;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        navigation = new HolonomicDriveSystemTesting(hardwareMap,"RobotConfig/RosannaV4.json");
+        try {
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/RosannaV4.json");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
         mineralSystem = new MineralSystemV4(hardwareMap);
         latchSystem = new LatchSystem(hardwareMap);
         leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
@@ -49,10 +56,10 @@ public class RosannaV4 extends LinearOpMode {
             handleMineralSystem();
             handleLatchSystem();
 
-            if(aReleased && (gamepad2.dpad_left || gamepad2.dpad_left)) {
+            if(aReleased && gamepad2.dpad_left) {
                 dpadLReleased = false;
                 flagWaving = !flagWaving;
-            } else if(!dpadLReleased && !gamepad1.dpad_left && !gamepad2.dpad_left) {
+            } else if(!dpadLReleased && !gamepad2.dpad_left) {
                 dpadLReleased = true;
             }
 
@@ -71,7 +78,7 @@ public class RosannaV4 extends LinearOpMode {
             telemetry.update();
         }
         mineralSystem.kill();
-        navigation.kill();
+        navigation.stopNavigation();
         latchSystem.kill();
         flagController.killFlag();
     }
@@ -102,16 +109,16 @@ public class RosannaV4 extends LinearOpMode {
         else if(gamepad1.left_bumper || gamepad2.left_bumper) mineralSystem.lift();
         else mineralSystem.pauseLift();
 
-        if(aReleased && (gamepad1.a || gamepad2.a)) {
+        if(aReleased && (gamepad1.a)) {
             aReleased = false;
             intaking = !intaking;
-        } else if(!aReleased && !gamepad1.a && !gamepad2.a) {
+        } else if(!aReleased && !gamepad1.a) {
             aReleased = true;
         }
 
 
-        if(intaking && !gamepad1.b && !gamepad2.b) mineralSystem.intake();
-        else if(gamepad1.b || gamepad2.b) {
+        if(intaking && !gamepad1.b) mineralSystem.intake();
+        else if(gamepad1.b) {
             mineralSystem.expel();
          } else mineralSystem.pauseCollection();
 
@@ -134,5 +141,16 @@ public class RosannaV4 extends LinearOpMode {
         else if(gamepad2.x) latchSystem.extendUnsafe();
         else if(gamepad2.y) latchSystem.retractUnsafe();
         else latchSystem.pause();
+    }
+    private void driveToDeposit(double desiredVelocity){
+        Location blueDeposit = new Location(54, 82);
+        Location redDeposit = new Location(90, 62);
+        double distanceToBlueDeposit = navigation.getRobotLocation().distanceToLocation(blueDeposit);
+        double distanceToRedDeposit = navigation.getRobotLocation().distanceToLocation(redDeposit);
+        if (distanceToBlueDeposit < distanceToRedDeposit) {
+            navigation.driveToLocation(blueDeposit, desiredVelocity, this);
+        } else {
+            navigation.driveToLocation(redDeposit, desiredVelocity, this);
+        }
     }
 }
