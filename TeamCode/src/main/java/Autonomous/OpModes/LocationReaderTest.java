@@ -42,7 +42,7 @@ import MotorControllers.JsonConfigReader;
 import Autonomous.*;
 import UserControlled.JoystickHandler;
 
-import static Autonomous.VuforiaHelper.PHONE_CAMERA;
+import static Autonomous.VisionHelper.PHONE_CAMERA;
 
 @Autonomous(name="Location Reader Test", group="Linear Opmode")
 //@Disabled

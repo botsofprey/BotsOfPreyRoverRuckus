@@ -54,7 +54,7 @@ public class AutoNavToScore extends LinearOpMode {
             Log.e("Navigation error", e.toString());
             e.printStackTrace();
         }
-        locationTracker = new VisionHelper(hardwareMap);
+        locationTracker = new VisionHelper(VisionHelper.WEBCAM, hardwareMap);
         rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
         leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
         double radius = 12;

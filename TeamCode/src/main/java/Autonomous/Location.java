@@ -21,6 +21,12 @@ public class Location {
         y = y1;
         heading = h1;
     }
+    public Location(Location target) {
+        x = target.getX();
+        y = target.getY();
+        heading = target.getHeading();
+    }
+
     public double getX(){
         return x;
     }

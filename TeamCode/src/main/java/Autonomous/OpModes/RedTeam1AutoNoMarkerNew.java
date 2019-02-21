@@ -33,33 +33,42 @@ import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
+import Actions.HardwareWrappers.ServoHandler;
 import Actions.LatchSystem;
+import Actions.LatchSystemV4;
 import Actions.MineralSystemV3;
+import Actions.MineralSystemV4;
 import Autonomous.Location;
 import Autonomous.VisionHelper;
 import DriveEngine.JennyNavigation;
 
+import static Autonomous.VisionHelper.BOTH;
 import static Autonomous.VisionHelper.LEFT;
+import static Autonomous.VisionHelper.LOCATION;
 import static Autonomous.VisionHelper.NOT_DETECTED;
+import static Autonomous.VisionHelper.PHONE_CAMERA;
 import static Autonomous.VisionHelper.RIGHT;
-import static Autonomous.VuforiaHelper.PHONE_CAMERA;
+import static Autonomous.VisionHelper.WEBCAM;
 
 @Autonomous(name = "Red Team Crater Side", group = "Concept")
 //@Disabled
-public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
+public class RedTeam1AutoNoMarkerNew extends LinearOpMode {
     JennyNavigation navigation;
-    LatchSystem latchSystem;
-    MineralSystemV3 mineralSystem;
+    LatchSystemV4 latchSystem;
+    MineralSystemV4 mineralSystem;
+    ServoHandler markerDeployer;
 
     private VisionHelper webcam;
     private VisionHelper camera;
 
     @Override
     public void runOpMode() {
-        webcam = new VisionHelper(hardwareMap);
-        latchSystem = new LatchSystem(hardwareMap);
-        mineralSystem = new MineralSystemV3(hardwareMap);
+        webcam = new VisionHelper(WEBCAM, hardwareMap);
+        latchSystem = new LatchSystemV4(hardwareMap);
+        mineralSystem = new MineralSystemV4(hardwareMap);
+        markerDeployer = new ServoHandler("markerDeployer", hardwareMap);
 
         try {
             navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 45, "RobotConfig/RosannaV4.json");
@@ -68,23 +77,29 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         }
 //        webcam.startTrackingLocation();
         webcam.startGoldDetection();
+        markerDeployer.setDegree(0.0);
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
+
+        while (!opModeIsActive()) {
+            latchSystem.pause();
+        }
         waitForStart();
         telemetry.addData("Status", "Running...");
         telemetry.update();
         // START AUTONOMOUS
 //        sleep(50);
-//        navigation.driveOnHeading(90, 1);
-//        while(opModeIsActive() && (!latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed() || latchSystem.winchMotor.getCurrentTick() < latchSystem.UNHOOK_POSITION)) latchSystem.extend();
-//        latchSystem.pause();
+        navigation.driveOnHeading(90, 1);
+        long startTime = System.currentTimeMillis();
+        while(opModeIsActive() && latchSystem.winchMotor.getCurrentTick() < LatchSystemV4.UNHOOK_POSITION && System.currentTimeMillis() - startTime < 2000) latchSystem.extend();
+        latchSystem.pause();
+        latchSystem.coastLatchMotor();
 //        navigation.brake();
         webcam.startDetection();
-        sleep(50);
         //delatch
-        navigation.driveDistance(1.5, 180, 10, this);
+        navigation.driveDistance(2, 180, 10, this);
         navigation.driveDistance(1, 90, 10, this);
 //        navigation.driveDistance(1, 0, 10, this);
 
@@ -98,103 +113,48 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         if(opModeIsActive()) knockGoldV4(goldPosition);
 
         // turn to face image
-        navigation.turnToHeading(165, this);
-//        webcam.startTrackingLocation();
-        camera = new VisionHelper(PHONE_CAMERA, hardwareMap);
-        camera.startTrackingLocation();
-        camera.startDetection();
+        navigation.turnToHeading(345, this);
+        webcam.startTrackingLocation();
 
         // drive to image
         if(goldPosition == LEFT) {
-            navigation.driveDistance(18, 225, 25, this);
+            navigation.driveDistance(18, 45, 25, this);
         } else if(goldPosition == RIGHT){
-            navigation.driveDistance(36, 265, 25, this);
-            navigation.turnToHeading(190, 5, this);
+            navigation.driveDistance(36, 85, 25, this);
+//            navigation.turnToHeading(10, 5, this);
         } else {
-            navigation.driveDistance(32, 265, 25, this);
-            navigation.turnToHeading(190, 5, this);
+            navigation.driveDistance(32, 85, 25, this);
+//            navigation.turnToHeading(10, 5, this);
 //            navigation.driveDistance(4, 0, 15, this);
         }
+
         // determine path to depot
         Location[] path = new Location[2];
-        Location robotLoc = camera.getRobotLocation();
-        while (opModeIsActive() && robotLoc == null) robotLoc = camera.getRobotLocation();
-        camera.kill();
+        Location robotLoc = webcam.getRobotLocation();
+        while (opModeIsActive() && robotLoc == null) robotLoc = webcam.getRobotLocation();
         navigation.setLocation(robotLoc);
         telemetry.addData("Location", robotLoc.toString());
         telemetry.update();
-        path[0] = new Location(136, navigation.getRobotLocation().getY());
-        path[1] = new Location(136, 116);
+        navigation.turnToHeading(180, 5, this);
+        idle();
+        path[0] = new Location(138, navigation.getRobotLocation().getY(), 180);
+        path[1] = new Location(138, 116, 180);
 
         navigation.navigatePath(path, 15, this);
-        navigation.driveDistance(2, 90, 15, this);
-        navigation.driveDistance(53, 180, 60, this);
-//        mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        mineralSystem.liftMotor.setPositionTicks(3500);
-//        mineralSystem.liftMotor.setMotorPower(1);
-//        sleep(750);
-//
-//        // park
-//        mineralSystem.extensionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        mineralSystem.extensionMotor.setPostitionTicks(6000);
-//        mineralSystem.extensionMotor.setPower(1);
+        // MARKER
+        markerDeployer.setDegree(90.0);
+        navigation.driveDistance(3, 270, 15, this);
+        navigation.driveDistance(40, 0, 60, this);
 
-        /**
-         * FULL AUTO BELOW, begins after finding gold
-         */
-        // drive to left mineral position
-//        navigation.driveDistance(4, -45, 15, this);
-//        idle();
-//        if(goldPosition == RIGHT) navigation.driveDistance(24, 45, 15, this);
-//        else if(goldPosition == CENTER) navigation.driveDistance(12, 45, 15, this);
-//
-//
-//        navigation.turnToHeading(-30, this);
-//        webcam.startDetection();
-//        sleep(50);
-//        Location robotLocation = null;
-//        while (opModeIsActive() && robotLocation == null) {
-//            robotLocation = webcam.getRobotLocation();
-//            telemetry.addData("Location", robotLocation);
-//            telemetry.update();
-//        }
-//        navigation.setLocation(robotLocation);
-//        idle();
-//
-//        navigation.turnToHeading(0, this);
-//        idle();
-//        navigation.driveToLocation(new Location(134.0, 72.0), 20, this); // position to wall
-//        navigation.turnToHeading(0, this);
-//        idle();
-//
-//        navigation.driveToLocation(new Location(134.0, 100.0), 25, this); // fast to depot
-//        idle();
-//
-//        navigation.driveToLocation(new Location(134.0, 122.0), 15, this); // position to depot
-//        idle();
-//
-//
-//        mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        mineralSystem.liftMotor.setPositionTicks(3100);
-//        mineralSystem.liftMotor.setMotorPower(1);
-//        sleep(500);
-//        navigation.driveDistance(6, 180, 25, this);
-//
-//        navigation.turnToHeading(180, this);
-//        idle();
-//
-//        navigation.driveToLocation(new Location(navigation.getRobotLocation().getX(), 72.0), 25, this); // fast to crater
-//        idle();
-//
-//        navigation.driveToLocation(new Location(navigation.getRobotLocation().getX(), 66.0), 15, this); // position to crater
-//        idle();
-//
-//        mineralSystem.extensionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        mineralSystem.extensionMotor.setPostitionTicks(2500);
-//        mineralSystem.extensionMotor.setPower(1);
-//
-//        navigation.turnToHeading(170, this);
+        mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        mineralSystem.liftMotor.setPositionTicks(-2700);
+        mineralSystem.liftMotor.setMotorPower(1);
+        sleep(750);
 
+        // park
+        mineralSystem.extensionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        mineralSystem.extensionMotor.setPostitionTicks(5600);
+        mineralSystem.extensionMotor.setPower(1);
 
         while (opModeIsActive()) {
             telemetry.addData("Final location", navigation.getRobotLocation().toString());
@@ -211,7 +171,7 @@ public class BlueRedTeam1AutoNoMarkerNew extends LinearOpMode {
         int goldPosition = NOT_DETECTED;
         long startTime = System.currentTimeMillis();
         while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime < 5000) goldPosition = webcam.getGoldMineralPosition();
-        webcam.kill();
+        webcam.stopGoldDetection();
 //        goldPosition = LEFT;
 //        long startTime = System.currentTimeMillis();
 //        while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime <= 25000) {

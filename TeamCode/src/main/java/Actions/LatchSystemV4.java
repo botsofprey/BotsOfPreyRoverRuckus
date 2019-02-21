@@ -13,17 +13,14 @@ import MotorControllers.MotorController;
  * Created by robotics on 12/21/18.
  */
 
-public class LatchSystem implements ActionHandler {
-    public static final int RETRACT_SWITCH = 0, EXTEND_SWITCH = 1;
-    public static final int UNHOOK_POSITION = 0;
+public class LatchSystemV4 implements ActionHandler {
+    public static final int UNHOOK_POSITION = 3450, HOOK_POSITION = 10;
+    private int extendPosition = UNHOOK_POSITION, retractPosition = HOOK_POSITION;
     public MotorController winchMotor;
-    public TouchSensor[] limitSwitches = new TouchSensor[2];
     HardwareMap hardwareMap;
 
-    public LatchSystem(HardwareMap hw) {
+    public LatchSystemV4(HardwareMap hw) {
         hardwareMap = hw;
-        limitSwitches[RETRACT_SWITCH] = hardwareMap.touchSensor.get("retractSwitch");
-        limitSwitches[EXTEND_SWITCH] = hardwareMap.touchSensor.get("extendSwitch");
         try {
             winchMotor = new MotorController("winchMotor", "ActionConfig/RackAndPinion.json", hardwareMap);
             winchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -35,15 +32,23 @@ public class LatchSystem implements ActionHandler {
         }
     }
 
+    public void setExtendPosition(int pos) {
+        extendPosition = pos;
+    }
+
+    public void setRetractPosition(int pos) {
+        retractPosition = pos;
+    }
+
     public void extend() {
         winchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        if(!limitSwitches[EXTEND_SWITCH].isPressed()) winchMotor.setMotorPower(1);
+        if(winchMotor.getCurrentTick() < extendPosition) winchMotor.setMotorPower(1);
         else pause();
     }
 
     public void retract() {
         winchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        if(!limitSwitches[RETRACT_SWITCH].isPressed()) winchMotor.setMotorPower(-1);
+        if(winchMotor.getCurrentTick() > retractPosition) winchMotor.setMotorPower(-1);
         else pause();
     }
 
@@ -58,7 +63,12 @@ public class LatchSystem implements ActionHandler {
     }
 
     public void pause() {
-        winchMotor.holdPosition();
+        if(winchMotor.getCurrentTick() < UNHOOK_POSITION/2.0) winchMotor.holdPosition();
+        else winchMotor.brake();
+    }
+
+    public void coastLatchMotor() {
+        winchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     @Override

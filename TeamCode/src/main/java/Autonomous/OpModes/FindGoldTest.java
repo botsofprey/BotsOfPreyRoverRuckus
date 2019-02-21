@@ -37,10 +37,12 @@ import Autonomous.Location;
 import DriveEngine.JennyNavigation;
 import Autonomous.VisionHelper;
 
+import static Autonomous.VisionHelper.BOTH;
 import static Autonomous.VisionHelper.CENTER;
 import static Autonomous.VisionHelper.LEFT;
 import static Autonomous.VisionHelper.NOT_DETECTED;
 import static Autonomous.VisionHelper.RIGHT;
+import static Autonomous.VisionHelper.WEBCAM;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 
 @Autonomous(name = "Find Gold Test", group = "Concept")
@@ -52,7 +54,7 @@ public class FindGoldTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robotVision = new VisionHelper(hardwareMap);
+        robotVision = new VisionHelper(WEBCAM, BOTH, hardwareMap);
 
         try {
             navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0,"RobotConfig/JennyV2.json");
@@ -71,6 +73,7 @@ public class FindGoldTest extends LinearOpMode {
         robotVision.startGoldDetection();
         robotVision.startDetection();
         while (opModeIsActive()) {
+            long startTime = System.currentTimeMillis();
             int pos = robotVision.getGoldMineralPosition();
             switch (pos) {
                 case LEFT:
@@ -86,6 +89,7 @@ public class FindGoldTest extends LinearOpMode {
                     telemetry.addData("Gold", "NOT_DETECTED");
                     break;
             }
+            telemetry.addData("Time to find gold", System.currentTimeMillis() - startTime);
             telemetry.update();
         }
 //        int goldPosition = findGold();

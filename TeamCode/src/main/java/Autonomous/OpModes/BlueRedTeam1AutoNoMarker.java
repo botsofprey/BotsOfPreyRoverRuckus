@@ -45,6 +45,7 @@ import static Autonomous.VisionHelper.CENTER;
 import static Autonomous.VisionHelper.LEFT;
 import static Autonomous.VisionHelper.NOT_DETECTED;
 import static Autonomous.VisionHelper.RIGHT;
+import static Autonomous.VisionHelper.WEBCAM;
 import static java.lang.Thread.MIN_PRIORITY;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 
@@ -59,7 +60,7 @@ public class BlueRedTeam1AutoNoMarker extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robotVision = new VisionHelper(hardwareMap);
+        robotVision = new VisionHelper(WEBCAM, hardwareMap);
         latchSystem = new LatchSystem(hardwareMap);
         mineralSystem = new MineralSystemV3(hardwareMap);
 

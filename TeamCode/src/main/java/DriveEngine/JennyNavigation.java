@@ -499,49 +499,68 @@ public class JennyNavigation extends Thread{
         applyMotorVelocities(determineMotorVelocitiesToDriveOnHeading(heading, desiredVelocity));
     }
 
-    public void driveOnHeadingWithTurning(double heading, double driveVelocity, double magnitudeOfTurn){
-        double [] turnVelocities =  calculateTurnVelocitiesRelativeToMax(magnitudeOfTurn);
-        double [] headingVelocities = determineMotorVelocitiesToDriveOnHeading(heading, driveVelocity);
-        double [] finalVelocities = new double[4];
-        for(int i = 0; i < finalVelocities.length; i ++){
-            finalVelocities[i] = turnVelocities[i] + headingVelocities[i];
+    public void driveOnHeadingWithTurning(double heading, double movementPower, double turnPower){
+        double [] movementPowers = calculatePowersToDriveOnHeading(heading, movementPower);
+        double [] turningPowers = calculatePowersToTurn(turnPower);
+        double [] total = new double[4];
+        for(int i = 0; i < movementPowers.length; i ++){
+            total[i] = movementPowers[i] + turningPowers[i];
         }
-        //look for max and min values
-        double maxValue = finalVelocities[0];
-        double minValue = finalVelocities[0];
-        for(int i = 1; i < finalVelocities.length; i ++){
-            if(finalVelocities[i] > maxValue){
-                maxValue = finalVelocities[i];
-            }
-            else if(finalVelocities[i] < minValue){
-                minValue = finalVelocities[i];
-            }
-        }
-        //scale all motor powers to correspond with maxVelocities
-        double scaleValue = 1;
-        if(Math.abs(maxValue) >= Math.abs(minValue)){
-            if(maxValue > driveMotors[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR].getMaxSpeed()){
-                scaleValue = driveMotors[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR].getMaxSpeed()/maxValue;
-            }
-        }
-        else if(Math.abs(maxValue) < Math.abs(minValue)){
-            if(Math.abs(minValue) > driveMotors[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR].getMaxSpeed()){
-                scaleValue = Math.abs(driveMotors[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR].getMaxSpeed()/Math.abs(minValue));
-            }
-        }
-
-        if(scaleValue != 1){
-            for(int i = 0; i < finalVelocities.length; i ++){
-                finalVelocities[i] *= scaleValue;
-                Log.d("final velocity" + i,"" + finalVelocities[i]);
-            }
-        }
-
-        applyMotorVelocities(finalVelocities);
+        normalizePowers(total);
+        applyMotorPowers(total);
     }
 
-    private void normalizeMotorOutputs(){
+    private double [] calculatePowersToDriveOnHeading(double heading, double desiredPower){
+        double[] powers = new double[4];
+        if(desiredPower == 0){
+            for(int i = 0; i < powers.length; i ++){
+                powers[i] = 0;
+            }
+            return powers;
+        }
+        powers[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] = desiredPower * Math.sin(Math.toRadians(heading + 45));
+        powers[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] = desiredPower * Math.cos(Math.toRadians(heading + 45));
+        powers[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] = desiredPower * Math.sin(Math.toRadians(heading + 45));
+        powers[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] = desiredPower * Math.cos(Math.toRadians(heading + 45));
+        //Log.d("MotorPow","" + powers[0]);
+        return powers;
+    }
 
+    private double [] calculatePowersToTurn(double desiredTurnRateOfMax){
+        double[] powers = new double[4];
+        if(desiredTurnRateOfMax == 0){
+            for(int i = 0; i < powers.length; i ++){
+                powers[i] = 0;
+            }
+            return powers;
+        }
+        powers[FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR] = desiredTurnRateOfMax;
+        powers[FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR] = -desiredTurnRateOfMax;
+        powers[BACK_LEFT_HOLONOMIC_DRIVE_MOTOR] = desiredTurnRateOfMax;
+        powers[BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR] = -desiredTurnRateOfMax;
+        for(int i = 0; i < powers.length; i ++){
+            if(Double.isNaN(powers[i])) powers[i] = 0;
+        }
+        return powers;
+    }
+
+    private void normalizePowers(double [] toNormalize){
+        //get the min and max powers
+        double min = toNormalize[0], max = toNormalize[0];
+        for(int i = 0; i < toNormalize.length; i ++){
+            if(toNormalize[i] < min) min = toNormalize[i];
+            else if(toNormalize[i] > max) max = toNormalize[i];
+        }
+        //assign toScaleAgainst to the largest (abs) value
+        double toScaleAgainst = 0;
+        if(Math.abs(min) < Math.abs(max)) toScaleAgainst = Math.abs(max);
+        else toScaleAgainst = Math.abs(min);
+        //if the largest (abs) is greater than 1, scale all values appropriately
+        if(toScaleAgainst > 1){
+            for(int i = 0; i < toNormalize.length; i ++){
+                toNormalize[i] = toNormalize[i]/toScaleAgainst;
+            }
+        }
     }
 
     public void relativeDriveOnHeadingWithTurning(double heading, double driveVelocity, double magnitudeOfTurn){
@@ -795,7 +814,7 @@ public class JennyNavigation extends Thread{
             double fracOfDistance = distanceToTravel / (totalDistanceToTravel);
             if(fracOfDistance > 1) fracOfDistance = 1;
             turnController.setSp(/*(1-fracOfDistance)*(targetLocation.getHeading()) + (fracOfDistance)*(startHeading)*/targetLocation.getHeading());
-            correctedDriveOnHeadingIMURotation(heading - curOrientation, desiredSpeed, 10, mode);
+            correctedDriveOnHeadingIMU(heading - curOrientation, desiredSpeed, 10, mode);
         }
         brake();
     }

@@ -41,6 +41,7 @@ import static Autonomous.VisionHelper.CENTER;
 import static Autonomous.VisionHelper.LEFT;
 import static Autonomous.VisionHelper.NOT_DETECTED;
 import static Autonomous.VisionHelper.RIGHT;
+import static Autonomous.VisionHelper.WEBCAM;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_SILVER_MINERAL;
 
@@ -51,7 +52,7 @@ public class ClosestMineralTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robotVision = new VisionHelper(hardwareMap);
+        robotVision = new VisionHelper(WEBCAM, hardwareMap);
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");

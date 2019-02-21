@@ -27,8 +27,8 @@ public class MineralSystemV4 implements ActionHandler{
     private final double FAR_POSITION_DEGREE = 142;
     private boolean movingToPosition = false;
     public final double MAX_EXTEND_INCHES = 150;
-    public static final double OPEN_DOOR = 150;
-    public static final double CLOSE_DOOR = 120;
+    public static final double OPEN_DOOR = 90;
+    public static final double CLOSE_DOOR = 179;
 
     public MineralSystemV4(HardwareMap hw){
         hardwareMap = hw;
@@ -52,7 +52,7 @@ public class MineralSystemV4 implements ActionHandler{
         }
         intakeDoor = new ServoHandler("intakeDoor", hardwareMap);
         intakeDoor.setDirection(Servo.Direction.REVERSE);
-        intakeDoor.setServoRanges(CLOSE_DOOR-1, OPEN_DOOR+1);
+        intakeDoor.setServoRanges(OPEN_DOOR-1, CLOSE_DOOR+1);
         intakeDoor.setDegree(OPEN_DOOR);
     }
 
@@ -101,7 +101,7 @@ public class MineralSystemV4 implements ActionHandler{
         }
     }
 
-    public void intake() {intake.setMotorPower(0.3);}
+    public void intake() {intake.setMotorPower(1);}
     public void expel() {intake.setMotorPower(-1);}
     public void pauseCollection() {intake.brake();}
 

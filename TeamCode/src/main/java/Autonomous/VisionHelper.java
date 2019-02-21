@@ -35,6 +35,10 @@ import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.TFOD
 
 public class VisionHelper extends Thread {
     public final static int LEFT = 0, CENTER = 1, RIGHT = 2, NOT_DETECTED = -1;
+    public final static int SLEEP_TIME_MILLIS = 200;
+    public final static int PHONE_CAMERA = 0;
+    public final static int WEBCAM = 1;
+    public final static int LOCATION = 0, MINERAL_DETECTION = 1, BOTH = 2;
     private final int POSITION_VOTE_MINIMUM_COUNT = 15;
     VuforiaLocalizer vuforia;
     VuforiaTrackables targetsRoverRuckus;
@@ -51,6 +55,7 @@ public class VisionHelper extends Thread {
     List<VuforiaTrackable> allTrackables;
     Orientation robotOrientation;
     VectorF translation;
+    private int mode = LOCATION;
 
     private static final float mmPerInch        = 25.4f;
     private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
@@ -60,22 +65,30 @@ public class VisionHelper extends Thread {
     final int CAMERA_VERTICAL_DISPLACEMENT_FROM_CENTER = (int)(14*mmPerInch);
     final int CAMERA_LEFT_DISPLACEMENT_FROM_CENTER = (int)(-1*mmPerInch);
 
-    public VisionHelper(HardwareMap hardwareMap) {
-        try {
-            vuforia = VuforiaHelper.initVuforia(hardwareMap);
-            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                    "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-            tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
-            tfod.activate();
-        } catch (Exception e) {
-            Log.e("VisionHelper Error", e.toString());
-            throw new RuntimeException(e);
+    public VisionHelper(int camera, HardwareMap hardwareMap) {
+        initBoth(camera, hardwareMap);
+    }
+
+    public VisionHelper(int camera, int mode, HardwareMap hardwareMap) {
+        switch (mode) {
+            case LOCATION:
+                mode = LOCATION;
+                vuforia = VuforiaHelper.initVuforia(camera, hardwareMap);
+                break;
+            case MINERAL_DETECTION:
+                mode = MINERAL_DETECTION;
+                initBoth(camera, hardwareMap);
+                break;
+            case BOTH:
+                mode = BOTH;
+                initBoth(camera, hardwareMap);
+                break;
+            default:
+                break;
         }
     }
 
-    public VisionHelper(int camera, HardwareMap hardwareMap) {
+    private void initBoth(int camera, HardwareMap hardwareMap) {
         try {
             vuforia = VuforiaHelper.initVuforia(camera, hardwareMap);
             int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
@@ -96,6 +109,11 @@ public class VisionHelper extends Thread {
             while (running) {
                 if(detectingGold) updatePositionVotes();
                 if(trackingLocation) updateRobotLocation();
+                try {
+                    sleep(SLEEP_TIME_MILLIS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             resetPositionVotes();
         }
@@ -168,7 +186,8 @@ public class VisionHelper extends Thread {
     }
 
     public Location getRobotLocation() {
-        return robotLocation;
+        if(trackingLocation) return robotLocation;
+        else return null;
     }
 
     public void resetPositionVotes() {
@@ -293,7 +312,7 @@ public class VisionHelper extends Thread {
 
     public void kill() {
         stopDetection();
-        tfod.shutdown();
+        if(mode == BOTH || mode == MINERAL_DETECTION) tfod.shutdown();
         Vuforia.deinit();
     }
 }

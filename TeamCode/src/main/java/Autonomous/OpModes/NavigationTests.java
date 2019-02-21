@@ -90,7 +90,7 @@ public class NavigationTests extends LinearOpMode {
 //        }
 //        navigation.driveDistance(24, 45, 15, this);
 //        sleep(10);
-        navigation.driveDistance(24, 180, 15, this);
+//        navigation.driveDistance(24, 180, 15, this);
 
 //        while (opModeIsActive()) {
 //            double heading = leftStick.angle();
@@ -108,6 +108,8 @@ public class NavigationTests extends LinearOpMode {
         // DRIVE ON HEADING PID
 //        navigation.turnController.setSp(navigation.getOrientation());
 //        while (opModeIsActive()) navigation.driveOnHeadingPID(0, 15, 0, this);
+
+        navigation.turnToHeading(180, this);
 
         telemetry.addData("Robot Location", navigation.getRobotLocation().toString());
         telemetry.addData("Robot orientation", navigation.getOrientation());

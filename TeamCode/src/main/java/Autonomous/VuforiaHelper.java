@@ -1,5 +1,6 @@
 package Autonomous;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Environment;
@@ -10,17 +11,26 @@ import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.function.Consumer;
+import org.firstinspires.ftc.robotcore.external.function.Continuation;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraCharacteristics;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.internal.camera.names.UnknownCameraNameImpl;
+import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static Autonomous.VisionHelper.PHONE_CAMERA;
+import static Autonomous.VisionHelper.WEBCAM;
 
 /**
  * Created by robotics on 12/12/17.
@@ -42,8 +52,6 @@ public class VuforiaHelper {
     VuforiaTrackable backSpace;
     private final float UPRIGHT_POST_ROTATE_IN_DEG = 270;
     private final float HORIZONTAL_WITH_CAMERA_TO_LEFT_POST_ROTATE_IN_DEG = 180;
-    public final static int PHONE_CAMERA = 0;
-    public final static int WEBCAM = 1;
 
     public VuforiaHelper(HardwareMap hw){
         initVuforia(hw);
@@ -73,6 +81,7 @@ public class VuforiaHelper {
                     VuforiaLocalizer.Parameters params = new VuforiaLocalizer.Parameters();
                     params.vuforiaLicenseKey = LICENSE_KEY_EXTERNAL_CAMERA;
                     params.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+                    params.cameraName = UnknownCameraNameImpl.forUnknown();
 //                    params.cameraName =
                     vuLoc = ClassFactory.getInstance().createVuforia(params);
                     Vuforia.setFrameFormat(PIXEL_FORMAT.RGB565, true); //enables RGB565 format for the image

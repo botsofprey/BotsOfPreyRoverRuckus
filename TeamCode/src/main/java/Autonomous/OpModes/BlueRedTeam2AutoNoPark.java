@@ -44,6 +44,7 @@ import static Autonomous.VisionHelper.CENTER;
 import static Autonomous.VisionHelper.LEFT;
 import static Autonomous.VisionHelper.NOT_DETECTED;
 import static Autonomous.VisionHelper.RIGHT;
+import static Autonomous.VisionHelper.WEBCAM;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 
 @Autonomous(name = "Blue/Red Team Gold Side", group = "Concept")
@@ -57,7 +58,7 @@ public class BlueRedTeam2AutoNoPark extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robotVision = new VisionHelper(hardwareMap);
+        robotVision = new VisionHelper(WEBCAM, hardwareMap);
         latchSystem = new LatchSystem(hardwareMap);
         mineralSystem = new MineralSystemV3(hardwareMap);
 

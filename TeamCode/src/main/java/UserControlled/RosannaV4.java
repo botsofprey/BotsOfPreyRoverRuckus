@@ -4,10 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import Actions.HardwareWrappers.FlagControllerTwoArms;
-import Actions.LatchSystem;
+import Actions.LatchSystemV4;
 import Actions.MineralSystemV4;
 import Autonomous.Location;
-import DriveEngine.HolonomicDriveSystemTesting;
 import DriveEngine.JennyNavigation;
 
 /**
@@ -18,15 +17,16 @@ import DriveEngine.JennyNavigation;
 public class RosannaV4 extends LinearOpMode {
     final double movementScale = 1;
     double turningScale = .75;
-    boolean intaking = false;
-    boolean p1Driving = true, flagWaving = false;
-    boolean aReleased = true, startReleased = true, dpadLReleased = false;
+    boolean intaking = false, slowMode = false;
+    boolean p1Driving = true, flagWaving = false, trackingLocation = false;
+    boolean aReleased = true, startReleased = true, dpadLReleased = true, a2Released = true, slowToggle = true, xReleased = true;
 
     JoystickHandler leftStick, rightStick, gamepad2LeftStick, gamepad2RightStick;
     MineralSystemV4 mineralSystem;
-    LatchSystem latchSystem;
+    LatchSystemV4 latchSystem;
     JennyNavigation navigation;
     FlagControllerTwoArms flagController;
+    Location targetDeposit = new Location(54, 82, 325);
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -37,15 +37,19 @@ public class RosannaV4 extends LinearOpMode {
             throw new RuntimeException(e);
         }
         mineralSystem = new MineralSystemV4(hardwareMap);
-        latchSystem = new LatchSystem(hardwareMap);
+        latchSystem = new LatchSystemV4(hardwareMap);
         leftStick = new JoystickHandler(gamepad1, JoystickHandler.LEFT_JOYSTICK);
         rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
         gamepad2LeftStick = new JoystickHandler(gamepad2, JoystickHandler.LEFT_JOYSTICK);
         gamepad2RightStick = new JoystickHandler(gamepad2, JoystickHandler.RIGHT_JOYSTICK);
         flagController = new FlagControllerTwoArms(hardwareMap);
 
+//        camera.startTrackingLocation();
+
         telemetry.addData("Status", "Initialized!");
+        telemetry.addData("OpMode Active", opModeIsActive());
         telemetry.update();
+        while (!opModeIsActive()) latchSystem.pause();
         waitForStart();
 
 
@@ -56,7 +60,7 @@ public class RosannaV4 extends LinearOpMode {
             handleMineralSystem();
             handleLatchSystem();
 
-            if(aReleased && gamepad2.dpad_left) {
+            if(dpadLReleased && gamepad2.dpad_left) {
                 dpadLReleased = false;
                 flagWaving = !flagWaving;
             } else if(!dpadLReleased && !gamepad2.dpad_left) {
@@ -69,11 +73,9 @@ public class RosannaV4 extends LinearOpMode {
             telemetry.addData("Gamepad1 left Joystick",leftStick.y());
             telemetry.addData("Gamepad1 right Joystick", rightStick.y());
             telemetry.addData("Gamepad1 right Trigger", gamepad1.right_trigger);
-            telemetry.addData("Extend Switch", latchSystem.limitSwitches[LatchSystem.EXTEND_SWITCH].isPressed());
-            telemetry.addData("Retract Switch", latchSystem.limitSwitches[LatchSystem.RETRACT_SWITCH].isPressed());
             telemetry.addData("Arm Radius (ticks)", mineralSystem.extensionMotor.getPosition());
             telemetry.addData("Arm Rotation (ticks)", mineralSystem.liftMotor.getCurrentTick());
-            telemetry.addData("Winch Extention (ticks)", latchSystem.winchMotor.getCurrentTick());
+            telemetry.addData("Latch Extention (ticks)", latchSystem.winchMotor.getCurrentTick());
 
             telemetry.update();
         }
@@ -91,9 +93,24 @@ public class RosannaV4 extends LinearOpMode {
             startReleased = true;
         }
 
+        if(slowToggle && !gamepad1.dpad_down) {
+            slowMode = false;
+            slowToggle = false;
+        }
+        else if(!slowToggle && gamepad1.dpad_down) {
+            slowToggle = true;
+        }
+
+        if(xReleased && gamepad1.x) {
+            xReleased = false;
+            slowMode = !slowMode;
+        } else if(!xReleased && !gamepad1.x) {
+            xReleased = true;
+        }
+
         if(p1Driving) {
-            double movementPower = movementScale * Math.abs(leftStick.magnitude());
-            double turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
+            double movementPower = (slowMode)? 0.5 * movementScale * Math.abs(leftStick.magnitude()):movementScale * Math.abs(leftStick.magnitude());
+            double turningPower = (slowMode)? 0.5 * turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x()):turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
             navigation.driveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
             telemetry.addData("Joystick angle", leftStick.angle());
         } else {
@@ -130,9 +147,12 @@ public class RosannaV4 extends LinearOpMode {
         else if(gamepad1.right_bumper || gamepad2.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
 
-        if(gamepad1.x || gamepad2.b) mineralSystem.goToPosition(MineralSystemV4.DEPOSIT_POSITION_NO_POLAR);
+        if(gamepad2.b) mineralSystem.goToPosition(MineralSystemV4.DEPOSIT_POSITION_NO_POLAR);
 
-        if(gamepad2.dpad_right || gamepad1.y) mineralSystem.setDepositTargetPosition();
+        if(gamepad2.dpad_right) {
+            targetDeposit = new Location(navigation.getRobotLocation());
+            mineralSystem.setDepositTargetPosition();
+        }
     }
 
     private void handleLatchSystem(){
@@ -141,16 +161,5 @@ public class RosannaV4 extends LinearOpMode {
         else if(gamepad2.x) latchSystem.extendUnsafe();
         else if(gamepad2.y) latchSystem.retractUnsafe();
         else latchSystem.pause();
-    }
-    private void driveToDeposit(double desiredVelocity){
-        Location blueDeposit = new Location(54, 82);
-        Location redDeposit = new Location(90, 62);
-        double distanceToBlueDeposit = navigation.getRobotLocation().distanceToLocation(blueDeposit);
-        double distanceToRedDeposit = navigation.getRobotLocation().distanceToLocation(redDeposit);
-        if (distanceToBlueDeposit < distanceToRedDeposit) {
-            navigation.driveToLocation(blueDeposit, desiredVelocity, this);
-        } else {
-            navigation.driveToLocation(redDeposit, desiredVelocity, this);
-        }
     }
 }

@@ -58,7 +58,7 @@ public class SelfWiringTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robotVision = new VisionHelper(hardwareMap);
+        robotVision = new VisionHelper(VisionHelper.WEBCAM, hardwareMap);
         mineralSystem = new MineralSystemV3(hardwareMap);
         latchSystem = new LatchSystem(hardwareMap);
 
