@@ -30,7 +30,7 @@ public class JennyNavigation extends Thread{
     public static final int FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR = 1;
     public static final int BACK_RIGHT_HOLONOMIC_DRIVE_MOTOR = 2;
     public static final int BACK_LEFT_HOLONOMIC_DRIVE_MOTOR = 3;
-    public static final double LOCATION_DISTANCE_TOLERANCE = 0.25;
+    public static final double LOCATION_DISTANCE_TOLERANCE = 1;
     public static final long DEFAULT_DELAY_MILLIS = 10;
     private volatile long threadDelayMillis = 10;
     public volatile double robotHeading = 0;
@@ -740,7 +740,7 @@ public class JennyNavigation extends Thread{
         }
 
         else if((distanceFromHeading <= 360 && distanceFromHeading >= 180) || distanceFromHeading < 0){
-            while(Math.abs(distanceFromHeading) > HEADING_THRESHOLD && mode.opModeIsActive()){
+            while(Math.abs(distanceFromHeading) > tolerance && mode.opModeIsActive()){
                 //heading always positive
                 rps = turnController.calculatePID(distanceFromHeading);
                 turn(-rps);
@@ -790,6 +790,37 @@ public class JennyNavigation extends Thread{
     }
 
     private void driveToLocation(Location startLocation, Location targetLocation, double desiredSpeed, LinearOpMode mode){
+//        double distanceToTravel = startLocation.distanceToLocation(targetLocation);
+//        double prevDistance = 0;
+//        double deltaX;
+//        double deltaY;
+//        double heading;
+//        double startHeading = restrictAngle(orientation.getOrientation(), targetLocation.getHeading(), mode);
+//        Log.d("Start heading", startHeading + "");
+//        double totalDistanceToTravel = distanceToTravel;
+//        while(mode.opModeIsActive() && distanceToTravel > LOCATION_DISTANCE_TOLERANCE /*&& prevDistance - distanceToTravel < LOCATION_DISTANCE_TOLERANCE*4*/) {
+//            prevDistance = distanceToTravel;
+//            distanceToTravel = startLocation.distanceToLocation(targetLocation); // start location is updated from the robot's current location (myLocation)
+//            Log.d("Distance to travel", "" + distanceToTravel);
+//            deltaX = targetLocation.getX() - startLocation.getX();
+//            deltaY = targetLocation.getY() - startLocation.getY();
+//            heading = Math.toDegrees(Math.atan2(deltaY, deltaX)) - 90;
+//            heading = 360 - heading;
+//            heading = (heading - orientation.getOrientation()) % 360;
+//            if (heading >= 360) heading -= 360;
+//            if (heading < 0) heading += 360;
+//            Log.d("Heading", ""+heading);
+//            double curOrientation = restrictAngle(orientation.getOrientation(), 180, mode);
+//            double fracOfDistance = distanceToTravel / (totalDistanceToTravel);
+//            if(fracOfDistance > 1) fracOfDistance = 1;
+//            turnController.setSp(/*(1-fracOfDistance)*(targetLocation.getHeading()) + (fracOfDistance)*(startHeading)*/targetLocation.getHeading());
+//            correctedDriveOnHeadingIMU(heading - curOrientation, desiredSpeed, 10, mode);
+//        }
+//        brake();
+        driveToLocation(startLocation, targetLocation, desiredSpeed, 10000, mode);
+    }
+
+    private void driveToLocation(Location startLocation, Location targetLocation, double desiredSpeed, double secToQuit, LinearOpMode mode){
         double distanceToTravel = startLocation.distanceToLocation(targetLocation);
         double prevDistance = 0;
         double deltaX;
@@ -798,7 +829,8 @@ public class JennyNavigation extends Thread{
         double startHeading = restrictAngle(orientation.getOrientation(), targetLocation.getHeading(), mode);
         Log.d("Start heading", startHeading + "");
         double totalDistanceToTravel = distanceToTravel;
-        while(mode.opModeIsActive() && distanceToTravel > LOCATION_DISTANCE_TOLERANCE /*&& prevDistance - distanceToTravel < LOCATION_DISTANCE_TOLERANCE*4*/) {
+        long startTime = System.currentTimeMillis();
+        while(mode.opModeIsActive() && distanceToTravel > LOCATION_DISTANCE_TOLERANCE && System.currentTimeMillis() - startTime < secToQuit*1000) {
             prevDistance = distanceToTravel;
             distanceToTravel = startLocation.distanceToLocation(targetLocation); // start location is updated from the robot's current location (myLocation)
             Log.d("Distance to travel", "" + distanceToTravel);
@@ -823,9 +855,19 @@ public class JennyNavigation extends Thread{
         driveToLocation(myLocation, targetLocation, desiredSpeed, mode);
     }
 
+    public void driveToLocation(Location targetLocation, double desiredSpeed, double secToQuit, LinearOpMode mode){
+        driveToLocation(myLocation, targetLocation, desiredSpeed, secToQuit, mode);
+    }
+
     public void navigatePath(Location[] path, double desiredSpeed, LinearOpMode mode) {
         for(int i = 0; i < path.length; i++) {
             driveToLocation(path[i], desiredSpeed, mode);
+        }
+    }
+
+    public void navigatePath(Location[] path, double desiredSpeed, double[] secToQuit, LinearOpMode mode) {
+        for(int i = 0; i < path.length; i++) {
+            driveToLocation(path[i], desiredSpeed, secToQuit[i], mode);
         }
     }
 

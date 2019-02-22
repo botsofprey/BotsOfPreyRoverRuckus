@@ -14,7 +14,7 @@ import MotorControllers.MotorController;
  */
 
 public class LatchSystemV4 implements ActionHandler {
-    public static final int UNHOOK_POSITION = 3450, HOOK_POSITION = 10;
+    public static final int UNHOOK_POSITION = 3525, HOOK_POSITION = 10;
     private int extendPosition = UNHOOK_POSITION, retractPosition = HOOK_POSITION;
     public MotorController winchMotor;
     HardwareMap hardwareMap;
@@ -42,14 +42,12 @@ public class LatchSystemV4 implements ActionHandler {
 
     public void extend() {
         winchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        if(winchMotor.getCurrentTick() < extendPosition) winchMotor.setMotorPower(1);
-        else pause();
+        winchMotor.setMotorPower(1);
     }
 
     public void retract() {
         winchMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        if(winchMotor.getCurrentTick() > retractPosition) winchMotor.setMotorPower(-1);
-        else pause();
+        winchMotor.setMotorPower(-1);
     }
 
     public void extendUnsafe() {
@@ -63,8 +61,7 @@ public class LatchSystemV4 implements ActionHandler {
     }
 
     public void pause() {
-        if(winchMotor.getCurrentTick() < UNHOOK_POSITION/2.0) winchMotor.holdPosition();
-        else winchMotor.brake();
+        winchMotor.holdPosition();
     }
 
     public void coastLatchMotor() {

@@ -89,6 +89,9 @@ public class FindGoldTest extends LinearOpMode {
                     telemetry.addData("Gold", "NOT_DETECTED");
                     break;
             }
+            telemetry.addData("Left Count", robotVision.getPositionVote(LEFT));
+            telemetry.addData("Center Count", robotVision.getPositionVote(CENTER));
+            telemetry.addData("Right Count", robotVision.getPositionVote(RIGHT));
             telemetry.addData("Time to find gold", System.currentTimeMillis() - startTime);
             telemetry.update();
         }

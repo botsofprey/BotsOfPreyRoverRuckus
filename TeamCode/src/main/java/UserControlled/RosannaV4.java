@@ -17,9 +17,10 @@ import DriveEngine.JennyNavigation;
 public class RosannaV4 extends LinearOpMode {
     final double movementScale = 1;
     double turningScale = .75;
-    boolean intaking = false, slowMode = false;
+    boolean intaking = false, slowMode = false, latched = false;
     boolean p1Driving = true, flagWaving = false, trackingLocation = false;
     boolean aReleased = true, startReleased = true, dpadLReleased = true, a2Released = true, slowToggle = true, xReleased = true;
+    long initialLatchPos = 0;
 
     JoystickHandler leftStick, rightStick, gamepad2LeftStick, gamepad2RightStick;
     MineralSystemV4 mineralSystem;
@@ -43,6 +44,7 @@ public class RosannaV4 extends LinearOpMode {
         gamepad2LeftStick = new JoystickHandler(gamepad2, JoystickHandler.LEFT_JOYSTICK);
         gamepad2RightStick = new JoystickHandler(gamepad2, JoystickHandler.RIGHT_JOYSTICK);
         flagController = new FlagControllerTwoArms(hardwareMap);
+        initialLatchPos = latchSystem.winchMotor.getCurrentTick();
 
 //        camera.startTrackingLocation();
 
@@ -109,21 +111,22 @@ public class RosannaV4 extends LinearOpMode {
         }
 
         if(p1Driving) {
-            double movementPower = (slowMode)? 0.5 * movementScale * Math.abs(leftStick.magnitude()):movementScale * Math.abs(leftStick.magnitude());
-            double turningPower = (slowMode)? 0.5 * turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x()):turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
-            navigation.driveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
+            double movementPower = (slowMode)? 0.25 * movementScale * Math.abs(leftStick.magnitude()):movementScale * Math.abs(leftStick.magnitude());
+            double turningPower = (slowMode)? 0.25 * turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x()): 0.5 * turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
+            navigation.driveOnHeadingWithTurning(leftStick.angle() + 180, movementPower, turningPower);
             telemetry.addData("Joystick angle", leftStick.angle());
         } else {
-            double movementPower = movementScale * Math.abs(gamepad2LeftStick.magnitude());
-            double turningPower = turningScale * Math.abs(gamepad2RightStick.magnitude()) * Math.signum(gamepad2RightStick.x());
+            double movementPower =  0.35 * movementScale * Math.abs(gamepad2LeftStick.magnitude());
+            double turningPower = 0.35 * turningScale * Math.abs(gamepad2RightStick.magnitude()) * Math.signum(gamepad2RightStick.x());
             navigation.driveOnHeadingWithTurning(gamepad2LeftStick.angle() + 270, movementPower, turningPower);
         }
     }
 
     private void handleMineralSystem() {
-        if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(-gamepad1.left_trigger);
-        else if(gamepad2.left_trigger > 0.1) mineralSystem.liftOrLower(-gamepad2.left_trigger);
-        else if(gamepad1.left_bumper || gamepad2.left_bumper) mineralSystem.lift();
+        if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(-gamepad1.left_trigger * 0.5);
+        else if(gamepad2.left_trigger > 0.1) mineralSystem.liftOrLower(gamepad2.left_trigger);
+        else if(gamepad1.left_bumper) mineralSystem.lift();
+        else if(gamepad2.left_bumper) mineralSystem.liftOrLower(-0.75);
         else mineralSystem.pauseLift();
 
         if(aReleased && (gamepad1.a)) {
@@ -147,7 +150,7 @@ public class RosannaV4 extends LinearOpMode {
         else if(gamepad1.right_bumper || gamepad2.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
 
-        if(gamepad2.b) mineralSystem.goToPosition(MineralSystemV4.DEPOSIT_POSITION_NO_POLAR);
+        if(gamepad2.a) mineralSystem.goToPosition(MineralSystemV4.DEPOSIT_POSITION_NO_POLAR);
 
         if(gamepad2.dpad_right) {
             targetDeposit = new Location(navigation.getRobotLocation());
@@ -156,10 +159,14 @@ public class RosannaV4 extends LinearOpMode {
     }
 
     private void handleLatchSystem(){
-        if(gamepad2.dpad_up) latchSystem.retract();
+        if(gamepad2.dpad_up) {
+            latchSystem.retract();
+            latched = true;
+        }
         else if(gamepad2.dpad_down) latchSystem.extend();
         else if(gamepad2.x) latchSystem.extendUnsafe();
         else if(gamepad2.y) latchSystem.retractUnsafe();
-        else latchSystem.pause();
+        else if(latched) latchSystem.pause();
+        else latchSystem.winchMotor.brake();
     }
 }

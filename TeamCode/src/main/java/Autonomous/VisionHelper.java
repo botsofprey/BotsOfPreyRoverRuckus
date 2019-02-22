@@ -163,6 +163,14 @@ public class VisionHelper extends Thread {
         return position;
     }
 
+    public int getLargestPositionVote() {
+        if(positionVotes[LEFT] > positionVotes[RIGHT]) {
+            if(positionVotes[LEFT] > positionVotes[CENTER]) return LEFT;
+            else return CENTER;
+        } else if(positionVotes[RIGHT] > positionVotes[CENTER]) return RIGHT;
+        else return CENTER;
+    }
+
     public void addPositionVote(int position) {
         positionVotes[position]++;
     }
@@ -194,6 +202,10 @@ public class VisionHelper extends Thread {
         for(int i = 0; i < positionVotes.length; i++) {
             positionVotes[i] = 0;
         }
+    }
+
+    public double getPositionVote(int mineralLocation) {
+        return positionVotes[mineralLocation];
     }
 
     private void updatePositionVotes() {
@@ -313,6 +325,6 @@ public class VisionHelper extends Thread {
     public void kill() {
         stopDetection();
         if(mode == BOTH || mode == MINERAL_DETECTION) tfod.shutdown();
-        Vuforia.deinit();
+//        Vuforia.deinit();
     }
 }
