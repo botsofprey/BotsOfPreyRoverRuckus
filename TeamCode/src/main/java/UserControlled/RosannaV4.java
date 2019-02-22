@@ -116,8 +116,8 @@ public class RosannaV4 extends LinearOpMode {
             navigation.driveOnHeadingWithTurning(leftStick.angle() + 180, movementPower, turningPower);
             telemetry.addData("Joystick angle", leftStick.angle());
         } else {
-            double movementPower =  0.35 * movementScale * Math.abs(gamepad2LeftStick.magnitude());
-            double turningPower = 0.35 * turningScale * Math.abs(gamepad2RightStick.magnitude()) * Math.signum(gamepad2RightStick.x());
+            double movementPower =  0.65 * movementScale * Math.abs(gamepad2LeftStick.magnitude());
+            double turningPower = 0.5 * turningScale * Math.abs(gamepad2RightStick.magnitude()) * Math.signum(gamepad2RightStick.x());
             navigation.driveOnHeadingWithTurning(gamepad2LeftStick.angle() + 270, movementPower, turningPower);
         }
     }
@@ -163,7 +163,10 @@ public class RosannaV4 extends LinearOpMode {
             latchSystem.retract();
             latched = true;
         }
-        else if(gamepad2.dpad_down) latchSystem.extend();
+        else if(gamepad2.dpad_down) {
+            latchSystem.extend();
+            latched = false;
+        }
         else if(gamepad2.x) latchSystem.extendUnsafe();
         else if(gamepad2.y) latchSystem.retractUnsafe();
         else if(latched) latchSystem.pause();
