@@ -184,8 +184,8 @@ public class RedTeam1AutoNoMarkerNew extends LinearOpMode {
         double rps = 10.0/360.0;
         while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime < 5000) {
             goldPosition = webcam.getGoldMineralPosition();
-            navigation.turn(rps);
-            if((rps > 0 && navigation.getOrientation() > 50) || (rps < 0 && navigation.getOrientation() < 40)) rps = -rps;
+//            navigation.turn(rps);
+//            if((rps > 0 && navigation.getOrientation() > 50) || (rps < 0 && navigation.getOrientation() < 40)) rps = -rps;
         }
         goldPosition = webcam.getGoldMineralPosition();
         if(goldPosition == NOT_DETECTED) {
