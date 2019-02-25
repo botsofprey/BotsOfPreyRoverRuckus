@@ -58,7 +58,6 @@ public class RedTeam1AutoNoMarkerNew extends LinearOpMode {
     ServoHandler markerDeployer;
 
     private VisionHelper webcam;
-    private VisionHelper camera;
 
     @Override
     public void runOpMode() {

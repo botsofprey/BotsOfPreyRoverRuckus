@@ -107,7 +107,7 @@ public class VisionHelper extends Thread {
     public void run() {
         if(tfod != null) {
             while (running) {
-                if(detectingGold) updatePositionVotes();
+                if(detectingGold) updatePositionVotesRightTwoVisible();
                 if(trackingLocation) updateRobotLocation();
                 try {
                     sleep(SLEEP_TIME_MILLIS);
@@ -232,6 +232,39 @@ public class VisionHelper extends Thread {
                         positionVotes[RIGHT]++;
                     } else {
                         positionVotes[CENTER]++;
+                    }
+                }
+            }
+        }
+    }
+
+    private void updatePositionVotesRightTwoVisible() {
+        List<Recognition> recognitions = tfod.getRecognitions();
+        if(recognitions != null) {
+            Recognition[] temp = filterMineralsOnScreen(recognitions);
+            Recognition[] minerals = null;
+            if(temp != null && temp.length >= 2) {
+                minerals = new Recognition[] {temp[0], temp[1]};
+            }
+            if(minerals != null && minerals.length >= 2) {
+                int goldMineralX = -1;
+                int silverMineralX = -1;
+                for (Recognition recognition : minerals) {
+                    if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                        goldMineralX = (int) recognition.getLeft();
+                    } else {
+                        silverMineralX = (int) recognition.getLeft();
+                    }
+                }
+                if (silverMineralX != -1) {
+                    if(goldMineralX != -1) {
+                        if (goldMineralX < silverMineralX) {
+                            positionVotes[CENTER]++;
+                        } else if (goldMineralX > silverMineralX) {
+                            positionVotes[RIGHT]++;
+                        }
+                    } else {
+                        positionVotes[LEFT]++;
                     }
                 }
             }
