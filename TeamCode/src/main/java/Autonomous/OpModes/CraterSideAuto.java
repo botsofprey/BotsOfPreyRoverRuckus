@@ -49,9 +49,9 @@ import static Autonomous.VisionHelper.NOT_DETECTED;
 import static Autonomous.VisionHelper.RIGHT;
 import static Autonomous.VisionHelper.WEBCAM;
 
-@Autonomous(name = "Red Team Crater Side", group = "Concept")
+@Autonomous(name = "Crater Side", group = "Concept")
 //@Disabled
-public class RedTeam1AutoNoMarkerNew extends LinearOpMode {
+public class CraterSideAuto extends LinearOpMode {
     JennyNavigation navigation;
     LatchSystemV4 latchSystem;
     MineralSystemV4 mineralSystem;
