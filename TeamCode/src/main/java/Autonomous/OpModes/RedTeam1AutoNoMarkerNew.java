@@ -88,18 +88,18 @@ public class RedTeam1AutoNoMarkerNew extends LinearOpMode {
         telemetry.update();
         // START AUTONOMOUS
         sleep(50);
-        mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        mineralSystem.liftMotor.setPositionTicks(-1100);
-        mineralSystem.liftMotor.setMotorPower(1);
-        navigation.driveOnHeading(90, 1);
-        long startTime = System.currentTimeMillis();
-        while(opModeIsActive() && latchSystem.winchMotor.getCurrentTick() < LatchSystemV4.UNHOOK_POSITION && System.currentTimeMillis() - startTime < 2000) latchSystem.extend();
-        latchSystem.winchMotor.brake();
+//        mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        mineralSystem.liftMotor.setPositionTicks(-1100);
+//        mineralSystem.liftMotor.setMotorPower(1);
+//        navigation.driveOnHeading(90, 1);
+//        long startTime = System.currentTimeMillis();
+//        while(opModeIsActive() && latchSystem.winchMotor.getCurrentTick() < LatchSystemV4.UNHOOK_POSITION && System.currentTimeMillis() - startTime < 2000) latchSystem.extend();
+//        latchSystem.winchMotor.brake();
         latchSystem.coastLatchMotor();
-        navigation.brake();
+//        navigation.brake();
         //delatch
-        navigation.driveDistance(1.5, 180, 15, this);
-        navigation.driveDistance(1, 90, 15, this);
+        navigation.driveDistance(2, 180, 15, this);
+        navigation.driveDistance(2.5, 90, 15, this);
 //        navigation.driveDistance(1, 0, 10, this);
 
 
@@ -117,13 +117,13 @@ public class RedTeam1AutoNoMarkerNew extends LinearOpMode {
         webcam.startTrackingLocation();
 
         // drive to image
-        if(goldPosition == LEFT) {
-            navigation.driveDistance(18, 45, 30, this);
+        if(goldPosition == CENTER) {
+            navigation.driveDistance(32, 85, 30, this);
         } else if(goldPosition == RIGHT){
-            navigation.driveDistance(36, 85, 30, this);
+            navigation.driveDistance(34, 82, 30, this);
 //            navigation.turnToHeading(10, 5, this);
         } else {
-            navigation.driveDistance(32, 85, 30, this);
+            navigation.driveDistance(16, 45, 30, this);
 //            navigation.turnToHeading(10, 5, this);
 //            navigation.driveDistance(4, 0, 15, this);
         }
@@ -138,19 +138,20 @@ public class RedTeam1AutoNoMarkerNew extends LinearOpMode {
         navigation.turnToHeading(180, 10, this);
         idle();
 
+        //TODO: use drive distance only
         path[0] = new Location(137, navigation.getRobotLocation().getY(), 180);
         path[1] = new Location(137, 116, 180);
 
-        navigation.driveToLocation(path[0], 15, 2, this);
-        navigation.driveDistance(20, 180, 40, this);
-        navigation.driveToLocation(path[1], 15, this);
+        navigation.driveDistance(10, 270, 20, this);
+        navigation.driveDistance(26, 180, 40, this);
+        navigation.driveToLocation(path[1], 15, 3,this);
 
         // MARKER
         markerDeployer.setDegree(150.0);
         navigation.driveDistance(3, 270, 20, this);
         mineralSystem.liftMotor.brake();
         mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        mineralSystem.liftMotor.setPositionTicks(-2700);
+        mineralSystem.liftMotor.setPositionTicks(-1540); // -2700
         mineralSystem.liftMotor.setMotorPower(1);
         if(goldPosition == LEFT) {
             navigation.driveDistance(54, 0, 35, this);
@@ -213,13 +214,15 @@ public class RedTeam1AutoNoMarkerNew extends LinearOpMode {
     }
 
     private void knockGold(int goldPosition) {
-        navigation.driveDistance(3.5, 90, 25, this);
+        navigation.driveDistance(2, 90, 25, this);
         sleep(10);
-        if (goldPosition == LEFT) { // TODO: LEFT LEFT LEFT LEFT LEFT
-            Log.d("Mineral", "LEFT");
-            telemetry.addData("driving...", "left");
+        if (goldPosition == CENTER) { // TODO: CENTER CENTER CENTER CENTER CENTER
+            Log.d("Mineral", "CENTER");
+            telemetry.addData("driving...", "forward");
             telemetry.update();
-            navigation.driveDistance(20, 45, 25, this);
+            navigation.driveDistance(23, 90, 20, this);
+            sleep(10);
+            navigation.driveDistance(23, 270, 15, this);
         } else if (goldPosition == RIGHT) { // TODO: RIGHT RIGHT RIGHT RIGHT RIGHT
             Log.d("Mineral", "RIGHT");
             telemetry.addData("driving...", "right");
@@ -227,13 +230,11 @@ public class RedTeam1AutoNoMarkerNew extends LinearOpMode {
             navigation.driveDistance(25, 135, 25, this);
             sleep(10);
             navigation.driveDistance(23, 315, 15, this);
-        } else { // TODO: CENTER CENTER CENTER CENTER CENTER
-            Log.d("Mineral", "CENTER");
-            telemetry.addData("driving...", "forward");
+        } else { // TODO: LEFT LEFT LEFT LEFT LEFT
+            Log.d("Mineral", "LEFT");
+            telemetry.addData("driving...", "left");
             telemetry.update();
-            navigation.driveDistance(23, 90, 20, this);
-            sleep(10);
-            navigation.driveDistance(23, 270, 15, this);
+            navigation.driveDistance(20, 45, 25, this);
         }
         idle();
     }

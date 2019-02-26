@@ -164,11 +164,13 @@ public class VisionHelper extends Thread {
     }
 
     public int getLargestPositionVote() {
-        if(positionVotes[LEFT] > positionVotes[RIGHT]) {
-            if(positionVotes[LEFT] > positionVotes[CENTER]) return LEFT;
+        if(positionVotes[LEFT] > 0 || positionVotes[RIGHT] > 0 || positionVotes[CENTER] > 0) {
+            if (positionVotes[LEFT] > positionVotes[RIGHT]) {
+                if (positionVotes[LEFT] > positionVotes[CENTER]) return LEFT;
+                else return CENTER;
+            } else if (positionVotes[RIGHT] > positionVotes[CENTER]) return RIGHT;
             else return CENTER;
-        } else if(positionVotes[RIGHT] > positionVotes[CENTER]) return RIGHT;
-        else return CENTER;
+        } else return NOT_DETECTED;
     }
 
     public void addPositionVote(int position) {
