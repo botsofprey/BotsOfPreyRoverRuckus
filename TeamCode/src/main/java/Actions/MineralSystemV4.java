@@ -101,7 +101,7 @@ public class MineralSystemV4 implements ActionHandler{
         }
     }
 
-    public void intake() {intake.setMotorPower(1);}
+    public void intake() {intake.setMotorPower(0.85);}
     public void expel() {intake.setMotorPower(-1);}
     public void pauseCollection() {intake.brake();}
 

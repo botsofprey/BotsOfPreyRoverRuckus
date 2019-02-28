@@ -74,7 +74,7 @@ public class CraterSideAuto extends LinearOpMode {
         }
 //        webcam.startTrackingLocation();
         webcam.startGoldDetection();
-        markerDeployer.setDegree(0.0);
+        markerDeployer.setDegree(30.0);
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");
@@ -91,14 +91,14 @@ public class CraterSideAuto extends LinearOpMode {
 //        mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        mineralSystem.liftMotor.setPositionTicks(-1100);
 //        mineralSystem.liftMotor.setMotorPower(1);
-//        navigation.driveOnHeading(90, 1);
-//        long startTime = System.currentTimeMillis();
-//        while(opModeIsActive() && latchSystem.winchMotor.getCurrentTick() < LatchSystemV4.UNHOOK_POSITION && System.currentTimeMillis() - startTime < 2000) latchSystem.extend();
-//        latchSystem.winchMotor.brake();
+        navigation.driveOnHeading(90, 1);
+        long startTime = System.currentTimeMillis();
+        while(opModeIsActive() && latchSystem.winchMotor.getCurrentTick() < LatchSystemV4.UNHOOK_POSITION && System.currentTimeMillis() - startTime < 2000) latchSystem.extend();
+        latchSystem.winchMotor.brake();
         latchSystem.coastLatchMotor();
 //        navigation.brake();
         //delatch
-        navigation.driveDistance(2, 180, 15, this);
+        navigation.driveDistance(2.5, 180, 15, this);
         navigation.driveDistance(2.5, 90, 15, this);
 //        navigation.driveDistance(1, 0, 10, this);
 
@@ -173,6 +173,7 @@ public class CraterSideAuto extends LinearOpMode {
         }
         navigation.stopNavigation();
         latchSystem.kill();
+        mineralSystem.kill();
         webcam.kill();
     }
 
@@ -181,7 +182,8 @@ public class CraterSideAuto extends LinearOpMode {
 //        webcam.startGoldDetection();
         int goldPosition = NOT_DETECTED;
         long startTime = System.currentTimeMillis();
-        double rps = 10.0/360.0;
+//        int turnCount = 0;
+//        double rps = 10.0/360.0;
         while (opModeIsActive() && goldPosition == NOT_DETECTED && System.currentTimeMillis() - startTime < 5000) {
             goldPosition = webcam.getGoldMineralPosition();
 //            navigation.turn(rps);
@@ -222,19 +224,22 @@ public class CraterSideAuto extends LinearOpMode {
             telemetry.update();
             navigation.driveDistance(23, 90, 20, this);
             sleep(10);
-            navigation.driveDistance(23, 270, 15, this);
+            navigation.driveDistance(21, 270, 15, this);
         } else if (goldPosition == RIGHT) { // TODO: RIGHT RIGHT RIGHT RIGHT RIGHT
             Log.d("Mineral", "RIGHT");
             telemetry.addData("driving...", "right");
             telemetry.update();
-            navigation.driveDistance(25, 135, 25, this);
+            navigation.driveDistance(26, 135, 25, this);
             sleep(10);
-            navigation.driveDistance(23, 315, 15, this);
+            navigation.driveDistance(24, 315, 15, this);
         } else { // TODO: LEFT LEFT LEFT LEFT LEFT
             Log.d("Mineral", "LEFT");
             telemetry.addData("driving...", "left");
             telemetry.update();
-            navigation.driveDistance(20, 45, 25, this);
+//            navigation.driveDistance(20, 45, 25, this);
+            navigation.driveDistance(14, 5, 20, this);
+            navigation.driveDistance(15, 90, 20, this);
+            navigation.driveDistance(2, 270, 15, this);
         }
         idle();
     }

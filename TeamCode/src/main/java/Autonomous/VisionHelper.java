@@ -96,7 +96,7 @@ public class VisionHelper extends Thread {
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
             tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
             tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
-            tfod.activate();
+//            tfod.activate();
         } catch (Exception e) {
             Log.e("VisionHelper Error", e.toString());
             throw new RuntimeException(e);
@@ -335,7 +335,7 @@ public class VisionHelper extends Thread {
         redFootprint.setLocation(redFootprintLocationOnField);
 
         OpenGLMatrix frontCratersLocationOnField = OpenGLMatrix
-                .translation(mmFTCFieldWidth, 0, mmTargetHeight)
+                .translation(mmFTCFieldWidth, 2*mmFTCFieldWidth, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 180));
         frontCraters.setLocation(frontCratersLocationOnField);
 
@@ -355,6 +355,7 @@ public class VisionHelper extends Thread {
         }
 
         targetsRoverRuckus.activate();
+        tfod.activate();
     }
 
     public void kill() {
