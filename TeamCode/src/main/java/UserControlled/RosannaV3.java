@@ -11,7 +11,7 @@ import DriveEngine.HolonomicDriveSystemTesting;
 /**
  * Created by robotics on 2/16/18.
  */
-@TeleOp(name="Rosanna v3", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@TeleOp(name="Rosanna v3", group="User Controlled")  // @Autonomous(...) is the other common choice
 //@Disabled
 public class RosannaV3 extends LinearOpMode {
     final double movementScale = 1;

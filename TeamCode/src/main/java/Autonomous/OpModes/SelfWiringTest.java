@@ -30,6 +30,7 @@
 package Autonomous.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import Actions.LatchSystem;
@@ -46,7 +47,7 @@ import static DriveEngine.JennyNavigation.FRONT_LEFT_HOLONOMIC_DRIVE_MOTOR;
 import static DriveEngine.JennyNavigation.FRONT_RIGHT_HOLONOMIC_DRIVE_MOTOR;
 
 @Autonomous(name = "Self Wiring Test", group = "Concept")
-//@Disabled
+@Disabled
 public class SelfWiringTest extends LinearOpMode {
     private JennyNavigation navigation;
     private MineralSystemV3 mineralSystem;

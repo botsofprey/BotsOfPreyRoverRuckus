@@ -30,6 +30,7 @@
 package Autonomous.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -37,8 +38,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import Actions.HardwareWrappers.ServoHandler;
 import Actions.MineralSystemV4;
 
-@Autonomous(name="Arm Test", group ="Concept")
-//@Disabled
+@Autonomous(name="Arm Test", group ="Testers")
+@Disabled
 public class ArmTester extends LinearOpMode {
     MineralSystemV4 mineralSystem;
 

@@ -12,7 +12,7 @@ import DriveEngine.JennyNavigation;
 /**
  * Created by robotics on 2/16/18.
  */
-@TeleOp(name="Rosanna v4", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@TeleOp(name="Rosanna v4", group="User Controlled")  // @Autonomous(...) is the other common choice
 //@Disabled
 public class RosannaV4 extends LinearOpMode {
     final double movementScale = 1;

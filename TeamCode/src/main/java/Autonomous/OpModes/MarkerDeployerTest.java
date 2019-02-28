@@ -32,6 +32,7 @@ package Autonomous.OpModes;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -41,7 +42,7 @@ import Autonomous.VisionHelper;
 import DriveEngine.JennyNavigation;
 import UserControlled.JoystickHandler;
 
-@Autonomous(name="Marker Deployer Test", group ="Concept")
+@Autonomous(name="Marker Deployer Test", group ="Testers")
 //@Disabled
 public class MarkerDeployerTest extends LinearOpMode {
     ServoHandler markerDeployer;

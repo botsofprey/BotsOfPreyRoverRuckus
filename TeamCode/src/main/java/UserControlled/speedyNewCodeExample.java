@@ -9,7 +9,7 @@ import DriveEngine.HolonomicDriveSystemTesting;
 /**
  * Created by robotics on 2/16/18.
  */
-@TeleOp(name="New Speedy Tester", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@TeleOp(name="New Speedy Tester", group="Testers")  // @Autonomous(...) is the other common choice
 @Disabled
 public class speedyNewCodeExample extends LinearOpMode {
 

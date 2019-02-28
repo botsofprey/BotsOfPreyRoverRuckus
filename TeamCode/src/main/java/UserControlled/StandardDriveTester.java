@@ -9,7 +9,7 @@ import DriveEngine.StandardDriveSystem;
 /**
  * Created by robotics on 2/16/18.
  */
-@TeleOp(name="Standard Drive Tester", group="Linear Opmode")  // @Autonomous(...) is the other common choice
+@TeleOp(name="Standard Drive Tester", group="Testers")  // @Autonomous(...) is the other common choice
 @Disabled
 public class StandardDriveTester extends LinearOpMode {
 

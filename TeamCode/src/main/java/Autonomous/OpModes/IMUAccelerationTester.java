@@ -39,7 +39,7 @@ import DriveEngine.HolonomicDriveSystemTesting;
 import DriveEngine.JennyNavigation;
 import UserControlled.JoystickHandler;
 
-@Autonomous(name="Accelerometer Tester", group="Linear Opmode")
+@Autonomous(name="Accelerometer Tester", group="Testers")
 @Disabled
 public class IMUAccelerationTester extends LinearOpMode {
     JennyNavigation navigation;

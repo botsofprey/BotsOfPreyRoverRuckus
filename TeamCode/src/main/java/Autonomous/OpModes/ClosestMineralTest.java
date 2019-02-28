@@ -45,7 +45,7 @@ import static Autonomous.VisionHelper.WEBCAM;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_SILVER_MINERAL;
 
-@Autonomous(name = "Closest Mineral Test", group = "Concept")
+@Autonomous(name = "Closest Mineral Test", group = "Testers")
 @Disabled
 public class ClosestMineralTest extends LinearOpMode {
     private VisionHelper robotVision;

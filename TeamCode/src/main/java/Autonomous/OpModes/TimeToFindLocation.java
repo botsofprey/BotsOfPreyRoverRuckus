@@ -29,6 +29,7 @@
 
 package Autonomous.OpModes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -93,8 +94,8 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  * is explained below.
  */
 
-@TeleOp(name="Time to find location", group ="Concept")
-//@Disabled
+@Autonomous(name="Time to find location", group ="Concept")
+@Disabled
 public class TimeToFindLocation extends LinearOpMode {
 
     /*

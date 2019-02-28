@@ -49,7 +49,7 @@ import static Autonomous.VisionHelper.NOT_DETECTED;
 import static Autonomous.VisionHelper.RIGHT;
 import static Autonomous.VisionHelper.WEBCAM;
 
-@Autonomous(name = "Crater Side", group = "Concept")
+@Autonomous(name = "Crater Side", group = "Autonomous")
 //@Disabled
 public class CraterSideAuto extends LinearOpMode {
     JennyNavigation navigation;

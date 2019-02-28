@@ -32,6 +32,7 @@ package Autonomous.OpModes;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import Autonomous.Location;
@@ -39,15 +40,15 @@ import Autonomous.VisionHelper;
 import DriveEngine.JennyNavigation;
 import UserControlled.JoystickHandler;
 
-@Autonomous(name="Navigation tests", group ="Concept")
-//@Disabled
+@Autonomous(name="Navigation tests", group ="Testers")
+@Disabled
 public class NavigationTests extends LinearOpMode {
     JennyNavigation navigation;
     JoystickHandler rightStick, leftStick;
 
     @Override public void runOpMode() {
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/RosannaV4.json");
+            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 45, "RobotConfig/RosannaV4.json");
         } catch (Exception e) {
             Log.e("Navigation error", e.toString());
             e.printStackTrace();
@@ -109,13 +110,15 @@ public class NavigationTests extends LinearOpMode {
 //        navigation.turnController.setSp(navigation.getOrientation());
 //        while (opModeIsActive()) navigation.driveOnHeadingPID(0, 15, 0, this);
 
-        navigation.turnToHeading(180, this);
+//        navigation.turnToHeading(180, this);
 
-        telemetry.addData("Robot Location", navigation.getRobotLocation().toString());
-        telemetry.addData("Robot orientation", navigation.getOrientation());
-        telemetry.addData("First angle", navigation.orientation.getFirstAngle());
-        telemetry.update();
-        while (opModeIsActive());
+
+        while (opModeIsActive()){
+            telemetry.addData("Robot Location", navigation.getRobotLocation().toString());
+            telemetry.addData("Robot orientation", navigation.getOrientation());
+            telemetry.addData("First angle", navigation.orientation.getFirstAngle());
+            telemetry.update();
+        }
         navigation.stopNavigation();
     }
 }

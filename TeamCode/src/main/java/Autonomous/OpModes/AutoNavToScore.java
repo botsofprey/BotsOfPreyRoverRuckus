@@ -32,14 +32,15 @@ package Autonomous.OpModes;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import Autonomous.*;
 import DriveEngine.JennyNavigation;
 import UserControlled.JoystickHandler;
 
-@Autonomous(name="Auto Nav To Score", group ="Concept")
-//@Disabled
+@Autonomous(name="Auto Nav To Score", group ="Testers")
+@Disabled
 public class AutoNavToScore extends LinearOpMode {
     final double movementScale = 1;
     double turningScale = .75;

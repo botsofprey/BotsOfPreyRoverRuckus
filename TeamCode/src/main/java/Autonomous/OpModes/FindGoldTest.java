@@ -45,7 +45,7 @@ import static Autonomous.VisionHelper.RIGHT;
 import static Autonomous.VisionHelper.WEBCAM;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 
-@Autonomous(name = "Find Gold Test", group = "Concept")
+@Autonomous(name = "Find Gold Test", group = "Testers")
 //@Disabled
 public class FindGoldTest extends LinearOpMode {
     JennyNavigation navigation;
@@ -71,6 +71,7 @@ public class FindGoldTest extends LinearOpMode {
         // START AUTONOMOUS
 
         robotVision.startGoldDetection();
+        robotVision.startTrackingLocation();
         robotVision.startDetection();
         while (opModeIsActive()) {
             long startTime = System.currentTimeMillis();
@@ -89,10 +90,12 @@ public class FindGoldTest extends LinearOpMode {
                     telemetry.addData("Gold", "NOT_DETECTED");
                     break;
             }
+            Location robotLoc = robotVision.getRobotLocation();
             telemetry.addData("Left Count", robotVision.getPositionVote(LEFT));
             telemetry.addData("Center Count", robotVision.getPositionVote(CENTER));
             telemetry.addData("Right Count", robotVision.getPositionVote(RIGHT));
             telemetry.addData("Time to find gold", System.currentTimeMillis() - startTime);
+            telemetry.addData("Location from image", (robotLoc == null)? "UNKOWN":robotLoc);
             telemetry.update();
         }
 //        int goldPosition = findGold();

@@ -44,8 +44,8 @@ import UserControlled.JoystickHandler;
 
 import static Autonomous.VisionHelper.PHONE_CAMERA;
 
-@Autonomous(name="Location Reader Test", group="Linear Opmode")
-//@Disabled
+@Autonomous(name="Location Reader Test", group="Testers")
+@Disabled
 public class LocationReaderTest extends LinearOpMode {
     // create objects and locally global variables here
     JsonConfigReader reader;

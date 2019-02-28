@@ -30,6 +30,7 @@
 package Autonomous.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import Autonomous.Location;
@@ -45,7 +46,7 @@ import static Autonomous.VisionHelper.WEBCAM;
 import static org.firstinspires.ftc.robotcore.external.tfod.TfodRoverRuckus.LABEL_GOLD_MINERAL;
 
 @Autonomous(name = "Track Gold Test", group = "Concept")
-//@Disabled
+@Disabled
 public class TrackGold extends LinearOpMode {
     JennyNavigation navigation;
 
