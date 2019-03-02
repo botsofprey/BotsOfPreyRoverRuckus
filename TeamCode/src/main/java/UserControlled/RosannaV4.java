@@ -7,6 +7,7 @@ import Actions.HardwareWrappers.FlagControllerTwoArms;
 import Actions.LatchSystemV4;
 import Actions.MineralSystemV4;
 import Autonomous.Location;
+import DriveEngine.HolonomicDriveSystemTesting;
 import DriveEngine.JennyNavigation;
 
 /**
@@ -25,14 +26,12 @@ public class RosannaV4 extends LinearOpMode {
     JoystickHandler leftStick, rightStick, gamepad2LeftStick, gamepad2RightStick;
     MineralSystemV4 mineralSystem;
     LatchSystemV4 latchSystem;
-    JennyNavigation navigation;
-    FlagControllerTwoArms flagController;
-    Location targetDeposit = new Location(54, 82, 325);
+    HolonomicDriveSystemTesting navigation;
 
     @Override
     public void runOpMode() throws InterruptedException {
         try {
-            navigation = new JennyNavigation(hardwareMap, new Location(0, 0), 0, "RobotConfig/RosannaV4.json");
+            navigation = new HolonomicDriveSystemTesting(hardwareMap, new Location(0, 0), 0, "RobotConfig/RosannaV4.json");
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -43,7 +42,7 @@ public class RosannaV4 extends LinearOpMode {
         rightStick = new JoystickHandler(gamepad1, JoystickHandler.RIGHT_JOYSTICK);
         gamepad2LeftStick = new JoystickHandler(gamepad2, JoystickHandler.LEFT_JOYSTICK);
         gamepad2RightStick = new JoystickHandler(gamepad2, JoystickHandler.RIGHT_JOYSTICK);
-        flagController = new FlagControllerTwoArms(hardwareMap);
+//        flagController = new FlagControllerTwoArms(hardwareMap);
         initialLatchPos = latchSystem.winchMotor.getCurrentTick();
 
 //        camera.startTrackingLocation();
@@ -62,15 +61,15 @@ public class RosannaV4 extends LinearOpMode {
             handleMineralSystem();
             handleLatchSystem();
 
-            if(dpadLReleased && gamepad2.dpad_left) {
-                dpadLReleased = false;
-                flagWaving = !flagWaving;
-            } else if(!dpadLReleased && !gamepad2.dpad_left) {
-                dpadLReleased = true;
-            }
-
-            if(flagWaving) flagController.startFlag();
-            else flagController.pauseFlag();
+//            if(dpadLReleased && gamepad2.dpad_left) {
+//                dpadLReleased = false;
+//                flagWaving = !flagWaving;
+//            } else if(!dpadLReleased && !gamepad2.dpad_left) {
+//                dpadLReleased = true;
+//            }
+//
+//            if(flagWaving) flagController.startFlag();
+//            else flagController.pauseFlag();
 
             telemetry.addData("Gamepad1 left Joystick",leftStick.y());
             telemetry.addData("Gamepad1 right Joystick", rightStick.y());
@@ -82,9 +81,8 @@ public class RosannaV4 extends LinearOpMode {
             telemetry.update();
         }
         mineralSystem.kill();
-        navigation.stopNavigation();
+        navigation.kill();
         latchSystem.kill();
-        flagController.killFlag();
     }
 
     private void handleDriving() {
@@ -105,6 +103,7 @@ public class RosannaV4 extends LinearOpMode {
 
         if(xReleased && gamepad1.x) {
             xReleased = false;
+            intaking = false;
             slowMode = !slowMode;
         } else if(!xReleased && !gamepad1.x) {
             xReleased = true;
@@ -116,8 +115,8 @@ public class RosannaV4 extends LinearOpMode {
             navigation.driveOnHeadingWithTurning(leftStick.angle() + 180, movementPower, (intaking)? 0.5 * turningPower:turningPower);
             telemetry.addData("Joystick angle", leftStick.angle());
         } else {
-            double movementPower =  0.65 * movementScale * Math.abs(gamepad2LeftStick.magnitude());
-            double turningPower = 0.5 * turningScale * Math.abs(gamepad2RightStick.magnitude()) * Math.signum(gamepad2RightStick.x());
+            double movementPower =  0.5 * movementScale * Math.abs(gamepad2LeftStick.magnitude());
+            double turningPower = 0.55 * turningScale * Math.abs(gamepad2RightStick.magnitude()) * Math.signum(gamepad2RightStick.x());
             navigation.driveOnHeadingWithTurning(gamepad2LeftStick.angle() + 270, movementPower, turningPower);
         }
     }
@@ -143,7 +142,10 @@ public class RosannaV4 extends LinearOpMode {
          } else mineralSystem.pauseCollection();
 
 
-        if(gamepad1.dpad_down) mineralSystem.openDoor();
+        if(gamepad1.dpad_down) {
+            mineralSystem.openDoor();
+            intaking = true;
+        }
         else mineralSystem.closeDoor();
 
         if(gamepad1.right_trigger > 0.1 || gamepad2.right_trigger > 0.1) mineralSystem.extendIntake();
@@ -153,7 +155,6 @@ public class RosannaV4 extends LinearOpMode {
         if(gamepad2.a) mineralSystem.goToPosition(MineralSystemV4.DEPOSIT_POSITION_NO_POLAR);
 
         if(gamepad2.dpad_right) {
-            targetDeposit = new Location(navigation.getRobotLocation());
             mineralSystem.setDepositTargetPosition();
         }
     }

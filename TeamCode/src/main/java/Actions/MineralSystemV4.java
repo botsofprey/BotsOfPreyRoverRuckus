@@ -37,7 +37,7 @@ public class MineralSystemV4 implements ActionHandler{
                     , 50, 50, 100, hardwareMap);
             liftMotor = new MotorController("lift", "ActionConfig/LiftMotor.json", hardwareMap);
             intake = new MotorController("intake", "ActionConfig/LiftMotor.json", hardwareMap);
-            extensionMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            extensionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             extensionMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             extensionMotor.setExtendPower(1);

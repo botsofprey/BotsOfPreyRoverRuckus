@@ -59,7 +59,7 @@ public class HolonomicDriveSystemTesting {
         robotLocation = startLocation;
     }
 
-    public HolonomicDriveSystemTesting(HardwareMap hw, double robotOrientationOffset, Location startLocation, String configFile){
+    public HolonomicDriveSystemTesting(HardwareMap hw, Location startLocation, double robotOrientationOffset, String configFile){
         this(hw, configFile);
         orientation.setOrientationOffset(robotOrientationOffset);
         robotLocation = startLocation;

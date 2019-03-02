@@ -96,35 +96,39 @@ public class RosannaV3 extends LinearOpMode {
     }
 
     private void handleMineralSystem() {
-        if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(-gamepad1.left_trigger);
-        else if(gamepad2.left_trigger > 0.1) mineralSystem.liftOrLower(-gamepad2.left_trigger);
-        else if(gamepad1.left_bumper || gamepad2.left_bumper) mineralSystem.lift();
+        if(gamepad1.left_trigger > 0.1) mineralSystem.liftOrLower(-gamepad1.left_trigger * 0.5);
+        else if(gamepad2.left_trigger > 0.1) mineralSystem.liftOrLower(gamepad2.left_trigger);
+        else if(gamepad1.left_bumper) mineralSystem.lift();
+        else if(gamepad2.left_bumper) mineralSystem.liftOrLower(-0.75);
         else mineralSystem.pauseLift();
 
-        if(aReleased && (gamepad1.a || gamepad2.a)) {
+        if(aReleased && (gamepad1.a)) {
             aReleased = false;
             intaking = !intaking;
-        } else if(!aReleased && !gamepad1.a && !gamepad2.a) {
+        } else if(!aReleased && !gamepad1.a) {
             aReleased = true;
         }
 
 
-        if(intaking && !gamepad1.b && !gamepad2.b) mineralSystem.intake();
-        else if(gamepad1.b || gamepad2.b) {
+        if(intaking && !gamepad1.b) mineralSystem.intake();
+        else if(gamepad1.b) {
             mineralSystem.expel();
          } else mineralSystem.pauseCollection();
 
 
-        if(gamepad1.dpad_down) mineralSystem.openDoor();
+        if(gamepad1.dpad_down) {
+            mineralSystem.openDoor();
+            intaking = true;
+        }
         else mineralSystem.closeDoor();
 
         if(gamepad1.right_trigger > 0.1 || gamepad2.right_trigger > 0.1) mineralSystem.extendIntake();
         else if(gamepad1.right_bumper || gamepad2.right_bumper) mineralSystem.retractIntake();
         else mineralSystem.pauseExtension();
 
-        if(gamepad1.x || gamepad2.b) mineralSystem.goToPosition(MineralSystemV3.DEPOSIT_POSITION_NO_POLAR);
+        if(gamepad2.a) mineralSystem.goToPosition(MineralSystemV3.DEPOSIT_POSITION_NO_POLAR);
 
-        if(gamepad2.dpad_right || gamepad1.y) mineralSystem.setDepositTargetPosition();
+        if(gamepad2.dpad_right) mineralSystem.setDepositTargetPosition();
     }
 
     private void handleLatchSystem(){

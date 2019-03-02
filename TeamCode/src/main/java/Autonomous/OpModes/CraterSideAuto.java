@@ -88,9 +88,9 @@ public class CraterSideAuto extends LinearOpMode {
         telemetry.update();
         // START AUTONOMOUS
         sleep(50);
-//        mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        mineralSystem.liftMotor.setPositionTicks(-1100);
-//        mineralSystem.liftMotor.setMotorPower(1);
+        mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        mineralSystem.liftMotor.setPositionTicks(-1100);
+        mineralSystem.liftMotor.setMotorPower(1);
         navigation.driveOnHeading(90, 1);
         long startTime = System.currentTimeMillis();
         while(opModeIsActive() && latchSystem.winchMotor.getCurrentTick() < LatchSystemV4.UNHOOK_POSITION && System.currentTimeMillis() - startTime < 2000) latchSystem.extend();
@@ -118,47 +118,42 @@ public class CraterSideAuto extends LinearOpMode {
 
         // drive to image
         if(goldPosition == CENTER) {
-            navigation.driveDistance(32, 85, 30, this);
+            navigation.driveDistance(32, 82, 30, this);
         } else if(goldPosition == RIGHT){
             navigation.driveDistance(34, 82, 30, this);
-//            navigation.turnToHeading(10, 5, this);
         } else {
             navigation.driveDistance(16, 45, 30, this);
-//            navigation.turnToHeading(10, 5, this);
-//            navigation.driveDistance(4, 0, 15, this);
         }
 
-        // determine path to depot
-        Location[] path = new Location[2];
-        Location robotLoc = webcam.getRobotLocation();
-        while (opModeIsActive() && robotLoc == null) robotLoc = webcam.getRobotLocation();
-        navigation.setLocation(robotLoc);
-        telemetry.addData("Location", robotLoc.toString());
-        telemetry.update();
+
         navigation.turnToHeading(180, 10, this);
         idle();
 
-        //TODO: use drive distance only
-        path[0] = new Location(137, navigation.getRobotLocation().getY(), 180);
-        path[1] = new Location(137, 116, 180);
-
-        navigation.driveDistance(10, 270, 20, this);
-        navigation.driveDistance(26, 180, 40, this);
-        navigation.driveToLocation(path[1], 15, 3,this);
+        navigation.driveDistance(13, 270, 20, this);
+        if(goldPosition == LEFT) {
+            navigation.driveDistance(26, 180, 40, this);
+            navigation.driveDistance(13, 180, 15, this);
+        } else if(goldPosition == CENTER) {
+            navigation.driveDistance(24, 180, 40, this);
+            navigation.driveDistance(13, 180, 15, this);
+        } else {
+            navigation.driveDistance(20, 180, 40, this);
+            navigation.driveDistance(13, 180, 15, this);
+        }
 
         // MARKER
         markerDeployer.setDegree(150.0);
         navigation.driveDistance(3, 270, 20, this);
         mineralSystem.liftMotor.brake();
         mineralSystem.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        mineralSystem.liftMotor.setPositionTicks(-1540); // -2700
+        mineralSystem.liftMotor.setPositionTicks(-2700); // -2700
         mineralSystem.liftMotor.setMotorPower(1);
         if(goldPosition == LEFT) {
-            navigation.driveDistance(54, 0, 35, this);
+            navigation.driveDistance(45, 0, 35, this);
         } else if(goldPosition == RIGHT) {
-            navigation.driveDistance(40, 0, 35, this);
+            navigation.driveDistance(45, 0, 35, this);
         } else {
-            navigation.driveDistance(40, 0, 35, this);
+            navigation.driveDistance(45, 0, 35, this);
         }
 
         // park
@@ -216,30 +211,30 @@ public class CraterSideAuto extends LinearOpMode {
     }
 
     private void knockGold(int goldPosition) {
-        navigation.driveDistance(2, 90, 25, this);
+        navigation.driveDistance(2.25, 90, 25, this);
         sleep(10);
         if (goldPosition == CENTER) { // TODO: CENTER CENTER CENTER CENTER CENTER
             Log.d("Mineral", "CENTER");
             telemetry.addData("driving...", "forward");
             telemetry.update();
-            navigation.driveDistance(23, 90, 20, this);
+            navigation.driveDistance(24, 80, 20, this);
             sleep(10);
-            navigation.driveDistance(21, 270, 15, this);
+            navigation.driveDistance(23, 270, 15, this);
         } else if (goldPosition == RIGHT) { // TODO: RIGHT RIGHT RIGHT RIGHT RIGHT
             Log.d("Mineral", "RIGHT");
             telemetry.addData("driving...", "right");
             telemetry.update();
             navigation.driveDistance(26, 135, 25, this);
             sleep(10);
-            navigation.driveDistance(24, 315, 15, this);
+            navigation.driveDistance(28, 315, 15, this);
         } else { // TODO: LEFT LEFT LEFT LEFT LEFT
             Log.d("Mineral", "LEFT");
             telemetry.addData("driving...", "left");
             telemetry.update();
 //            navigation.driveDistance(20, 45, 25, this);
-            navigation.driveDistance(14, 5, 20, this);
-            navigation.driveDistance(15, 90, 20, this);
-            navigation.driveDistance(2, 270, 15, this);
+            navigation.driveDistance(18, 10, 20, this);
+            navigation.driveDistance(14, 90, 20, this);
+            navigation.driveDistance(4, 270, 15, this);
         }
         idle();
     }
