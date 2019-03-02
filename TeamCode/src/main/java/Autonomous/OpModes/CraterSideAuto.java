@@ -120,7 +120,7 @@ public class CraterSideAuto extends LinearOpMode {
         if(goldPosition == CENTER) {
             navigation.driveDistance(32, 82, 30, this);
         } else if(goldPosition == RIGHT){
-            navigation.driveDistance(34, 82, 30, this);
+            navigation.driveDistance(34, 80, 30, this);
         } else {
             navigation.driveDistance(16, 45, 30, this);
         }
@@ -137,7 +137,7 @@ public class CraterSideAuto extends LinearOpMode {
             navigation.driveDistance(24, 180, 40, this);
             navigation.driveDistance(13, 180, 15, this);
         } else {
-            navigation.driveDistance(20, 180, 40, this);
+            navigation.driveDistance(28, 180, 40, this);
             navigation.driveDistance(13, 180, 15, this);
         }
 
@@ -226,7 +226,7 @@ public class CraterSideAuto extends LinearOpMode {
             telemetry.update();
             navigation.driveDistance(26, 135, 25, this);
             sleep(10);
-            navigation.driveDistance(28, 315, 15, this);
+            navigation.driveDistance(29, 315, 15, this);
         } else { // TODO: LEFT LEFT LEFT LEFT LEFT
             Log.d("Mineral", "LEFT");
             telemetry.addData("driving...", "left");
