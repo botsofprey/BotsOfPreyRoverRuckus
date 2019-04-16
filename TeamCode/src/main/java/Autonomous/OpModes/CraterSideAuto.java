@@ -131,7 +131,7 @@ public class CraterSideAuto extends LinearOpMode {
 
         navigation.driveDistance(13, 270, 20, this);
         if(goldPosition == LEFT) {
-            navigation.driveDistance(26, 180, 40, this);
+            navigation.driveDistance(30, 180, 40, this);
             navigation.driveDistance(13, 180, 15, this);
         } else if(goldPosition == CENTER) {
             navigation.driveDistance(24, 180, 40, this);
