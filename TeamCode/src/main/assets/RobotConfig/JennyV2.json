@@ -16,7 +16,7 @@
   "TURN_Ki":"0.00",
   "TURN_Ki_MAX":".05",
   "TURN_Kd":"0.0",
-  "HEADING_Kp":".2", // .2
+  "HEADING_Kp":".2",
   "HEADING_Ki":"0",
   "HEADING_Ki_MAX":"0",
   "HEADING_Kd":"0",
@@ -24,6 +24,6 @@
   "CAMERA_Ki":"0",
   "CAMERA_Ki_MAX":"0",
   "CAMERA_Kd":"0",
-  "ACCELERATION":"0"
-
+  "ACCELERATION":"0",
+  "IMU_NAME":"imu"
 }
