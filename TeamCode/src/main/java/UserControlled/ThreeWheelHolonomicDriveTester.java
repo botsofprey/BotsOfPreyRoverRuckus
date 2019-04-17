@@ -31,6 +31,7 @@ public class ThreeWheelHolonomicDriveTester extends LinearOpMode {
             driveSystem.cartesianDriveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
             telemetry.addData("Gamepad1 left Joystick",leftStick.toString());
             telemetry.addData("Gamepad1 right Joystick", rightStick.toString());
+            telemetry.addData("Orientation", driveSystem.orientation.getOrientation());
             telemetry.update();
         }
     }
