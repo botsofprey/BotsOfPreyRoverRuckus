@@ -216,6 +216,7 @@ public class ThreeWheelHolonomicDriveSystem {
      */
     public double calculateDistanceFromHeading(double curAngle, double targetAngle){
         double distanceFromHeading = targetAngle - curAngle;
+        Log.d("RawDist To Heading", "" + distanceFromHeading);
         return normalizeAngle(distanceFromHeading);
     }
 
@@ -227,7 +228,7 @@ public class ThreeWheelHolonomicDriveSystem {
      */
     private double normalizeAngle(double angle){
         angle %= 360;
-        if(angle > 180) angle = 360 - angle;
+        if(angle > 180) angle -= 360;
         else if(angle < -180) angle += 360;
         return angle;
     }
