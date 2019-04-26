@@ -20,8 +20,8 @@ import MotorControllers.MotorController;
 //@Disabled
 public class ThreeWheelHolonomicDriveTester extends LinearOpMode {
 
-    final double movementScale = 0.75;
-    final double turningScale = 0.6;
+    final double movementScale = 1;
+    final double turningScale = 0.8;
     MotorController kicker;
     ServoHandler leftIntake, rightIntake;
 
