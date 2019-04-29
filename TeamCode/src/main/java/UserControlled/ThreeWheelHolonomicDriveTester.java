@@ -24,6 +24,9 @@ public class ThreeWheelHolonomicDriveTester extends LinearOpMode {
     final double turningScale = 0.8;
     MotorController kicker;
     ServoHandler leftIntake, rightIntake;
+    boolean slowMode = false, xReleased = true;
+    boolean turning = false;
+    double initialOrientation = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -47,9 +50,17 @@ public class ThreeWheelHolonomicDriveTester extends LinearOpMode {
         double turningPower = 0;
 
         while(opModeIsActive()){
-            movementPower = movementScale * Math.abs(leftStick.magnitude());
-            turningPower = turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x());
-            driveSystem.cartesianDriveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
+            movementPower = (slowMode)? (0.5 * movementScale * Math.abs(leftStick.magnitude())):(movementScale * Math.abs(leftStick.magnitude()));
+            turningPower = (slowMode)? (0.5 * turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x())):(turningScale * Math.abs(rightStick.magnitude()) * Math.signum(rightStick.x()));
+
+            if(Math.abs(rightStick.x()) > 0.1 && !turning) {
+                turning = true;
+            } else if(!turning && Math.abs(rightStick.x()) < 0.1) {
+                initialOrientation = driveSystem.orientation.getOrientation();
+                turning = false;
+            }
+
+            driveSystem.cartesianDriveOnHeadingWithTurningPID(leftStick.angle(), movementPower, turningPower, initialOrientation);
 
             // NOTE: winch servo is, as it says, a winch... it is programmed like a CR servo but goes until it reaches a certain amount of rotations, then it can go back
             if(gamepad1.right_trigger > 0.1) kicker.setMotorPower(1);
@@ -65,6 +76,13 @@ public class ThreeWheelHolonomicDriveTester extends LinearOpMode {
             } else {
                 leftIntake.setPosition(0.5);
                 rightIntake.setPosition(0.5);
+            }
+
+            if(xReleased && gamepad1.x) {
+                xReleased = false;
+                slowMode = !slowMode;
+            } else if(!xReleased && !gamepad1.x) {
+                xReleased = true;
             }
 
             telemetry.addData("Gamepad1 left Joystick",leftStick.toString());

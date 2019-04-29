@@ -24,6 +24,7 @@ public class ThreeWheelHolonomicDriveSystem {
     public static final int TOP_MOTOR = 0;
     public static final int LEFT_MOTOR = 1;
     public static final int RIGHT_MOTOR = 2;
+    PIDController headingController;
     public ImuHandler orientation;
     private HardwareMap hardwareMap;
     private Location robotLocation = new Location(0,0);
@@ -82,6 +83,19 @@ public class ThreeWheelHolonomicDriveSystem {
     }
 
     /**
+     * way to drive the robot using cartesian driving while reducing angular drift
+     * @param heading the desired heading of the robot with 0 being north
+     * @param movementPower power from 0 to 1 representing desired movement power
+     * @param turnPower power from -1 to 1 representing desired turning power
+     * @param initialOrientation heading of the robot when it has stopped turning
+     */
+    public void cartesianDriveOnHeadingWithTurningPID(double heading, double movementPower, double turnPower, double initialOrientation) {
+        double distanceToHeading = calculateDistanceFromHeading(orientation.getOrientation(), heading);
+        Log.d("Dist to Head", "" + distanceToHeading);
+        driveOnHeadingWithTurningPID(heading, movementPower, turnPower, initialOrientation);
+    }
+
+    /**
      * way to drive the robot and turn at same time. This is not a heading corrected drive
      * @param heading heading relative to the front of the robot
      * @param movementPower power from 0 to 1 representing the movement speed
@@ -89,6 +103,24 @@ public class ThreeWheelHolonomicDriveSystem {
      */
     public void driveOnHeadingWithTurning(double heading, double movementPower, double turnPower){
         double [] movementPowers = calculatePowersToDriveOnHeading(heading, movementPower);
+        double [] turningPowers = calculatePowersToTurn(turnPower);
+        double [] total = new double[3];
+        for(int i = 0; i < movementPowers.length; i ++){
+            total[i] = movementPowers[i] + turningPowers[i];
+        }
+        normalizePowers(total);
+        applyMotorPowers(total);
+    }
+
+    /**
+     * way to drive the robot and turn at the same time while reducing angular drift
+     * @param heading heading relative to the front of the roboto
+     * @param movementPower power from 0 to 1 representing the movement speed
+     * @param turnPower power from -1 to 1 representing the turning speed
+     * @param initialOrientation heading of the robot when it has stopped turning
+     */
+    public void driveOnHeadingWithTurningPID(double heading, double movementPower, double turnPower, double initialOrientation){
+        double [] movementPowers = calculatePowersToDriveOnHeadingPID(heading, movementPower, initialOrientation);
         double [] turningPowers = calculatePowersToTurn(turnPower);
         double [] total = new double[3];
         for(int i = 0; i < movementPowers.length; i ++){
@@ -158,6 +190,34 @@ public class ThreeWheelHolonomicDriveSystem {
         Log.d("TopPow", "" + powers[TOP_MOTOR]);
         Log.d("LeftPow", "" + powers[LEFT_MOTOR]);
         Log.d("RightPow", "" + powers[RIGHT_MOTOR]);
+        return powers;
+    }
+
+    /**
+     * calculates the powers required to make the robot move on a heading
+     * @param heading from 0 to 360, represents the desired heading of the robot relative to the front of the robot
+     * @param desiredPower from 0 to 1 that represents the desired proportion of max velocity for the robot to move at
+     * @return a double array with the calculated motor powers for each wheel
+     */
+    private double [] calculatePowersToDriveOnHeadingPID(double heading, double desiredPower, double initialOrientation){
+        double[] powers = calculatePowersToDriveOnHeading(heading, desiredPower);
+        double distanceToInitialOrientation = orientation.getOrientation() - initialOrientation;
+        double[] deltaPowers = new double[3];
+        if(headingController.getSp() != 0) headingController.setSp(0);
+        double powerToAdd = headingController.calculatePID(distanceToInitialOrientation);
+        if(distanceToInitialOrientation > 0) {
+            deltaPowers[TOP_MOTOR] = powerToAdd;
+            deltaPowers[LEFT_MOTOR] = powerToAdd;
+            deltaPowers[RIGHT_MOTOR] = powerToAdd;
+        } else {
+            deltaPowers[TOP_MOTOR] = -powerToAdd;
+            deltaPowers[LEFT_MOTOR] = -powerToAdd;
+            deltaPowers[RIGHT_MOTOR] = -powerToAdd;
+        }
+        for(int i = 0; i < powers.length; i++) {
+            powers[i] += deltaPowers[i];
+        }
+        normalizePowers(powers);
         return powers;
     }
 
@@ -294,6 +354,8 @@ public class ThreeWheelHolonomicDriveSystem {
                 driveMotors[RIGHT_MOTOR].setDirection(DcMotorSimple.Direction.FORWARD);
             }
             orientation = new ImuHandler(reader.getString("IMU_NAME"), reader.getDouble("ORIENTATION_OFFSET"), hardwareMap);
+            headingController = new PIDController(reader.getDouble("HEADING_KP"), reader.getDouble("HEADING_KI"), reader.getDouble("HEADING_KD"));
+            headingController.setIMax(reader.getDouble("HEADING_I_MAX"));
         } catch(Exception e){
             Log.e(" Drive Engine Error", "Config File Read Fail: " + e.toString());
             throw new RuntimeException("Drive Engine Config Read Failed!:" + e.toString());
