@@ -24,7 +24,7 @@ public class ThreeWheelHolonomicDriveSystem {
     public static final int TOP_MOTOR = 0;
     public static final int LEFT_MOTOR = 1;
     public static final int RIGHT_MOTOR = 2;
-    PIDController headingController;
+    public PIDController headingController;
     public ImuHandler orientation;
     private HardwareMap hardwareMap;
     private Location robotLocation = new Location(0,0);
@@ -92,7 +92,7 @@ public class ThreeWheelHolonomicDriveSystem {
     public void cartesianDriveOnHeadingWithTurningPID(double heading, double movementPower, double turnPower, double initialOrientation) {
         double distanceToHeading = calculateDistanceFromHeading(orientation.getOrientation(), heading);
         Log.d("Dist to Head", "" + distanceToHeading);
-        driveOnHeadingWithTurningPID(heading, movementPower, turnPower, initialOrientation);
+        driveOnHeadingWithTurningPID(distanceToHeading, movementPower, turnPower, initialOrientation);
     }
 
     /**
@@ -201,19 +201,22 @@ public class ThreeWheelHolonomicDriveSystem {
      */
     private double [] calculatePowersToDriveOnHeadingPID(double heading, double desiredPower, double initialOrientation){
         double[] powers = calculatePowersToDriveOnHeading(heading, desiredPower);
-        double distanceToInitialOrientation = orientation.getOrientation() - initialOrientation;
+        Log.d("GetOrientation", "" + orientation.getOrientation());
+        Log.d("InitOrientation", "" + initialOrientation);
+        double distanceToInitialOrientation = calculateDistanceFromHeading(orientation.getOrientation(), initialOrientation);
+        Log.d("DisttoInitOrientation", "" + distanceToInitialOrientation);
         double[] deltaPowers = new double[3];
-        if(headingController.getSp() != 0) headingController.setSp(0);
-        double powerToAdd = headingController.calculatePID(distanceToInitialOrientation);
-        if(distanceToInitialOrientation > 0) {
+        if(headingController.getSp() != normalizeAngle(initialOrientation)) headingController.setSp(normalizeAngle(initialOrientation));
+        double powerToAdd = headingController.calculatePID(normalizeAngle(orientation.getOrientation()));
+//        if(distanceToInitialOrientation > 0) {
             deltaPowers[TOP_MOTOR] = powerToAdd;
             deltaPowers[LEFT_MOTOR] = powerToAdd;
             deltaPowers[RIGHT_MOTOR] = powerToAdd;
-        } else {
-            deltaPowers[TOP_MOTOR] = -powerToAdd;
-            deltaPowers[LEFT_MOTOR] = -powerToAdd;
-            deltaPowers[RIGHT_MOTOR] = -powerToAdd;
-        }
+//        } else {
+//            deltaPowers[TOP_MOTOR] = -powerToAdd;
+//            deltaPowers[LEFT_MOTOR] = -powerToAdd;
+//            deltaPowers[RIGHT_MOTOR] = -powerToAdd;
+//        }
         for(int i = 0; i < powers.length; i++) {
             powers[i] += deltaPowers[i];
         }
@@ -354,8 +357,8 @@ public class ThreeWheelHolonomicDriveSystem {
                 driveMotors[RIGHT_MOTOR].setDirection(DcMotorSimple.Direction.FORWARD);
             }
             orientation = new ImuHandler(reader.getString("IMU_NAME"), reader.getDouble("ORIENTATION_OFFSET"), hardwareMap);
-            headingController = new PIDController(reader.getDouble("HEADING_KP"), reader.getDouble("HEADING_KI"), reader.getDouble("HEADING_KD"));
-            headingController.setIMax(reader.getDouble("HEADING_I_MAX"));
+            headingController = new PIDController(reader.getDouble("HEADING_Kp"), reader.getDouble("HEADING_Ki"), reader.getDouble("HEADING_Kd"));
+            headingController.setIMax(reader.getDouble("HEADING_Ki_MAX"));
         } catch(Exception e){
             Log.e(" Drive Engine Error", "Config File Read Fail: " + e.toString());
             throw new RuntimeException("Drive Engine Config Read Failed!:" + e.toString());

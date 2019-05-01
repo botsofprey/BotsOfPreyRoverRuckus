@@ -31,6 +31,7 @@ public class ThreeWheelHolonomicDriveTester extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         ThreeWheelHolonomicDriveSystem driveSystem = new ThreeWheelHolonomicDriveSystem(hardwareMap,"RobotConfig/ThreeWheelHolonomicDriveConfig.json");
+        initialOrientation = driveSystem.orientation.getOrientation();
         try {
             kicker = new MotorController("kicker", "MotorConfig/NeverRest40.json", hardwareMap);
             kicker.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -55,12 +56,14 @@ public class ThreeWheelHolonomicDriveTester extends LinearOpMode {
 
             if(Math.abs(rightStick.x()) > 0.1 && !turning) {
                 turning = true;
-            } else if(!turning && Math.abs(rightStick.x()) < 0.1) {
+            } else if(turning && Math.abs(rightStick.x()) < 0.1) {
                 initialOrientation = driveSystem.orientation.getOrientation();
+                driveSystem.headingController.reset();
                 turning = false;
             }
 
-            driveSystem.cartesianDriveOnHeadingWithTurningPID(leftStick.angle(), movementPower, turningPower, initialOrientation);
+            if(!turning) driveSystem.cartesianDriveOnHeadingWithTurningPID(leftStick.angle(), movementPower, turningPower, initialOrientation);
+            else driveSystem.cartesianDriveOnHeadingWithTurning(leftStick.angle(), movementPower, turningPower);
 
             // NOTE: winch servo is, as it says, a winch... it is programmed like a CR servo but goes until it reaches a certain amount of rotations, then it can go back
             if(gamepad1.right_trigger > 0.1) kicker.setMotorPower(1);
@@ -88,6 +91,7 @@ public class ThreeWheelHolonomicDriveTester extends LinearOpMode {
             telemetry.addData("Gamepad1 left Joystick",leftStick.toString());
             telemetry.addData("Gamepad1 right Joystick", rightStick.toString());
             telemetry.addData("Orientation", driveSystem.orientation.getOrientation());
+            telemetry.addData("Initial Orientation", initialOrientation);
             telemetry.update();
         }
         driveSystem.kill();
